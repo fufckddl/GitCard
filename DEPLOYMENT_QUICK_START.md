@@ -65,8 +65,8 @@ cd /var/www
 
 # 프로젝트 클론
 sudo git clone https://github.com/your-username/gitcard.git
-sudo chown -R $USER:$USER /var/www/gitcard
-cd gitcard
+sudo chown -R $USER:$USER /var/www/GitCard
+cd GitCard
 
 # Python 가상환경 생성
 python3 -m venv venv

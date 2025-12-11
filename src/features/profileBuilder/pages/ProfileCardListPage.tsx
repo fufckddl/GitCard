@@ -2,10 +2,21 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchProfileCards, ProfileCard, deleteProfileCard } from '../api/profileCardApi';
 import { PreviewLayout } from '../components/PreviewLayout';
-import { ProfileConfig } from '../types/profileConfig';
+import { ProfileConfig, StackBadge } from '../types/profileConfig';
 import { Button } from '../../../shared/components/Button';
 import { useAuth } from '../../auth/hooks/useAuth';
 import styles from './ProfileCardListPage.module.css';
+
+// API에서 받은 stacks를 StackBadge[]로 변환
+const convertStacks = (stacks: ProfileCard['stacks']): StackBadge[] => {
+  return stacks.map(stack => ({
+    id: stack.id,
+    key: stack.key || stack.id, // key가 없으면 id 사용
+    label: stack.label,
+    category: stack.category,
+    color: stack.color,
+  }));
+};
 
 export const ProfileCardListPage: React.FC = () => {
   const navigate = useNavigate();
@@ -43,7 +54,7 @@ export const ProfileCardListPage: React.FC = () => {
       showStacks: card.show_stacks,
       showContact: card.show_contact,
       showGithubStats: card.show_github_stats,
-      stacks: card.stacks,
+      stacks: convertStacks(card.stacks),
       contacts: card.contacts,
     };
   };

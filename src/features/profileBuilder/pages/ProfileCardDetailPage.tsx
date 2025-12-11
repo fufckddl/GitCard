@@ -4,8 +4,20 @@ import { fetchProfileCards, ProfileCard, updateProfileCard, deleteProfileCard } 
 import { PreviewLayout } from '../components/PreviewLayout';
 import { BuilderSidebar } from '../components/BuilderSidebar';
 import { useProfileConfig } from '../hooks/useProfileConfig';
+import { StackBadge } from '../types/profileConfig';
 import { Button } from '../../../shared/components/Button';
 import styles from './ProfileCardDetailPage.module.css';
+
+// API에서 받은 stacks를 StackBadge[]로 변환
+const convertStacks = (stacks: ProfileCard['stacks']): StackBadge[] => {
+  return stacks.map(stack => ({
+    id: stack.id,
+    key: stack.key || stack.id, // key가 없으면 id 사용
+    label: stack.label,
+    category: stack.category,
+    color: stack.color,
+  }));
+};
 
 export const ProfileCardDetailPage: React.FC = () => {
   const { cardId } = useParams<{ cardId: string }>();
@@ -35,7 +47,7 @@ export const ProfileCardDetailPage: React.FC = () => {
         showStacks: card.show_stacks,
         showContact: card.show_contact,
         showGithubStats: card.show_github_stats,
-        stacks: card.stacks,
+        stacks: convertStacks(card.stacks),
         contacts: card.contacts,
       });
     }
@@ -103,7 +115,7 @@ export const ProfileCardDetailPage: React.FC = () => {
         showStacks: card.show_stacks,
         showContact: card.show_contact,
         showGithubStats: card.show_github_stats,
-        stacks: card.stacks,
+        stacks: convertStacks(card.stacks),
         contacts: card.contacts,
       });
     }
@@ -218,7 +230,7 @@ export const ProfileCardDetailPage: React.FC = () => {
                   showStacks: card.show_stacks,
                   showContact: card.show_contact,
                   showGithubStats: card.show_github_stats,
-                  stacks: card.stacks,
+                  stacks: convertStacks(card.stacks),
                   contacts: card.contacts,
                 }}
               />
