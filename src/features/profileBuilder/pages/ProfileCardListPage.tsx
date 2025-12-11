@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { fetchProfileCards, ProfileCard, deleteProfileCard } from '../api/profileCardApi';
 import { PreviewLayout } from '../components/PreviewLayout';
+import { MarkdownBadgeSection } from '../components/MarkdownBadgeSection';
 import { ProfileConfig, StackBadge } from '../types/profileConfig';
 import { Button } from '../../../shared/components/Button';
 import { useAuth } from '../../auth/hooks/useAuth';
@@ -201,6 +202,12 @@ export const ProfileCardListPage: React.FC = () => {
               <div className={styles.previewWrapper}>
                 <PreviewLayout config={convertToProfileConfig(selectedCard)} />
               </div>
+              {user?.github_login && (
+                <MarkdownBadgeSection
+                  githubLogin={user.github_login}
+                  cardId={selectedCard.id}
+                />
+              )}
             </div>
           )}
         </div>
