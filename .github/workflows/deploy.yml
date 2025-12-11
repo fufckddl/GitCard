@@ -24,7 +24,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'ENDSSH'
             set -e  # 에러 발생 시 중단
             
-            cd /var/www/gitcard
+            cd /var/www/GitCard
             
             echo "🚀 Starting deployment..."
             echo "📥 Pulling latest code..."
@@ -37,22 +37,22 @@ jobs:
             
             echo "📦 Building frontend..."
             npm ci  # package-lock.json 기반 설치 (더 빠르고 안정적)
-            npm run build
+            VITE_API_BASE_URL=http://3.37.130.140/api npm run build
             
             echo "🗄️ Running database migrations..."
             python init_db.py
             
             echo "🔄 Restarting services..."
-            sudo systemctl restart gitcard-api
+            sudo systemctl restart gitcard-api || echo "Service not found, skipping restart"
             sudo systemctl reload nginx
             
             echo "✅ Deployment completed successfully!"
-            echo "🌐 API: https://api.yourdomain.com/health"
-            echo "🌐 Frontend: https://yourdomain.com"
+            echo "🌐 API: http://3.37.130.140/api/health"
+            echo "🌐 Frontend: http://3.37.130.140"
           ENDSSH
 
       - name: Health check
         run: |
           sleep 5  # 서비스 재시작 대기
-          curl -f https://api.yourdomain.com/health || exit 1
+          curl -f http://${{secrets.SSH_HOST}}/api/health || exit 1
 
