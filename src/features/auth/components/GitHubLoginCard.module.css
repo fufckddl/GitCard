@@ -1,0 +1,63 @@
+.card {
+  max-width: 420px;
+  width: 100%;
+  padding: 32px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  color: white;
+  text-align: center;
+}
+
+.header {
+  margin-bottom: 24px;
+}
+
+.name {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: white;
+}
+
+.subtitle {
+  font-size: 18px;
+  opacity: 0.95;
+  font-weight: 400;
+}
+
+.badges {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.buttonContainer {
+  margin-bottom: 24px;
+}
+
+.buttonContainer button {
+  width: 100%;
+  padding: 14px 24px;
+  font-size: 16px;
+}
+
+.caption {
+  font-size: 12px;
+  opacity: 0.8;
+  line-height: 1.5;
+  margin-top: 16px;
+}
+

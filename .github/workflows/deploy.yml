@@ -1,0 +1,58 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches:
+      - main  # main 브랜치에 푸시할 때 자동 배포
+  workflow_dispatch:  # 수동 실행도 가능
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy to server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'ENDSSH'
+            set -e  # 에러 발생 시 중단
+            
+            cd /var/www/gitcard
+            
+            echo "🚀 Starting deployment..."
+            echo "📥 Pulling latest code..."
+            git pull origin main
+            
+            echo "🔧 Updating backend dependencies..."
+            source venv/bin/activate
+            pip install --upgrade pip
+            pip install -r requirements.txt
+            
+            echo "📦 Building frontend..."
+            npm ci  # package-lock.json 기반 설치 (더 빠르고 안정적)
+            npm run build
+            
+            echo "🗄️ Running database migrations..."
+            python init_db.py
+            
+            echo "🔄 Restarting services..."
+            sudo systemctl restart gitcard-api
+            sudo systemctl reload nginx
+            
+            echo "✅ Deployment completed successfully!"
+            echo "🌐 API: https://api.yourdomain.com/health"
+            echo "🌐 Frontend: https://yourdomain.com"
+          ENDSSH
+
+      - name: Health check
+        run: |
+          sleep 5  # 서비스 재시작 대기
+          curl -f https://api.yourdomain.com/health || exit 1
+

@@ -1,0 +1,52 @@
+.banner {
+  /* 기본 배경은 제거하고 인라인 스타일로 덮어씀 */
+  padding: 60px 40px;
+  text-align: center;
+  color: white;
+  border-radius: 12px 12px 0 0;
+}
+
+.content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.greeting {
+  font-size: 42px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  line-height: 1.2;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 500;
+  margin: 0 0 12px 0;
+  opacity: 0.95;
+}
+
+.tagline {
+  font-size: 18px;
+  margin: 0;
+  opacity: 0.85;
+  font-weight: 400;
+}
+
+@media (max-width: 768px) {
+  .banner {
+    padding: 40px 24px;
+  }
+
+  .greeting {
+    font-size: 32px;
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .tagline {
+    font-size: 16px;
+  }
+}
+

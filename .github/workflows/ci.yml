@@ -1,0 +1,135 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: test_password
+          MYSQL_DATABASE: gitcard_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Cache pip packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Run database migrations
+        env:
+          DATABASE_URL: mysql+pymysql://root:test_password@localhost:3306/gitcard_test
+        run: |
+          python init_db.py
+      
+      - name: Run backend tests (if exists)
+        env:
+          DATABASE_URL: mysql+pymysql://root:test_password@localhost:3306/gitcard_test
+        run: |
+          # 테스트 파일이 있다면 실행
+          # pytest tests/ || echo "No tests found"
+          echo "Backend tests would run here"
+
+  test-frontend:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Lint code
+        run: npm run lint
+      
+      - name: Build frontend
+        run: npm run build
+        env:
+          VITE_API_BASE_URL: http://localhost:8000
+
+  deploy:
+    needs: [test-backend, test-frontend]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy to server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'ENDSSH'
+            set -e
+            
+            cd /var/www/gitcard
+            
+            echo "🚀 Starting deployment..."
+            echo "📥 Pulling latest code..."
+            git pull origin main
+            
+            echo "🔧 Updating backend dependencies..."
+            source venv/bin/activate
+            pip install --upgrade pip
+            pip install -r requirements.txt
+            
+            echo "📦 Building frontend..."
+            npm ci
+            npm run build
+            
+            echo "🗄️ Running database migrations..."
+            python init_db.py
+            
+            echo "🔄 Restarting services..."
+            sudo systemctl restart gitcard-api
+            sudo systemctl reload nginx
+            
+            echo "✅ Deployment completed successfully!"
+          ENDSSH
+
+      - name: Health check
+        run: |
+          sleep 5
+          curl -f https://api.yourdomain.com/health || exit 1
+

@@ -1,0 +1,30 @@
+.container {
+  padding: 40px;
+}
+
+.content {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.title {
+  font-size: 48px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 24px;
+}
+
+.message {
+  font-size: 18px;
+  color: #666;
+  margin-bottom: 32px;
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
