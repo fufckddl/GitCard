@@ -16,7 +16,7 @@ export const fetchGitHubStats = async (): Promise<GitHubStats> => {
     throw new Error('인증이 필요합니다.');
   }
 
-  const response = await fetch(`${API_BASE_URL}/api/users/me/github-stats`, {
+  const response = await fetch(`${API_BASE_URL}/users/me/github-stats`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${token}`,
