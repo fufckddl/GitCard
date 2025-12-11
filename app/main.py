@@ -40,10 +40,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers
-app.include_router(auth_router)
-app.include_router(users_router)
-app.include_router(profiles_router)
+# Include routers with /api prefix
+app.include_router(auth_router, prefix="/api")
+app.include_router(users_router, prefix="/api")
+app.include_router(profiles_router, prefix="/api")
 
 
 @app.get("/")
