@@ -12,8 +12,10 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
   cardId,
 }) => {
   const [markdownBadge, setMarkdownBadge] = useState<string>('');
+  const [htmlCode, setHtmlCode] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [htmlCopied, setHtmlCopied] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const FRONTEND_BASE_URL = import.meta.env.VITE_FRONTEND_BASE_URL || 'http://3.37.130.140';
@@ -21,11 +23,11 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
 
   useEffect(() => {
     loadMarkdownBadge();
+    loadHtml();
   }, [githubLogin, cardId]);
 
   const loadMarkdownBadge = async () => {
     try {
-      setIsLoading(true);
       const response = await fetch(
         `${API_BASE_URL}/profiles/public/${githubLogin}/cards/${cardId}/markdown/badge`
       );
@@ -35,6 +37,20 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
       }
     } catch (error) {
       console.error('마크다운 배지 로드 실패:', error);
+    }
+  };
+
+  const loadHtml = async () => {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/profiles/public/${githubLogin}/cards/${cardId}/html`
+      );
+      if (response.ok) {
+        const text = await response.text();
+        setHtmlCode(text.trim());
+      }
+    } catch (error) {
+      console.error('HTML 로드 실패:', error);
     } finally {
       setIsLoading(false);
     }
@@ -94,6 +110,16 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
       setTimeout(() => setLinkCopied(false), 2000);
     } else {
       alert('링크 복사에 실패했습니다. 아래 링크를 수동으로 선택하여 복사해주세요.');
+    }
+  };
+
+  const handleCopyHtml = async () => {
+    const success = await copyToClipboard(htmlCode);
+    if (success) {
+      setHtmlCopied(true);
+      setTimeout(() => setHtmlCopied(false), 2000);
+    } else {
+      alert('HTML 복사에 실패했습니다. 아래 HTML 코드를 수동으로 선택하여 복사해주세요.');
     }
   };
 
@@ -190,6 +216,25 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
         <div className={styles.codeBlock}>
           <code className={styles.code}>{markdownBadge || '로딩 중...'}</code>
         </div>
+      </div>
+
+      <div className={styles.codeSection}>
+        <div className={styles.codeHeader}>
+          <span className={styles.codeLabel}>HTML 코드 (독립 실행 가능):</span>
+          <Button
+            onClick={handleCopyHtml}
+            variant={htmlCopied ? 'primary' : 'secondary'}
+            className={styles.copyButton}
+          >
+            {htmlCopied ? '✓ HTML 복사됨!' : '📋 HTML 복사'}
+          </Button>
+        </div>
+        <div className={styles.codeBlock}>
+          <code className={styles.code}>{htmlCode || '로딩 중...'}</code>
+        </div>
+        <p className={styles.htmlNote}>
+          💡 이 HTML 코드는 GitHub README.md에 직접 삽입하여 사용할 수 있습니다. 인라인 스타일로 작성되어 외부 의존성 없이 작동합니다.
+        </p>
       </div>
 
       <div className={styles.linkSection}>
