@@ -2,8 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchPublicProfileCard, ProfileCard } from '../api/profileCardApi';
 import { PreviewLayout } from '../components/PreviewLayout';
-import { ProfileConfig } from '../types/profileConfig';
+import { ProfileConfig, StackBadge } from '../types/profileConfig';
 import styles from './PublicProfileCardPage.module.css';
+
+// API에서 받은 stacks를 StackBadge[]로 변환
+const convertStacks = (stacks: ProfileCard['stacks']): StackBadge[] => {
+  return stacks.map(stack => ({
+    id: stack.id,
+    key: stack.key || stack.id, // key가 없으면 id 사용
+    label: stack.label,
+    category: stack.category,
+    color: stack.color,
+  }));
+};
 
 export const PublicProfileCardPage: React.FC = () => {
   const { githubLogin, cardId } = useParams<{ githubLogin: string; cardId: string }>();
@@ -48,7 +59,7 @@ export const PublicProfileCardPage: React.FC = () => {
       showStacks: card.show_stacks,
       showContact: card.show_contact,
       showGithubStats: card.show_github_stats,
-      stacks: card.stacks,
+      stacks: convertStacks(card.stacks),
       contacts: card.contacts,
     };
   };
