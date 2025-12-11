@@ -28,13 +28,33 @@
   border: 1px solid #dee2e6;
 }
 
+.badgeHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
 .badgeLabel {
   font-size: 12px;
   font-weight: 600;
   color: #6c757d;
-  margin-bottom: 12px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.badgeActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.previewButton {
+  padding: 6px 12px;
+  font-size: 12px;
+  min-width: auto;
 }
 
 .badgeContent {
@@ -103,6 +123,63 @@
   font-size: 13px;
   line-height: 1.6;
   white-space: pre-wrap;
+  word-break: break-all;
+  display: block;
+}
+
+.linkSection {
+  margin-bottom: 20px;
+  padding: 16px;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+}
+
+.linkHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.linkLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: #495057;
+}
+
+.linkActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.copyLinkButton,
+.viewButton {
+  padding: 6px 12px;
+  font-size: 12px;
+  min-width: auto;
+}
+
+.viewLink {
+  text-decoration: none;
+  display: inline-block;
+}
+
+.linkBlock {
+  background: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 12px;
+  overflow-x: auto;
+}
+
+.linkCode {
+  color: #495057;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
   word-break: break-all;
   display: block;
 }
