@@ -3,7 +3,7 @@ import { User } from '../types';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 export const fetchCurrentUser = async (token: string): Promise<User> => {
-  const response = await fetch(`${API_BASE_URL}/api/users/me`, {
+  const response = await fetch(`${API_BASE_URL}/users/me`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${token}`,

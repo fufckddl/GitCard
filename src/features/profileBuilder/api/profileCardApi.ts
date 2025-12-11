@@ -27,7 +27,7 @@ export const saveProfileCard = async (config: ProfileConfig): Promise<ProfileCar
     throw new Error('인증이 필요합니다.');
   }
 
-  const response = await fetch(`${API_BASE_URL}/api/profiles`, {
+  const response = await fetch(`${API_BASE_URL}/profiles`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -65,7 +65,7 @@ export const fetchProfileCards = async (): Promise<ProfileCard[]> => {
     throw new Error('인증이 필요합니다.');
   }
 
-  const response = await fetch(`${API_BASE_URL}/api/profiles`, {
+  const response = await fetch(`${API_BASE_URL}/profiles`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -92,7 +92,7 @@ export const updateProfileCard = async (
     throw new Error('인증이 필요합니다.');
   }
 
-  const response = await fetch(`${API_BASE_URL}/api/profiles/${cardId}`, {
+  const response = await fetch(`${API_BASE_URL}/profiles/${cardId}`, {
     method: 'PUT',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -133,7 +133,7 @@ export const deleteProfileCard = async (cardId: number): Promise<void> => {
     throw new Error('인증이 필요합니다.');
   }
 
-  const response = await fetch(`${API_BASE_URL}/api/profiles/${cardId}`, {
+  const response = await fetch(`${API_BASE_URL}/profiles/${cardId}`, {
     method: 'DELETE',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -162,7 +162,7 @@ export const fetchPublicProfileCard = async (
   cardId: number
 ): Promise<ProfileCard> => {
   const response = await fetch(
-    `${API_BASE_URL}/api/profiles/public/${githubLogin}/cards/${cardId}`,
+    `${API_BASE_URL}/profiles/public/${githubLogin}/cards/${cardId}`,
     {
       method: 'GET',
       headers: {
