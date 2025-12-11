@@ -3,9 +3,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { fetchProfileCards, ProfileCard, updateProfileCard, deleteProfileCard } from '../api/profileCardApi';
 import { PreviewLayout } from '../components/PreviewLayout';
 import { BuilderSidebar } from '../components/BuilderSidebar';
+import { MarkdownBadgeSection } from '../components/MarkdownBadgeSection';
 import { useProfileConfig } from '../hooks/useProfileConfig';
 import { StackBadge } from '../types/profileConfig';
 import { Button } from '../../../shared/components/Button';
+import { useAuth } from '../../auth/hooks/useAuth';
 import styles from './ProfileCardDetailPage.module.css';
 
 // API에서 받은 stacks를 StackBadge[]로 변환
@@ -22,6 +24,7 @@ const convertStacks = (stacks: ProfileCard['stacks']): StackBadge[] => {
 export const ProfileCardDetailPage: React.FC = () => {
   const { cardId } = useParams<{ cardId: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [card, setCard] = useState<ProfileCard | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -217,25 +220,33 @@ export const ProfileCardDetailPage: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className={styles.previewContainer}>
-            <div className={styles.previewWrapper}>
-              <PreviewLayout
-                config={{
-                  cardTitle: card.card_title,
-                  name: card.name,
-                  title: card.title,
-                  tagline: card.tagline,
-                  primaryColor: card.primary_color || '#667eea',
-                  gradient: card.gradient || `linear-gradient(135deg, ${card.primary_color || '#667eea'} 0%, rgb(102, 126, 234) 100%)`,
-                  showStacks: card.show_stacks,
-                  showContact: card.show_contact,
-                  showGithubStats: card.show_github_stats,
-                  stacks: convertStacks(card.stacks),
-                  contacts: card.contacts,
-                }}
-              />
+          <>
+            <div className={styles.previewContainer}>
+              <div className={styles.previewWrapper}>
+                <PreviewLayout
+                  config={{
+                    cardTitle: card.card_title,
+                    name: card.name,
+                    title: card.title,
+                    tagline: card.tagline,
+                    primaryColor: card.primary_color || '#667eea',
+                    gradient: card.gradient || `linear-gradient(135deg, ${card.primary_color || '#667eea'} 0%, rgb(102, 126, 234) 100%)`,
+                    showStacks: card.show_stacks,
+                    showContact: card.show_contact,
+                    showGithubStats: card.show_github_stats,
+                    stacks: convertStacks(card.stacks),
+                    contacts: card.contacts,
+                  }}
+                />
+              </div>
             </div>
-          </div>
+            {user?.github_login && (
+              <MarkdownBadgeSection
+                githubLogin={user.github_login}
+                cardId={card.id}
+              />
+            )}
+          </>
         )}
       </div>
     </div>
