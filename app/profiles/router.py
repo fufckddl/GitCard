@@ -21,7 +21,7 @@ from app.profiles.db_models import ProfileCard
 from app.profiles import exporters
 from app.database import get_db
 
-router = APIRouter(prefix="/api/profiles", tags=["profiles"])
+router = APIRouter(prefix="/profiles", tags=["profiles"])
 
 
 class ProfileCardCreate(BaseModel):
