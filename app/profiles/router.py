@@ -8,14 +8,17 @@ Endpoints:
 - PUT /api/profiles/{card_id}: Update a profile card
 - DELETE /api/profiles/{card_id}: Delete a profile card
 """
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
+from fastapi.responses import PlainTextResponse, StreamingResponse
 from pydantic import BaseModel
 from typing import List, Optional, Dict
+from io import BytesIO
 from sqlalchemy.orm import Session
 from app.auth.dependencies import get_current_user
 from app.auth.db_models import User
 from app.profiles import crud as profile_crud
 from app.profiles.db_models import ProfileCard
+from app.profiles import exporters
 from app.database import get_db
 
 router = APIRouter(prefix="/api/profiles", tags=["profiles"])
@@ -249,4 +252,145 @@ async def get_public_profile_card(
         "created_at": card.created_at.isoformat() if card.created_at else None,
         "updated_at": card.updated_at.isoformat() if card.updated_at else None,
     }
+
+
+# Export endpoints (no authentication required)
+@router.get("/public/{github_login}/cards/{card_id}/markdown")
+async def get_profile_card_markdown(
+    github_login: str,
+    card_id: int,
+    db: Session = Depends(get_db),
+):
+    """
+    Get profile card as markdown format for GitHub README.
+    This endpoint does not require authentication.
+    
+    Example usage:
+    GET /api/profiles/public/fufckddl/cards/1/markdown
+    """
+    card = profile_crud.get_public_profile_card_by_github_login_and_card_id(
+        db, github_login, card_id
+    )
+    
+    if not card:
+        raise HTTPException(status_code=404, detail="Profile card not found")
+    
+    markdown = exporters.generate_markdown(card, github_login)
+    
+    return PlainTextResponse(
+        content=markdown,
+        media_type="text/markdown",
+        headers={
+            "Content-Disposition": f'inline; filename="gitcard-{github_login}-{card_id}.md"'
+        }
+    )
+
+
+@router.get("/public/{github_login}/cards/{card_id}/markdown/badge")
+async def get_profile_card_markdown_badge(
+    github_login: str,
+    card_id: int,
+    db: Session = Depends(get_db),
+):
+    """
+    Get profile card as simple markdown badge for GitHub README.
+    This endpoint does not require authentication.
+    
+    Returns a simple markdown badge that can be directly copied to README.
+    Example: [![GitCard](http://3.37.130.140/dashboard/fufckddl/cards/1)](http://3.37.130.140/dashboard/fufckddl/cards/1)
+    """
+    card = profile_crud.get_public_profile_card_by_github_login_and_card_id(
+        db, github_login, card_id
+    )
+    
+    if not card:
+        raise HTTPException(status_code=404, detail="Profile card not found")
+    
+    markdown = exporters.generate_simple_markdown_badge(card, github_login)
+    
+    return PlainTextResponse(
+        content=markdown,
+        media_type="text/markdown"
+    )
+
+
+@router.get("/public/{github_login}/cards/{card_id}/image-url")
+async def get_profile_card_image_url(
+    github_login: str,
+    card_id: int,
+    db: Session = Depends(get_db),
+):
+    """
+    Get profile card image URL and markdown formats.
+    Returns URLs and markdown that can be used in GitHub README.
+    This endpoint does not require authentication.
+    
+    Returns:
+    - image_url: URL to the profile card page
+    - markdown_badge: Markdown badge code
+    - html_img: HTML img tag
+    """
+    card = profile_crud.get_public_profile_card_by_github_login_and_card_id(
+        db, github_login, card_id
+    )
+    
+    if not card:
+        raise HTTPException(status_code=404, detail="Profile card not found")
+    
+    image_url = await exporters.generate_image_url(card, github_login)
+    
+    return {
+        "image_url": image_url,
+        "markdown_badge": f"[![GitCard]({image_url})]({image_url})",
+        "html_img": f'<img src="{image_url}" alt="GitCard" />',
+        "markdown_link": f"[내 GitCard 보기]({image_url})"
+    }
+
+
+@router.get("/public/{github_login}/cards/{card_id}/image")
+async def get_profile_card_image(
+    github_login: str,
+    card_id: int,
+    width: int = 800,
+    height: int = 600,
+    db: Session = Depends(get_db),
+):
+    """
+    Get profile card as PNG image.
+    Uses Playwright to take a screenshot of the profile card page.
+    This endpoint does not require authentication.
+    
+    Args:
+        github_login: GitHub username
+        card_id: Profile card ID
+        width: Image width in pixels (default: 800)
+        height: Image height in pixels (default: 600)
+        
+    Returns:
+        PNG image
+    """
+    card = profile_crud.get_public_profile_card_by_github_login_and_card_id(
+        db, github_login, card_id
+    )
+    
+    if not card:
+        raise HTTPException(status_code=404, detail="Profile card not found")
+    
+    screenshot = await exporters.generate_image_screenshot(
+        card, github_login, width, height
+    )
+    
+    if screenshot is None:
+        raise HTTPException(
+            status_code=503, 
+            detail="Image generation is not available. Playwright may not be installed."
+        )
+    
+    return StreamingResponse(
+        BytesIO(screenshot),
+        media_type="image/png",
+        headers={
+            "Content-Disposition": f'inline; filename="gitcard-{github_login}-{card_id}.png"'
+        }
+    )
 
