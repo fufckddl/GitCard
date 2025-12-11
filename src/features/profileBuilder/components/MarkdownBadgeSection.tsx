@@ -40,25 +40,60 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
     }
   };
 
-  const handleCopy = async () => {
+  const copyToClipboard = async (text: string): Promise<boolean> => {
+    // 최신 브라우저 API 시도
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch (error) {
+        console.warn('Clipboard API 실패, fallback 사용:', error);
+      }
+    }
+
+    // Fallback: 텍스트 영역 생성하여 복사
     try {
-      await navigator.clipboard.writeText(markdownBadge);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.position = 'fixed';
+      textArea.style.left = '-999999px';
+      textArea.style.top = '-999999px';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      
+      const successful = document.execCommand('copy');
+      document.body.removeChild(textArea);
+      
+      if (successful) {
+        return true;
+      } else {
+        throw new Error('execCommand 실패');
+      }
     } catch (error) {
       console.error('복사 실패:', error);
-      alert('복사에 실패했습니다. 수동으로 복사해주세요.');
+      return false;
+    }
+  };
+
+  const handleCopy = async () => {
+    const success = await copyToClipboard(markdownBadge);
+    if (success) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } else {
+      // 수동 복사를 위한 텍스트 선택
+      alert('자동 복사에 실패했습니다. 아래 코드를 수동으로 선택하여 복사해주세요.');
     }
   };
 
   const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(publicCardUrl);
+    const success = await copyToClipboard(publicCardUrl);
+    if (success) {
       setLinkCopied(true);
       setTimeout(() => setLinkCopied(false), 2000);
-    } catch (error) {
-      console.error('링크 복사 실패:', error);
-      alert('링크 복사에 실패했습니다. 수동으로 복사해주세요.');
+    } else {
+      alert('링크 복사에 실패했습니다. 아래 링크를 수동으로 선택하여 복사해주세요.');
     }
   };
 
