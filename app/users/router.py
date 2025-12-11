@@ -10,7 +10,7 @@ from app.auth.dependencies import get_current_user
 from app.auth.db_models import User
 from app.users import github_stats
 
-router = APIRouter(prefix="/api/users", tags=["users"])
+router = APIRouter(prefix="/users", tags=["users"])
 
 
 @router.get("/me")
