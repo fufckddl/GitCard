@@ -347,6 +347,38 @@ async def get_profile_card_image_url(
     }
 
 
+@router.get("/public/{github_login}/cards/{card_id}/html")
+async def get_profile_card_html(
+    github_login: str,
+    card_id: int,
+    db: Session = Depends(get_db),
+):
+    """
+    Get profile card as standalone HTML.
+    Uses inline styles for GitHub README compatibility.
+    This endpoint does not require authentication.
+    
+    Returns:
+        Complete HTML string with inline styles
+    """
+    card = profile_crud.get_public_profile_card_by_github_login_and_card_id(
+        db, github_login, card_id
+    )
+    
+    if not card:
+        raise HTTPException(status_code=404, detail="Profile card not found")
+    
+    html = exporters.generate_html(card, github_login)
+    
+    return PlainTextResponse(
+        content=html,
+        media_type="text/html",
+        headers={
+            "Content-Disposition": f'inline; filename="gitcard-{github_login}-{card_id}.html"'
+        }
+    )
+
+
 @router.get("/public/{github_login}/cards/{card_id}/image")
 async def get_profile_card_image(
     github_login: str,
