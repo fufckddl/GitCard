@@ -140,16 +140,23 @@ async def generate_image_screenshot(
 def generate_html(card: ProfileCard, github_login: str) -> str:
     """
     Generate standalone HTML representation of a profile card.
-    Uses inline styles for GitHub README compatibility.
+    Uses inline styles matching the actual frontend design.
     
     Args:
         card: ProfileCard instance
         github_login: GitHub username
         
     Returns:
-        Complete HTML string with inline styles
+        Complete HTML string with inline styles matching the design
     """
+    import html as html_escape
     card_url = f"{settings.frontend_base_url}/dashboard/{github_login}/cards/{card.id}"
+    gradient = card.gradient or f"linear-gradient(135deg, {card.primary_color or '#667eea'} 0%, rgb(102, 126, 234) 100%)"
+    
+    # Escape HTML entities
+    name = html_escape.escape(card.name)
+    title = html_escape.escape(card.title)
+    tagline = html_escape.escape(card.tagline) if card.tagline else ""
     
     # Organize stacks by category
     stacks_by_category = {}
@@ -160,17 +167,17 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
                 stacks_by_category[category] = []
             stacks_by_category[category].append(stack)
     
-    # Build HTML
+    # Build HTML with exact styling from CSS
     html = f"""<div style="max-width: 900px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
   <!-- Banner Section -->
-  <div style="background: {card.gradient or 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'}; padding: 60px 40px; text-align: center; color: white; border-radius: 12px 12px 0 0;">
+  <div style="background: {gradient}; padding: 60px 40px; text-align: center; color: white; border-radius: 12px 12px 0 0;">
     <div style="max-width: 800px; margin: 0 auto;">
-      <h1 style="font-size: 42px; font-weight: 700; margin: 0 0 16px 0; line-height: 1.2;">Hello World 👋 I'm {card.name}!</h1>
-      <p style="font-size: 24px; font-weight: 500; margin: 0 0 12px 0; opacity: 0.95;">{card.title}</p>
+      <h1 style="font-size: 42px; font-weight: 700; margin: 0 0 16px 0; line-height: 1.2;">Hello World 👋 I'm {name}!</h1>
+      <p style="font-size: 24px; font-weight: 500; margin: 0 0 12px 0; opacity: 0.95;">{title}</p>
 """
     
     if card.tagline:
-        html += f'      <p style="font-size: 18px; margin: 0; opacity: 0.85; font-weight: 400;">{card.tagline}</p>\n'
+        html += f'      <p style="font-size: 18px; margin: 0; opacity: 0.85; font-weight: 400;">{tagline}</p>\n'
     
     html += """    </div>
   </div>
@@ -184,12 +191,13 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
     <div style="display: flex; flex-direction: column; gap: 24px;">
 """
         for category, stacks in stacks_by_category.items():
+            category_escaped = html_escape.escape(category)
             html += f"""      <div style="display: flex; flex-direction: column; gap: 12px;">
-        <h3 style="font-size: 18px; font-weight: 600; margin: 0; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">{category}</h3>
+        <h3 style="font-size: 18px; font-weight: 600; margin: 0; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">{category_escaped}</h3>
         <div style="display: flex; flex-wrap: wrap; gap: 12px;">
 """
             for stack in stacks:
-                stack_label = stack.get('label', stack.get('key', ''))
+                stack_label = html_escape.escape(stack.get('label', stack.get('key', '')))
                 stack_color = stack.get('color', '#667eea')
                 html += f"""          <span style="display: inline-block; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; color: white; background-color: {stack_color}; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);">{stack_label}</span>
 """
@@ -208,19 +216,25 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px;">
 """
         for contact in card.contacts:
-            label = contact.get('label', '')
-            value = contact.get('value', '')
+            label = html_escape.escape(contact.get('label', ''))
+            value = html_escape.escape(contact.get('value', ''))
             is_email = '@' in value
             is_url = value.startswith('http://') or value.startswith('https://')
             
             if is_email:
                 href = f"mailto:{value}"
+                target_attr = ""
+                rel_attr = ""
             elif is_url:
                 href = value
+                target_attr = 'target="_blank"'
+                rel_attr = 'rel="noopener noreferrer"'
             else:
                 href = f"https://{value}"
+                target_attr = 'target="_blank"'
+                rel_attr = 'rel="noopener noreferrer"'
             
-            html += f"""      <a href="{href}" target="{'"_blank"' if (is_url or not is_email) else ''}" rel="{'noopener noreferrer' if (is_url or not is_email) else ''}" style="display: flex; flex-direction: column; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); text-decoration: none; color: inherit;">
+            html += f"""      <a href="{href}" {target_attr} {rel_attr} style="display: flex; flex-direction: column; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); text-decoration: none; color: inherit;">
         <span style="font-size: 14px; font-weight: 600; color: #667eea; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">{label}</span>
         <span style="font-size: 16px; color: #333; word-break: break-word;">{value}</span>
       </a>
@@ -230,35 +244,36 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
 """
     
     # GitHub Stats Section (정적 데이터만 표시, API 호출 불가)
+    # HTML에서는 실제 통계를 가져올 수 없으므로 링크만 제공
     if card.show_github_stats:
-        html += """  <!-- GitHub Stats Section -->
+        html += f"""  <!-- GitHub Stats Section -->
   <div style="padding: 32px 40px; background: white;">
     <h2 style="font-size: 28px; font-weight: 700; margin: 0 0 24px 0; color: #333;">Github-stats</h2>
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px;">
-      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: {gradient}; border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
         <div style="font-size: 36px; font-weight: 700; margin-bottom: 8px;">-</div>
         <div style="font-size: 14px; font-weight: 500; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px;">Contributions</div>
       </div>
-      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: {gradient}; border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
         <div style="font-size: 36px; font-weight: 700; margin-bottom: 8px;">-</div>
         <div style="font-size: 14px; font-weight: 500; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px;">Repositories</div>
       </div>
-      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: {gradient}; border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
         <div style="font-size: 36px; font-weight: 700; margin-bottom: 8px;">-</div>
         <div style="font-size: 14px; font-weight: 500; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px;">Stars</div>
       </div>
-      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: {gradient}; border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
         <div style="font-size: 36px; font-weight: 700; margin-bottom: 8px;">-</div>
         <div style="font-size: 14px; font-weight: 500; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px;">Followers</div>
       </div>
-      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: {gradient}; border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
         <div style="font-size: 36px; font-weight: 700; margin-bottom: 8px;">-</div>
         <div style="font-size: 14px; font-weight: 500; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px;">Following</div>
       </div>
     </div>
-    <p style="text-align: center; margin-top: 16px; color: #666; font-size: 14px;">※ GitHub 통계는 <a href="{card_url}" target="_blank" rel="noopener noreferrer" style="color: #667eea;">프로필 카드 페이지</a>에서 확인하세요.</p>
+    <p style="text-align: center; margin-top: 16px; color: #666; font-size: 14px;">※ GitHub 통계는 <a href="{card_url}" target="_blank" rel="noopener noreferrer" style="color: #667eea; text-decoration: none;">프로필 카드 페이지</a>에서 확인하세요.</p>
   </div>
-""".format(card_url=card_url)
+"""
     
     html += "</div>"
     
