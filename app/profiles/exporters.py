@@ -444,4 +444,6 @@ def generate_svg_markdown(card: ProfileCard, github_login: str) -> str:
     Generate markdown snippet that embeds the SVG card in GitHub README.
     """
     svg_url = f"{settings.api_base_url}/api/profiles/public/{github_login}/cards/{card.id}/svg"
-    return f"![GitCard]({svg_url})"
+    card_url = f"{settings.frontend_base_url}/dashboard/{github_login}/cards/{card.id}"
+    # 이미지(SVG)를 클릭하면 공개 카드 페이지로 이동하도록 링크 감싸기
+    return f"[![GitCard]({svg_url})]({card_url})"
