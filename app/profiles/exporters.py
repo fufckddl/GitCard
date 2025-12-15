@@ -258,16 +258,16 @@ def generate_svg(
     width = 900
     height = 420
 
-    # Stacks text (간단히 한 줄로 이어붙임)
-    stacks_text = ""
+    # Stacks 데이터를 SVG 뱃지용으로 변환
+    stacks_for_svg = []
     if card.show_stacks and card.stacks:
-        labels = [
-            html_escape.escape(s.get("label") or s.get("key") or "")
-            for s in card.stacks
-            if (s.get("label") or s.get("key"))
-        ]
-        if labels:
-            stacks_text = " | ".join(labels)
+        for s in card.stacks:
+            raw_label = s.get("label") or s.get("key") or ""
+            label = html_escape.escape(raw_label)
+            if not label:
+                continue
+            color = s.get("color") or primary
+            stacks_for_svg.append({"label": label, "color": color})
 
     # Contacts text (간단 텍스트 형태로)
     contacts_text = ""
@@ -320,17 +320,47 @@ def generate_svg(
 
     current_y = 210
 
-    # Stacks section (optional)
-    if stacks_text:
+    # Stacks section (optional) - 실제 태그 색상을 사용한 뱃지 렌더링
+    if stacks_for_svg:
         svg += f"""  <!-- Stacks Section -->
   <text x="40" y="{current_y}" fill="#333333" font-size="18" font-weight="700" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
     🛠 Tech Stack
   </text>
-  <text x="40" y="{current_y + 30}" fill="#495057" font-size="14" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
-    {stacks_text}
-  </text>
 """
-        current_y += 70
+        # 뱃지 레이아웃 설정
+        badge_start_x = 40
+        badge_start_y = current_y + 24
+        badge_x = badge_start_x
+        badge_y = badge_start_y
+        badge_height = 28
+        horizontal_gap = 8
+        vertical_gap = 10
+        max_width = width - 40
+
+        svg += "  <!-- Stack badges -->\n"
+        for stack in stacks_for_svg[:20]:  # 최대 20개까지만 표시
+            label = stack["label"]
+            color = stack["color"]
+            # 라벨 길이로 대략적인 너비 계산 (문자당 8px + 패딩)
+            text_len = len(label)
+            badge_width = max(60, min(200, text_len * 8 + 24))
+
+            # 줄바꿈 처리
+            if badge_x + badge_width > max_width:
+                badge_x = badge_start_x
+                badge_y += badge_height + vertical_gap
+
+            text_x = badge_x + badge_width / 2
+            text_y = badge_y + badge_height / 2 + 4
+
+            svg += f"""  <g>
+    <rect x="{badge_x}" y="{badge_y}" rx="14" ry="14" width="{badge_width}" height="{badge_height}" fill="{color}" />
+    <text x="{text_x}" y="{text_y}" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="600" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">{label}</text>
+  </g>
+"""
+            badge_x += badge_width + horizontal_gap
+
+        current_y = badge_y + badge_height + 24
 
     # Contact section (optional)
     if contacts_text:
