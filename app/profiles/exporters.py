@@ -5,8 +5,9 @@ Functions to export profile cards as:
 - Markdown format (for GitHub README)
 - Image format (PNG/JPEG)
 """
-from typing import Optional
+from typing import Optional, Dict
 from io import BytesIO
+import html as html_escape
 from app.profiles.db_models import ProfileCard
 from app.config import settings
 
@@ -149,7 +150,6 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
     Returns:
         Complete HTML string with inline styles matching the design
     """
-    import html as html_escape
     card_url = f"{settings.frontend_base_url}/dashboard/{github_login}/cards/{card.id}"
     gradient = card.gradient or f"linear-gradient(135deg, {card.primary_color or '#667eea'} 0%, rgb(102, 126, 234) 100%)"
     
@@ -278,3 +278,170 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
     html += "</div>"
     
     return html
+
+
+def _extract_gradient_colors(card: ProfileCard) -> tuple[str, str]:
+    """
+    Helper to get two colors for gradients based on card data.
+    Falls back to sensible defaults when gradient string is not parsable.
+    """
+    primary = card.primary_color or "#667eea"
+    secondary = "#764ba2"
+    gradient = card.gradient or ""
+    # Try to extract hex colors from existing gradient
+    hex_regex = r"#(?:[A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})"
+    import re
+
+    matches = re.findall(hex_regex, gradient)
+    if matches:
+        primary = matches[0]
+        if len(matches) >= 2:
+            secondary = matches[1]
+        elif matches[0].lower() != primary.lower():
+            secondary = matches[0]
+    return primary, secondary
+
+
+def generate_svg(
+    card: ProfileCard,
+    github_login: str,
+    stats: Optional[Dict[str, Optional[int]]] = None,
+) -> str:
+    """
+    Generate an SVG representation of the profile card.
+    This is optimized for GitHub README: SVG는 그대로 렌더링되며 CSS 없이도
+    카드와 거의 동일한 디자인을 유지할 수 있습니다.
+    """
+    primary, secondary = _extract_gradient_colors(card)
+
+    name = html_escape.escape(card.name)
+    title = html_escape.escape(card.title)
+    tagline = html_escape.escape(card.tagline or "")
+
+    width = 900
+    height = 420
+
+    # Stacks text (간단히 한 줄로 이어붙임)
+    stacks_text = ""
+    if card.show_stacks and card.stacks:
+        labels = [
+            html_escape.escape(s.get("label") or s.get("key") or "")
+            for s in card.stacks
+            if (s.get("label") or s.get("key"))
+        ]
+        if labels:
+            stacks_text = " | ".join(labels)
+
+    # Contacts text (간단 텍스트 형태로)
+    contacts_text = ""
+    if card.show_contact and card.contacts:
+        pairs = []
+        for c in card.contacts:
+            label = html_escape.escape(c.get("label") or "")
+            value = html_escape.escape(c.get("value") or "")
+            if label and value:
+                pairs.append(f"{label}: {value}")
+        if pairs:
+            contacts_text = " • ".join(pairs)
+
+    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" role="img" aria-labelledby="title desc">
+  <defs>
+    <linearGradient id="bannerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="{primary}" />
+      <stop offset="100%" stop-color="{secondary}" />
+    </linearGradient>
+    <filter id="cardShadow" x="-5%" y="-5%" width="110%" height="110%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="rgba(0,0,0,0.15)" />
+    </filter>
+  </defs>
+  <title id="title">GitCard - {name}</title>
+  <desc id="desc">GitHub 프로필 카드</desc>
+
+  <!-- Card background -->
+  <rect x="0" y="0" width="{width}" height="{height}" rx="16" ry="16" fill="#ffffff" filter="url(#cardShadow)" />
+
+  <!-- Banner -->
+  <rect x="0" y="0" width="{width}" height="180" rx="16" ry="16" fill="url(#bannerGradient)" />
+
+  <!-- Name -->
+  <text x="{width/2}" y="80" text-anchor="middle" fill="#ffffff" font-size="32" font-weight="700" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
+    Hello World 👋 I'm {name}!
+  </text>
+
+  <!-- Title -->
+  <text x="{width/2}" y="120" text-anchor="middle" fill="#ffffff" font-size="20" font-weight="500" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
+    {title}
+  </text>
+"""
+
+    if tagline:
+        svg += f"""  <!-- Tagline -->
+  <text x="{width/2}" y="150" text-anchor="middle" fill="#f8f9fa" font-size="16" font-weight="400" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
+    {tagline}
+  </text>
+"""
+
+    current_y = 210
+
+    # Stacks section (optional)
+    if stacks_text:
+        svg += f"""  <!-- Stacks Section -->
+  <text x="40" y="{current_y}" fill="#333333" font-size="18" font-weight="700" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
+    🛠 Tech Stack
+  </text>
+  <text x="40" y="{current_y + 30}" fill="#495057" font-size="14" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
+    {stacks_text}
+  </text>
+"""
+        current_y += 70
+
+    # Contact section (optional)
+    if contacts_text:
+        svg += f"""  <!-- Contact Section -->
+  <text x="40" y="{current_y}" fill="#333333" font-size="18" font-weight="700" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
+    📧 Contact
+  </text>
+  <text x="40" y="{current_y + 30}" fill="#495057" font-size="14" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
+    {contacts_text}
+  </text>
+"""
+        current_y += 70
+
+    # GitHub stats section (optional, uses cached stats if available)
+    if stats:
+        repos = stats.get("repositories") or 0
+        stars = stats.get("stars") or 0
+        followers = stats.get("followers") or 0
+        following = stats.get("following") or 0
+        contributions = stats.get("contributions") or 0
+
+        stats_y = current_y + 10
+        box_w = (width - 80) / 5
+        box_h = 80
+
+        def stat_box(x_index: int, label: str, value: int) -> str:
+            x = 40 + x_index * (box_w + 4)
+            return f"""
+  <g>
+    <rect x="{x}" y="{stats_y}" width="{box_w}" height="{box_h}" rx="10" ry="10" fill="{primary}" opacity="0.9" />
+    <text x="{x + box_w/2}" y="{stats_y + 32}" text-anchor="middle" fill="#ffffff" font-size="22" font-weight="700" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">{value}</text>
+    <text x="{x + box_w/2}" y="{stats_y + 56}" text-anchor="middle" fill="#f1f3f5" font-size="12" font-weight="500" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif">{label}</text>
+  </g>"""
+
+        svg += "  <!-- GitHub Stats Section -->\n"
+        svg += stat_box(0, "Repos", repos)
+        svg += stat_box(1, "Stars", stars)
+        svg += stat_box(2, "Followers", followers)
+        svg += stat_box(3, "Following", following)
+        svg += stat_box(4, "Contribs", contributions)
+
+    svg += "\n</svg>"
+    return svg
+
+
+def generate_svg_markdown(card: ProfileCard, github_login: str) -> str:
+    """
+    Generate markdown snippet that embeds the SVG card in GitHub README.
+    """
+    svg_url = f"{settings.api_base_url}/api/profiles/public/{github_login}/cards/{card.id}/svg"
+    return f"![GitCard]({svg_url})"

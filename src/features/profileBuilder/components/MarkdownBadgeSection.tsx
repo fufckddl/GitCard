@@ -12,9 +12,11 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
   cardId,
 }) => {
   const [markdownBadge, setMarkdownBadge] = useState<string>('');
+  const [cardMarkdown, setCardMarkdown] = useState<string>('');
   const [htmlCode, setHtmlCode] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [cardCopied, setCardCopied] = useState(false);
   const [htmlCopied, setHtmlCopied] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -23,6 +25,7 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
 
   useEffect(() => {
     loadMarkdownBadge();
+    loadCardMarkdown();
     loadHtml();
   }, [githubLogin, cardId]);
 
@@ -37,6 +40,20 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
       }
     } catch (error) {
       console.error('마크다운 배지 로드 실패:', error);
+    }
+  };
+
+  const loadCardMarkdown = async () => {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/profiles/public/${githubLogin}/cards/${cardId}/markdown/card`
+      );
+      if (response.ok) {
+        const text = await response.text();
+        setCardMarkdown(text.trim());
+      }
+    } catch (error) {
+      console.error('카드용 마크다운 로드 실패:', error);
     }
   };
 
@@ -100,6 +117,16 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
     } else {
       // 수동 복사를 위한 텍스트 선택
       alert('자동 복사에 실패했습니다. 아래 코드를 수동으로 선택하여 복사해주세요.');
+    }
+  };
+
+  const handleCopyCardMarkdown = async () => {
+    const success = await copyToClipboard(cardMarkdown);
+    if (success) {
+      setCardCopied(true);
+      setTimeout(() => setCardCopied(false), 2000);
+    } else {
+      alert('카드용 마크다운 복사에 실패했습니다. 아래 코드를 수동으로 선택하여 복사해주세요.');
     }
   };
 
@@ -215,6 +242,22 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
         </div>
         <div className={styles.codeBlock}>
           <code className={styles.code}>{markdownBadge || '로딩 중...'}</code>
+        </div>
+      </div>
+
+      <div className={styles.codeSection}>
+        <div className={styles.codeHeader}>
+          <span className={styles.codeLabel}>README용 전체 카드 마크다운 (SVG):</span>
+          <Button
+            onClick={handleCopyCardMarkdown}
+            variant={cardCopied ? 'primary' : 'secondary'}
+            className={styles.copyButton}
+          >
+            {cardCopied ? '✓ 카드 마크다운 복사됨!' : '📋 카드 마크다운 복사'}
+          </Button>
+        </div>
+        <div className={styles.codeBlock}>
+          <code className={styles.code}>{cardMarkdown || '로딩 중...'}</code>
         </div>
       </div>
 

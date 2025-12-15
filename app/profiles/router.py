@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 from app.auth.dependencies import get_current_user
 from app.auth.db_models import User
 from app.profiles import crud as profile_crud
+from app.users.github_stats_db_models import GitHubStats
 from app.profiles.db_models import ProfileCard
 from app.profiles import exporters
 from app.database import get_db
@@ -314,6 +315,34 @@ async def get_profile_card_markdown_badge(
     )
 
 
+@router.get("/public/{github_login}/cards/{card_id}/markdown/card")
+async def get_profile_card_markdown_card(
+    github_login: str,
+    card_id: int,
+    db: Session = Depends(get_db),
+):
+    """
+    GitHub README에서 바로 카드 전체 디자인을 볼 수 있는
+    SVG 기반 마크다운 코드를 반환합니다.
+
+    예시:
+      ![GitCard](https://your-api/api/profiles/public/{github_login}/cards/{card_id}/svg)
+    """
+    card = profile_crud.get_public_profile_card_by_github_login_and_card_id(
+        db, github_login, card_id
+    )
+
+    if not card:
+        raise HTTPException(status_code=404, detail="Profile card not found")
+
+    markdown = exporters.generate_svg_markdown(card, github_login)
+
+    return PlainTextResponse(
+        content=markdown,
+        media_type="text/markdown"
+    )
+
+
 @router.get("/public/{github_login}/cards/{card_id}/image-url")
 async def get_profile_card_image_url(
     github_login: str,
@@ -424,5 +453,51 @@ async def get_profile_card_image(
         headers={
             "Content-Disposition": f'inline; filename="gitcard-{github_login}-{card_id}.png"'
         }
+    )
+
+
+@router.get("/public/{github_login}/cards/{card_id}/svg")
+async def get_profile_card_svg(
+    github_login: str,
+    card_id: int,
+    db: Session = Depends(get_db),
+):
+    """
+    SVG 형식의 프로필 카드를 반환합니다.
+    - GitHub README에서 그대로 렌더링 가능
+    - 별도 CSS 없이 카드와 유사한 디자인 유지
+    """
+    card = profile_crud.get_public_profile_card_by_github_login_and_card_id(
+        db, github_login, card_id
+    )
+
+    if not card:
+        raise HTTPException(status_code=404, detail="Profile card not found")
+
+    # 해당 카드의 소유자(user_id)에 대한 GitHub stats 조회 (없으면 None)
+    stats_row = (
+        db.query(GitHubStats)
+        .filter(GitHubStats.user_id == card.user_id)
+        .one_or_none()
+    )
+
+    stats = None
+    if stats_row:
+        stats = {
+            "repositories": stats_row.repositories,
+            "stars": stats_row.stars,
+            "followers": stats_row.followers,
+            "following": stats_row.following,
+            "contributions": stats_row.contributions,
+        }
+
+    svg = exporters.generate_svg(card, github_login, stats=stats)
+
+    return Response(
+        content=svg,
+        media_type="image/svg+xml",
+        headers={
+            "Content-Disposition": f'inline; filename=\"gitcard-{github_login}-{card_id}.svg\"'
+        },
     )
 

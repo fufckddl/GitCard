@@ -1,8 +1,10 @@
 """
 FastAPI application entry point.
 
-Main application setup with CORS configuration and router includes.
+Main application setup with CORS configuration, routers, and background tasks.
 """
+import asyncio
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.auth.router import router as auth_router
@@ -13,6 +15,8 @@ from app.database import init_db
 # Import models to ensure they are registered with Base
 from app.auth import db_models  # noqa: F401
 from app.profiles import db_models  # noqa: F401
+from app.users import github_stats_db_models  # noqa: F401
+from app.users.github_stats_service import github_stats_background_loop
 
 app = FastAPI(
     title="GitCard API",
@@ -23,8 +27,10 @@ app = FastAPI(
 
 @app.on_event("startup")
 async def startup_event():
-    """Initialize database on startup."""
+    """Initialize database and start background tasks on startup."""
     init_db()
+    # GitHub 통계 주기적 동기화 백그라운드 태스크 시작 (기본 1시간 간격)
+    asyncio.create_task(github_stats_background_loop())
 
 # CORS configuration
 # In production, restrict origins to your frontend domain
