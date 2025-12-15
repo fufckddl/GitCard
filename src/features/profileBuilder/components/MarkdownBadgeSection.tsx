@@ -171,6 +171,13 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
                 👁️ 새 창에서 보기
               </Button>
             </a>
+            <Button
+              onClick={handleDownloadImage}
+              variant="secondary"
+              className={styles.viewButton}
+            >
+              🖼️ 이미지 다운로드
+            </Button>
           </div>
         </div>
         <div className={styles.linkBlock}>
