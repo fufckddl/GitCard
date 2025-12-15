@@ -100,7 +100,7 @@ export const BuilderSidebar: React.FC<BuilderSidebarProps> = ({ profileConfig })
               />
             </div>
             <div className={styles.formGroup}>
-              <label>카드 색상</label>
+              <label>그라데이션 색상 1</label>
               <div className={styles.colorPickerContainer}>
                 <input
                   type="color"
@@ -114,6 +114,25 @@ export const BuilderSidebar: React.FC<BuilderSidebarProps> = ({ profileConfig })
                   onChange={(e) => updateConfig({ primaryColor: e.target.value })}
                   className={styles.colorInput}
                   placeholder="#667eea"
+                  pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
+                />
+              </div>
+            </div>
+            <div className={styles.formGroup}>
+              <label>그라데이션 색상 2</label>
+              <div className={styles.colorPickerContainer}>
+                <input
+                  type="color"
+                  value={config.secondaryColor}
+                  onChange={(e) => updateConfig({ secondaryColor: e.target.value })}
+                  className={styles.colorPicker}
+                />
+                <input
+                  type="text"
+                  value={config.secondaryColor}
+                  onChange={(e) => updateConfig({ secondaryColor: e.target.value })}
+                  className={styles.colorInput}
+                  placeholder="#764ba2"
                   pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
                 />
               </div>

@@ -233,7 +233,7 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
           <code className={styles.code}>{htmlCode || '로딩 중...'}</code>
         </div>
         <p className={styles.htmlNote}>
-          💡 이 HTML 코드는 GitHub README.md에 직접 삽입하여 사용할 수 있습니다. 인라인 스타일로 작성되어 외부 의존성 없이 작동합니다.
+          ⚠️ 주의: GitHub README.md는 마크다운 형식이므로 CSS 스타일이 제한됩니다. 이 HTML 코드는 독립 실행 가능한 HTML 파일(.html)로 저장하여 사용하거나, 웹사이트/블로그에 삽입할 때 사용하세요. GitHub README에는 위의 "마크다운 코드"를 사용하는 것을 권장합니다.
         </p>
       </div>
 
@@ -268,10 +268,9 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
       <div className={styles.infoBox}>
         <strong>💡 사용 방법:</strong>
         <ol className={styles.instructions}>
-          <li>위의 "복사" 버튼을 클릭하여 마크다운 코드를 복사합니다.</li>
-          <li>GitHub 저장소의 README.md 파일을 엽니다.</li>
-          <li>원하는 위치에 복사한 코드를 붙여넣습니다.</li>
-          <li>변경사항을 커밋하고 푸시하면 README에 프로필 카드가 표시됩니다.</li>
+          <li><strong>마크다운 배지 (GitHub README용):</strong> 위의 "마크다운 코드"를 복사하여 README.md에 붙여넣으세요.</li>
+          <li><strong>HTML 코드 (웹사이트/블로그용):</strong> HTML 코드를 복사하여 .html 파일로 저장하거나 웹페이지에 삽입하세요.</li>
+          <li><strong>이미지 다운로드:</strong> "이미지 다운로드" 버튼으로 프로필 카드 이미지를 저장할 수 있습니다.</li>
         </ol>
       </div>
     </div>
