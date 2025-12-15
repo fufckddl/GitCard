@@ -40,13 +40,30 @@ export const ProfileCardDetailPage: React.FC = () => {
   useEffect(() => {
     if (card && !isEditing) {
       // 카드 데이터를 profileConfig에 로드
+      const primaryColor = card.primary_color || '#667eea';
+      const secondaryColor = (() => {
+        const gradient = card.gradient;
+        if (!gradient) {
+          return '#764ba2';
+        }
+        const hexRegex = /#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})/g;
+        const matches = gradient.match(hexRegex);
+        if (matches && matches.length >= 2) {
+          return matches[1];
+        }
+        if (matches && matches.length === 1 && matches[0].toLowerCase() !== primaryColor.toLowerCase()) {
+          return matches[0];
+        }
+        return '#764ba2';
+      })();
       profileConfig.updateConfig({
         cardTitle: card.card_title,
         name: card.name,
         title: card.title,
         tagline: card.tagline,
-        primaryColor: card.primary_color || '#667eea',
-        gradient: card.gradient || `linear-gradient(135deg, ${card.primary_color || '#667eea'} 0%, rgb(102, 126, 234) 100%)`,
+        primaryColor,
+        secondaryColor,
+        gradient: card.gradient || `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`,
         showStacks: card.show_stacks,
         showContact: card.show_contact,
         showGithubStats: card.show_github_stats,
@@ -108,13 +125,30 @@ export const ProfileCardDetailPage: React.FC = () => {
 
   const handleCancel = () => {
     if (card) {
+      const primaryColor = card.primary_color || '#667eea';
+      const secondaryColor = (() => {
+        const gradient = card.gradient;
+        if (!gradient) {
+          return '#764ba2';
+        }
+        const hexRegex = /#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})/g;
+        const matches = gradient.match(hexRegex);
+        if (matches && matches.length >= 2) {
+          return matches[1];
+        }
+        if (matches && matches.length === 1 && matches[0].toLowerCase() !== primaryColor.toLowerCase()) {
+          return matches[0];
+        }
+        return '#764ba2';
+      })();
       profileConfig.updateConfig({
         cardTitle: card.card_title,
         name: card.name,
         title: card.title,
         tagline: card.tagline,
-        primaryColor: card.primary_color || '#667eea',
-        gradient: card.gradient || `linear-gradient(135deg, ${card.primary_color || '#667eea'} 0%, rgb(102, 126, 234) 100%)`,
+        primaryColor,
+        secondaryColor,
+        gradient: card.gradient || `linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%)`,
         showStacks: card.show_stacks,
         showContact: card.show_contact,
         showGithubStats: card.show_github_stats,
@@ -230,7 +264,10 @@ export const ProfileCardDetailPage: React.FC = () => {
                     title: card.title,
                     tagline: card.tagline,
                     primaryColor: card.primary_color || '#667eea',
-                    gradient: card.gradient || `linear-gradient(135deg, ${card.primary_color || '#667eea'} 0%, rgb(102, 126, 234) 100%)`,
+                    secondaryColor: '#764ba2',
+                    gradient:
+                      card.gradient ||
+                      `linear-gradient(135deg, ${card.primary_color || '#667eea'} 0%, #764ba2 100%)`,
                     showStacks: card.show_stacks,
                     showContact: card.show_contact,
                     showGithubStats: card.show_github_stats,

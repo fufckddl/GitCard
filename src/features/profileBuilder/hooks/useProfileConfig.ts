@@ -1,27 +1,14 @@
 import { useState, useCallback } from 'react';
 import { ProfileConfig, StackBadge, ContactItem } from '../types/profileConfig';
 
-// 색상을 기반으로 그라데이션 생성 (GitHub stats 스타일과 유사하게)
-const generateGradient = (color: string): string => {
-  // hex 색상을 RGB로 변환
-  const hex = color.replace('#', '');
-  const r = parseInt(hex.substr(0, 2), 16);
-  const g = parseInt(hex.substr(2, 2), 16);
-  const b = parseInt(hex.substr(4, 2), 16);
-  
-  // GitHub stats 스타일: 약간 더 어둡고 색조가 약간 다른 색상 생성
-  // RGB 값을 조정하여 더 풍부한 그라데이션 효과
-  const darkerR = Math.max(0, Math.min(255, Math.floor(r * 0.85 + 20)));
-  const darkerG = Math.max(0, Math.min(255, Math.floor(g * 0.75 + 10)));
-  const darkerB = Math.max(0, Math.min(255, Math.floor(b * 0.9 + 30)));
-  
-  const darkerColor = `rgb(${darkerR}, ${darkerG}, ${darkerB})`;
-  
+// 두 색상을 기반으로 그라데이션 생성
+const generateGradient = (startColor: string, endColor: string): string => {
   // GitHub stats와 동일한 135deg 각도 사용
-  return `linear-gradient(135deg, ${color} 0%, ${darkerColor} 100%)`;
+  return `linear-gradient(135deg, ${startColor} 0%, ${endColor} 100%)`;
 };
 
 const DEFAULT_PRIMARY_COLOR = '#667eea';
+const DEFAULT_SECONDARY_COLOR = '#764ba2';
 
 const DEFAULT_CONFIG: ProfileConfig = {
   cardTitle: '내 프로필 카드',
@@ -29,7 +16,8 @@ const DEFAULT_CONFIG: ProfileConfig = {
   title: 'AI & Full-stack Developer',
   tagline: 'Passionate about building amazing things',
   primaryColor: DEFAULT_PRIMARY_COLOR,
-  gradient: generateGradient(DEFAULT_PRIMARY_COLOR),
+  secondaryColor: DEFAULT_SECONDARY_COLOR,
+  gradient: generateGradient(DEFAULT_PRIMARY_COLOR, DEFAULT_SECONDARY_COLOR),
   showStacks: true,
   showContact: true,
   showGithubStats: true,
@@ -50,9 +38,11 @@ export const useProfileConfig = () => {
   const updateConfig = useCallback((updates: Partial<ProfileConfig>) => {
     setConfig((prev) => {
       const newConfig = { ...prev, ...updates };
-      // primaryColor가 변경되면 자동으로 gradient도 업데이트
-      if (updates.primaryColor !== undefined) {
-        newConfig.gradient = generateGradient(updates.primaryColor);
+      // primaryColor 또는 secondaryColor가 변경되면 자동으로 gradient도 업데이트
+      if (updates.primaryColor !== undefined || updates.secondaryColor !== undefined) {
+        const start = newConfig.primaryColor || DEFAULT_PRIMARY_COLOR;
+        const end = newConfig.secondaryColor || DEFAULT_SECONDARY_COLOR;
+        newConfig.gradient = generateGradient(start, end);
       }
       return newConfig;
     });

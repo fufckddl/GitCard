@@ -17,8 +17,9 @@ export type ProfileConfig = {
   name: string;
   title: string;         // 프로필 카드에 표시되는 제목 (e.g. "AI & Full-stack Developer")
   tagline: string;       // short sentence under banner
-  primaryColor: string;  // 카드의 주요 색상 (hex color) - UI에서 선택용
-  gradient: string;      // 배너에 사용할 그라데이션 문자열
+  primaryColor: string;  // 그라데이션 시작 색상 (hex color)
+  secondaryColor: string; // 그라데이션 끝 색상 (hex color)
+  gradient: string;      // 배너에 사용할 그라데이션 문자열 (linear-gradient)
   showStacks: boolean;
   showContact: boolean;
   showGithubStats: boolean;
