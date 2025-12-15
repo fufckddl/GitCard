@@ -2,7 +2,7 @@
 Profile card export utilities.
 
 Functions to export profile cards as:
-- Markdown format (for GitHub README)
+- SVG/Markdown format for GitHub README
 - Image format (PNG/JPEG)
 """
 from typing import Optional, Dict
@@ -16,69 +16,6 @@ try:
     PLAYWRIGHT_AVAILABLE = True
 except ImportError:
     PLAYWRIGHT_AVAILABLE = False
-
-
-def generate_markdown(card: ProfileCard, github_login: str) -> str:
-    """
-    Generate markdown representation of a profile card.
-    
-    Args:
-        card: ProfileCard instance
-        github_login: GitHub username
-        
-    Returns:
-        Markdown string
-    """
-    markdown = f"""# {card.name}
-
-{card.tagline or ''}
-
-## {card.title}
-
-"""
-    
-    # Stacks section
-    if card.show_stacks and card.stacks:
-        markdown += "### 🛠️ Tech Stack\n\n"
-        for stack in card.stacks:
-            stack_label = stack.get('label', stack.get('key', ''))
-            if stack_label:
-                markdown += f"- {stack_label}\n"
-        markdown += "\n"
-    
-    # Contact section
-    if card.show_contact and card.contacts:
-        markdown += "### 📧 Contact\n\n"
-        for contact in card.contacts:
-            label = contact.get('label', '')
-            value = contact.get('value', '')
-            if label and value:
-                if 'http' in value.lower() or 'www' in value.lower():
-                    markdown += f"- **{label}**: [{value}]({value})\n"
-                else:
-                    markdown += f"- **{label}**: {value}\n"
-        markdown += "\n"
-    
-    # Card link
-    card_url = f"{settings.frontend_base_url}/dashboard/{github_login}/cards/{card.id}"
-    markdown += f"---\n\n[![GitCard]({card_url})]({card_url})\n"
-    
-    return markdown
-
-
-def generate_simple_markdown_badge(card: ProfileCard, github_login: str) -> str:
-    """
-    Generate a simple markdown badge/link for GitHub README.
-    
-    Args:
-        card: ProfileCard instance
-        github_login: GitHub username
-        
-    Returns:
-        Simple markdown badge string
-    """
-    card_url = f"{settings.frontend_base_url}/dashboard/{github_login}/cards/{card.id}"
-    return f"[![GitCard]({card_url})]({card_url})"
 
 
 async def generate_image_url(card: ProfileCard, github_login: str) -> str:

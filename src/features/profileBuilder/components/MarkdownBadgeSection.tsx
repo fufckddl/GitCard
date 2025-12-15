@@ -11,37 +11,17 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
   githubLogin,
   cardId,
 }) => {
-  const [markdownBadge, setMarkdownBadge] = useState<string>('');
   const [cardMarkdown, setCardMarkdown] = useState<string>('');
-  const [htmlCode, setHtmlCode] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
-  const [copied, setCopied] = useState(false);
   const [cardCopied, setCardCopied] = useState(false);
-  const [htmlCopied, setHtmlCopied] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
   const FRONTEND_BASE_URL = import.meta.env.VITE_FRONTEND_BASE_URL || 'http://3.37.130.140';
   const publicCardUrl = `${FRONTEND_BASE_URL}/dashboard/${githubLogin}/cards/${cardId}`;
 
   useEffect(() => {
-    loadMarkdownBadge();
     loadCardMarkdown();
-    loadHtml();
   }, [githubLogin, cardId]);
-
-  const loadMarkdownBadge = async () => {
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/profiles/public/${githubLogin}/cards/${cardId}/markdown/badge`
-      );
-      if (response.ok) {
-        const text = await response.text();
-        setMarkdownBadge(text.trim());
-      }
-    } catch (error) {
-      console.error('마크다운 배지 로드 실패:', error);
-    }
-  };
 
   const loadCardMarkdown = async () => {
     try {
@@ -54,20 +34,6 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
       }
     } catch (error) {
       console.error('카드용 마크다운 로드 실패:', error);
-    }
-  };
-
-  const loadHtml = async () => {
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/profiles/public/${githubLogin}/cards/${cardId}/html`
-      );
-      if (response.ok) {
-        const text = await response.text();
-        setHtmlCode(text.trim());
-      }
-    } catch (error) {
-      console.error('HTML 로드 실패:', error);
     } finally {
       setIsLoading(false);
     }
@@ -109,17 +75,6 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
     }
   };
 
-  const handleCopy = async () => {
-    const success = await copyToClipboard(markdownBadge);
-    if (success) {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } else {
-      // 수동 복사를 위한 텍스트 선택
-      alert('자동 복사에 실패했습니다. 아래 코드를 수동으로 선택하여 복사해주세요.');
-    }
-  };
-
   const handleCopyCardMarkdown = async () => {
     const success = await copyToClipboard(cardMarkdown);
     if (success) {
@@ -137,16 +92,6 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
       setTimeout(() => setLinkCopied(false), 2000);
     } else {
       alert('링크 복사에 실패했습니다. 아래 링크를 수동으로 선택하여 복사해주세요.');
-    }
-  };
-
-  const handleCopyHtml = async () => {
-    const success = await copyToClipboard(htmlCode);
-    if (success) {
-      setHtmlCopied(true);
-      setTimeout(() => setHtmlCopied(false), 2000);
-    } else {
-      alert('HTML 복사에 실패했습니다. 아래 HTML 코드를 수동으로 선택하여 복사해주세요.');
     }
   };
 
@@ -186,64 +131,8 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
     <div className={styles.container}>
       <h3 className={styles.title}>📋 GitHub README에 추가하기</h3>
       <p className={styles.description}>
-        아래 마크다운 코드를 복사하여 GitHub README.md 파일에 붙여넣으세요.
+        아래 <strong>README용 전체 카드 마크다운 (SVG)</strong> 코드를 복사하여 GitHub README.md 파일에 붙여넣으세요.
       </p>
-      
-      <div className={styles.badgePreview}>
-        <div className={styles.badgeHeader}>
-          <div className={styles.badgeLabel}>미리보기:</div>
-          <div className={styles.badgeActions}>
-            <Button
-              onClick={handleCopy}
-              variant={copied ? 'primary' : 'secondary'}
-              className={styles.previewButton}
-            >
-              {copied ? '✓ 마크다운 복사됨!' : '📋 마크다운 복사'}
-            </Button>
-            <Button
-              onClick={handleDownloadImage}
-              variant="secondary"
-              className={styles.previewButton}
-            >
-              🖼️ 이미지 다운로드
-            </Button>
-          </div>
-        </div>
-        <div className={styles.badgeContent}>
-          {markdownBadge ? (
-            <a
-              href={`${import.meta.env.VITE_FRONTEND_BASE_URL || 'http://3.37.130.140'}/dashboard/${githubLogin}/cards/${cardId}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.badgeLink}
-            >
-              <img
-                src={`${import.meta.env.VITE_FRONTEND_BASE_URL || 'http://3.37.130.140'}/dashboard/${githubLogin}/cards/${cardId}`}
-                alt="GitCard"
-                className={styles.badgeImage}
-              />
-            </a>
-          ) : (
-            <span className={styles.badgePlaceholder}>배지 미리보기</span>
-          )}
-        </div>
-      </div>
-
-      <div className={styles.codeSection}>
-        <div className={styles.codeHeader}>
-          <span className={styles.codeLabel}>마크다운 코드:</span>
-          <Button
-            onClick={handleCopy}
-            variant={copied ? 'primary' : 'secondary'}
-            className={styles.copyButton}
-          >
-            {copied ? '✓ 복사됨!' : '📋 복사'}
-          </Button>
-        </div>
-        <div className={styles.codeBlock}>
-          <code className={styles.code}>{markdownBadge || '로딩 중...'}</code>
-        </div>
-      </div>
 
       <div className={styles.codeSection}>
         <div className={styles.codeHeader}>
@@ -259,25 +148,6 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
         <div className={styles.codeBlock}>
           <code className={styles.code}>{cardMarkdown || '로딩 중...'}</code>
         </div>
-      </div>
-
-      <div className={styles.codeSection}>
-        <div className={styles.codeHeader}>
-          <span className={styles.codeLabel}>HTML 코드 (독립 실행 가능):</span>
-          <Button
-            onClick={handleCopyHtml}
-            variant={htmlCopied ? 'primary' : 'secondary'}
-            className={styles.copyButton}
-          >
-            {htmlCopied ? '✓ HTML 복사됨!' : '📋 HTML 복사'}
-          </Button>
-        </div>
-        <div className={styles.codeBlock}>
-          <code className={styles.code}>{htmlCode || '로딩 중...'}</code>
-        </div>
-        <p className={styles.htmlNote}>
-          ⚠️ 주의: GitHub README.md는 마크다운 형식이므로 CSS 스타일이 제한됩니다. 이 HTML 코드는 독립 실행 가능한 HTML 파일(.html)로 저장하여 사용하거나, 웹사이트/블로그에 삽입할 때 사용하세요. GitHub README에는 위의 "마크다운 코드"를 사용하는 것을 권장합니다.
-        </p>
       </div>
 
       <div className={styles.linkSection}>
@@ -311,8 +181,7 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
       <div className={styles.infoBox}>
         <strong>💡 사용 방법:</strong>
         <ol className={styles.instructions}>
-          <li><strong>마크다운 배지 (GitHub README용):</strong> 위의 "마크다운 코드"를 복사하여 README.md에 붙여넣으세요.</li>
-          <li><strong>HTML 코드 (웹사이트/블로그용):</strong> HTML 코드를 복사하여 .html 파일로 저장하거나 웹페이지에 삽입하세요.</li>
+          <li><strong>README용 전체 카드 (SVG):</strong> 위의 "README용 전체 카드 마크다운 (SVG)" 코드를 복사하여 README.md에 붙여넣으세요.</li>
           <li><strong>이미지 다운로드:</strong> "이미지 다운로드" 버튼으로 프로필 카드 이미지를 저장할 수 있습니다.</li>
         </ol>
       </div>
