@@ -969,13 +969,13 @@ def generate_readme_template(
     Generate a GitHub README-safe markdown template.
     
     Uses:
-    - SVG banner with gradient (using foreignObject for HTML/CSS support)
+    - SVG banner as image URL (capsule-render 방식) - 안정적인 렌더링 보장
     - shields.io badges for stacks and contacts
     - github-readme-stats for GitHub statistics
     - GitCard image endpoint for the custom card
     
     This template is guaranteed to work in GitHub README as it uses
-    SVG with foreignObject for gradients, markdown headings, minimal HTML (div align, img, a),
+    image URLs for SVG (like capsule-render), markdown headings, minimal HTML (div align, img, a),
     and external image services that GitHub supports.
     
     Args:
@@ -987,27 +987,26 @@ def generate_readme_template(
         Complete README markdown template
     """
     # URLs
-    image_url = f"{settings.api_base_url}/api/profiles/public/{github_login}/cards/{card.id}/image?format=png"
+    banner_url = f"{settings.api_base_url}/api/profiles/public/{github_login}/cards/{card.id}/banner"
+    card_svg_url = f"{settings.api_base_url}/api/profiles/public/{github_login}/cards/{card.id}/svg"
     card_url = f"{settings.frontend_base_url}/dashboard/{github_login}/cards/{card.id}"
     
     # Remove port from URLs for production
-    image_url = _remove_port_from_url(image_url)
+    banner_url = _remove_port_from_url(banner_url)
+    card_svg_url = _remove_port_from_url(card_svg_url)
     card_url = _remove_port_from_url(card_url)
     
-    # Generate SVG banner with gradient (using foreignObject for HTML/CSS support)
-    svg_banner = generate_svg_banner(card)
-    
-    # Build README template
+    # Build README template with banner as image URL (capsule-render 방식)
     readme = f'''<div align="center">
-{svg_banner}
+  <img src="{banner_url}" alt="GitCard Banner" />
 </div>
 
 '''
     
-    # GitCard Image Section
+    # GitCard Image Section (SVG 이미지 URL로 제공)
     readme += f'''<div align="center">
   <a href="{card_url}">
-    <img src="{image_url}" alt="GitCard" />
+    <img src="{card_svg_url}" alt="GitCard" />
   </a>
 </div>
 
