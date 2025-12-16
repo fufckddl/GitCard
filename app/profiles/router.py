@@ -264,10 +264,10 @@ async def get_profile_card_markdown_card(
 ):
     """
     GitHub README에서 바로 카드 전체 디자인을 볼 수 있는
-    SVG 기반 마크다운 코드를 반환합니다.
+    이미지 기반 마크다운 코드를 반환합니다.
 
     예시:
-      ![GitCard](https://your-api/api/profiles/public/{github_login}/cards/{card_id}/svg)
+      [![GitCard](image_url)](card_url)
     """
     card = profile_crud.get_public_profile_card_by_github_login_and_card_id(
         db, github_login, card_id
@@ -280,6 +280,56 @@ async def get_profile_card_markdown_card(
 
     return PlainTextResponse(
         content=markdown,
+        media_type="text/markdown"
+    )
+
+
+@router.get("/public/{github_login}/cards/{card_id}/readme")
+async def get_profile_card_readme_template(
+    github_login: str,
+    card_id: int,
+    db: Session = Depends(get_db),
+):
+    """
+    GitHub README-safe 마크다운 템플릿을 반환합니다.
+    
+    이 템플릿은 GitHub README에서 안정적으로 렌더링되도록 설계되었습니다:
+    - capsule-render를 사용한 배너
+    - shields.io 배지를 사용한 스택/연락처
+    - github-readme-stats를 사용한 GitHub 통계
+    - GitCard 이미지 엔드포인트를 사용한 커스텀 카드
+    
+    복잡한 HTML/CSS나 인라인 스타일을 사용하지 않으며,
+    GitHub가 안정적으로 지원하는 마크다운과 외부 이미지 서비스만 사용합니다.
+    """
+    card = profile_crud.get_public_profile_card_by_github_login_and_card_id(
+        db, github_login, card_id
+    )
+
+    if not card:
+        raise HTTPException(status_code=404, detail="Profile card not found")
+    
+    # Get GitHub stats if available
+    stats_row = (
+        db.query(GitHubStats)
+        .filter(GitHubStats.user_id == card.user_id)
+        .one_or_none()
+    )
+    
+    stats = None
+    if stats_row:
+        stats = {
+            "repositories": stats_row.repositories,
+            "stars": stats_row.stars,
+            "followers": stats_row.followers,
+            "following": stats_row.following,
+            "contributions": stats_row.contributions,
+        }
+    
+    readme_template = exporters.generate_readme_template(card, github_login, stats=stats)
+
+    return PlainTextResponse(
+        content=readme_template,
         media_type="text/markdown"
     )
 
@@ -369,8 +419,10 @@ async def get_profile_card_image(
         BytesIO(screenshot),
         media_type=media_type,
         headers={
+            "Content-Type": media_type,  # Explicit Content-Type header
             "Content-Disposition": f'inline; filename="gitcard-{github_login}-{card_id}.{file_ext}"',
             "Cache-Control": "public, max-age=86400",  # 24 hours
+            "X-Content-Type-Options": "nosniff",  # Prevent MIME type sniffing
         }
     )
 

@@ -653,3 +653,197 @@ def generate_svg_markdown(card: ProfileCard, github_login: str) -> str:
     
     # 이미지를 클릭하면 공개 카드 페이지로 이동하도록 링크 감싸기
     return f"[![GitCard]({image_url})]({card_url})"
+
+
+def _hex_to_url_color(hex_color: str) -> str:
+    """
+    Convert hex color to URL-encoded format for capsule-render.
+    Example: #667eea -> %23667eea
+    """
+    if hex_color.startswith('#'):
+        return f"%23{hex_color[1:]}"
+    return hex_color.replace('#', '%23')
+
+
+def _extract_primary_color_for_banner(card: ProfileCard) -> str:
+    """
+    Extract primary color from card for banner.
+    Falls back to default purple gradient color.
+    """
+    primary = card.primary_color or "#667eea"
+    # Extract first color from gradient if available
+    if card.gradient:
+        import re
+        hex_regex = r"#(?:[A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})"
+        matches = re.findall(hex_regex, card.gradient)
+        if matches:
+            primary = matches[0]
+    return primary
+
+
+def generate_readme_template(
+    card: ProfileCard,
+    github_login: str,
+    stats: Optional[Dict[str, Optional[int]]] = None,
+) -> str:
+    """
+    Generate a GitHub README-safe markdown template.
+    
+    Uses:
+    - capsule-render for banner (wave type)
+    - shields.io badges for stacks and contacts
+    - github-readme-stats for GitHub statistics
+    - GitCard image endpoint for the custom card
+    
+    This template is guaranteed to work in GitHub README as it uses
+    only markdown headings, minimal HTML (div align, img, a), and
+    external image services that GitHub supports.
+    
+    Args:
+        card: ProfileCard instance
+        github_login: GitHub username
+        stats: Optional GitHub stats dictionary
+        
+    Returns:
+        Complete README markdown template
+    """
+    # Extract colors for banner
+    primary_color = _extract_primary_color_for_banner(card)
+    banner_color = _hex_to_url_color(primary_color)
+    
+    # URLs
+    image_url = f"{settings.api_base_url}/api/profiles/public/{github_login}/cards/{card.id}/image?format=png"
+    card_url = f"{settings.frontend_base_url}/dashboard/{github_login}/cards/{card.id}"
+    
+    # Remove port from URLs for production
+    image_url = _remove_port_from_url(image_url)
+    card_url = _remove_port_from_url(card_url)
+    
+    # Escape markdown special characters
+    name = card.name.replace('|', '\\|').replace('`', '\\`')
+    title = card.title.replace('|', '\\|').replace('`', '\\`')
+    tagline = card.tagline.replace('|', '\\|').replace('`', '\\`') if card.tagline else ""
+    
+    # Build README template
+    readme = f'''<div align="center">
+  <img src="https://capsule-render.vercel.app/api?type=wave&color={banner_color}&height=120" />
+</div>
+
+<div align="center">
+  <h1>🧩 {name}</h1>
+  <h3>{title}</h3>
+'''
+    
+    if tagline:
+        readme += f"  <p>{tagline}</p>\n"
+    
+    readme += "</div>\n\n"
+    
+    # GitCard Image Section
+    readme += f'''<div align="center">
+  <a href="{card_url}">
+    <img src="{image_url}" alt="GitCard" />
+  </a>
+</div>
+
+'''
+    
+    # Stacks Section
+    if card.show_stacks and card.stacks:
+        readme += "## 🛠️ Tech Stacks\n\n"
+        readme += '<div align="center">\n\n'
+        
+        # Group stacks by category
+        stacks_by_category = {}
+        for stack in card.stacks:
+            category = stack.get('category', 'Other')
+            if category not in stacks_by_category:
+                stacks_by_category[category] = []
+            label = stack.get('label') or stack.get('key', '')
+            color = stack.get('color', '#667eea')
+            if label:
+                stacks_by_category[category].append({'label': label, 'color': color})
+        
+        # Generate shields.io badges for each stack
+        # Use simple badge style without logo for better compatibility
+        for category, stacks in stacks_by_category.items():
+            for stack_info in stacks[:20]:  # Limit to 20 stacks per category
+                stack_label = stack_info.get('label') if isinstance(stack_info, dict) else stack_info
+                stack_color = stack_info.get('color', '#667eea') if isinstance(stack_info, dict) else '#667eea'
+                
+                # Remove # from color for URL
+                color_code = stack_color.replace('#', '')
+                # Escape special characters for URL (shields.io format)
+                stack_label_escaped = stack_label.replace('-', '--').replace('_', '__').replace(' ', '%20')
+                # Use shields.io for-the-badge style with custom color
+                badge_url = f"https://img.shields.io/badge/{stack_label_escaped}-{color_code}?style=for-the-badge&logoColor=white"
+                readme += f'  <img src="{badge_url}" alt="{stack_label}" />\n'
+        
+        readme += "\n</div>\n\n"
+    
+    # Contact Section
+    if card.show_contact and card.contacts:
+        readme += "## 📬 Contact\n\n"
+        readme += '<div align="center">\n\n'
+        
+        for contact in card.contacts[:6]:  # Limit to 6 contacts
+            label = contact.get('label', '')
+            value = contact.get('value', '')
+            
+            if label and value:
+                # Determine contact type and create appropriate badge
+                label_escaped = label.replace('-', '--').replace('_', '__').replace(' ', '%20')
+                
+                if '@' in value:
+                    # Email
+                    contact_type = 'email'
+                    contact_value_escaped = value.replace('@', '%40').replace(' ', '%20')
+                    badge_url = f"https://img.shields.io/badge/{label_escaped}-{contact_value_escaped}-EA4335?style=for-the-badge&logo=gmail&logoColor=white"
+                    link = f"mailto:{value}"
+                elif value.startswith('http://') or value.startswith('https://'):
+                    # URL
+                    contact_type = 'url'
+                    domain = value.replace('http://', '').replace('https://', '').split('/')[0].replace('.', '%2E')
+                    badge_url = f"https://img.shields.io/badge/{label_escaped}-{domain}-4285F4?style=for-the-badge&logo=google-chrome&logoColor=white"
+                    link = value
+                elif 'github.com' in value.lower() or 'github.io' in value.lower():
+                    # GitHub profile
+                    contact_type = 'github'
+                    username = value.split('/')[-1] if '/' in value else value
+                    badge_url = f"https://img.shields.io/badge/{label_escaped}-{username}-181717?style=for-the-badge&logo=github&logoColor=white"
+                    link = value if value.startswith('http') else f"https://{value}"
+                else:
+                    # Plain text or other
+                    contact_type = 'text'
+                    value_escaped = value.replace(' ', '%20').replace('-', '--').replace('_', '__')
+                    badge_url = f"https://img.shields.io/badge/{label_escaped}-{value_escaped}-667eea?style=for-the-badge"
+                    link = f"https://{value}" if not value.startswith('http') else value
+                
+                readme += f'  <a href="{link}">\n'
+                readme += f'    <img src="{badge_url}" alt="{label}" />\n'
+                readme += f'  </a>\n'
+        
+        readme += "\n</div>\n\n"
+    
+    # GitHub Stats Section
+    if card.show_github_stats:
+        readme += "## 🏅 GitHub Stats\n\n"
+        readme += '<div align="center">\n\n'
+        
+        # GitHub stats cards using github-readme-stats
+        readme += f'  <img src="https://github-readme-stats.vercel.app/api?username={github_login}&show_icons=true&theme=default" alt="{github_login} stats" />\n'
+        readme += f'  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username={github_login}&layout=compact&theme=default" alt="Top Languages" />\n'
+        
+        # Optional: GitHub streak stats
+        readme += f'  <img src="https://github-readme-streak-stats.demolab.com/?user={github_login}&theme=default" alt="GitHub Streak" />\n'
+        
+        readme += "\n</div>\n\n"
+    
+    # Footer
+    readme += f"""---
+<div align="center">
+  <p>Made with ❤️ using <a href="{card_url}">GitCard</a></p>
+</div>
+"""
+    
+    return readme
