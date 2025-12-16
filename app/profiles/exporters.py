@@ -1003,11 +1003,12 @@ def generate_svg_banner(card: ProfileCard) -> str:
     center_x = width / 2
     
     # Build SVG with pure SVG elements (no foreignObject)
-    # Use absolute pixel values for GitHub README compatibility
-    # For 135deg gradient: from top-left (0,0) to bottom-right (width, height)
+    # Use objectBoundingBox with percentage coordinates for GitHub README compatibility
+    # GitHub README renders gradients better with objectBoundingBox and percentage values
+    # For 135deg gradient: from top-left (0%,0%) to bottom-right (100%, 100%)
     svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">
   <defs>
-    <linearGradient id="bannerGradient" x1="0" y1="0" x2="{width}" y2="{height}" gradientUnits="userSpaceOnUse">
+    <linearGradient id="bannerGradient" x1="0%" y1="0%" x2="100%" y2="100%" gradientUnits="objectBoundingBox">
       <stop offset="0%" stop-color="{primary}" />
       <stop offset="100%" stop-color="{secondary}" />
     </linearGradient>
