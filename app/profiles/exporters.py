@@ -555,11 +555,31 @@ def generate_svg(
     return svg
 
 
+def _remove_port_from_url(url: str) -> str:
+    """
+    Remove port number from URL (e.g., :8000) for production use.
+    """
+    from urllib.parse import urlparse, urlunparse
+    parsed = urlparse(url)
+    # Remove port if it exists
+    netloc = parsed.netloc.split(':')[0] if ':' in parsed.netloc else parsed.netloc
+    # Reconstruct URL without port
+    new_parsed = parsed._replace(netloc=netloc)
+    return urlunparse(new_parsed)
+
+
 def generate_svg_markdown(card: ProfileCard, github_login: str) -> str:
     """
-    Generate markdown snippet that embeds the SVG card in GitHub README.
+    Generate markdown snippet that embeds the card image in GitHub README.
+    Uses the new image endpoint (PNG/WebP) instead of SVG for better design matching.
     """
-    svg_url = f"{settings.api_base_url}/api/profiles/public/{github_login}/cards/{card.id}/svg"
+    # Use image endpoint instead of SVG for accurate design rendering
+    image_url = f"{settings.api_base_url}/api/profiles/public/{github_login}/cards/{card.id}/image?format=png"
     card_url = f"{settings.frontend_base_url}/dashboard/{github_login}/cards/{card.id}"
-    # 이미지(SVG)를 클릭하면 공개 카드 페이지로 이동하도록 링크 감싸기
-    return f"[![GitCard]({svg_url})]({card_url})"
+    
+    # Remove port from URLs for production (e.g., :8000)
+    image_url = _remove_port_from_url(image_url)
+    card_url = _remove_port_from_url(card_url)
+    
+    # 이미지를 클릭하면 공개 카드 페이지로 이동하도록 링크 감싸기
+    return f"[![GitCard]({image_url})]({card_url})"
