@@ -492,10 +492,12 @@ async def get_profile_card_banner(
     if not card:
         raise HTTPException(status_code=404, detail="Profile card not found")
 
-    # Debug: Log the gradient value from database
-    import logging
-    logger = logging.getLogger(__name__)
-    logger.info(f"Banner generation - card_id: {card_id}, gradient: {card.gradient}, primary_color: {card.primary_color}")
+    # Debug: Print to console (will appear in systemd logs)
+    print(f"[BANNER DEBUG] card_id={card_id}, gradient={card.gradient}, primary_color={card.primary_color}")
+    
+    # Extract colors for debugging
+    primary, secondary = exporters._extract_gradient_colors(card)
+    print(f"[BANNER DEBUG] Extracted colors - primary={primary}, secondary={secondary}")
 
     svg_banner = exporters.generate_svg_banner(card)
 
@@ -507,4 +509,33 @@ async def get_profile_card_banner(
             "Cache-Control": "public, max-age=86400",  # 24 hours
         },
     )
+
+
+@router.get("/public/{github_login}/cards/{card_id}/banner/debug")
+async def get_profile_card_banner_debug(
+    github_login: str,
+    card_id: int,
+    db: Session = Depends(get_db),
+):
+    """
+    배너 색상 추출 디버깅 정보를 반환합니다.
+    실제 데이터베이스의 gradient 값과 추출된 색상을 확인할 수 있습니다.
+    """
+    card = profile_crud.get_public_profile_card_by_github_login_and_card_id(
+        db, github_login, card_id
+    )
+
+    if not card:
+        raise HTTPException(status_code=404, detail="Profile card not found")
+
+    # Extract colors
+    primary, secondary = exporters._extract_gradient_colors(card)
+    
+    return {
+        "card_id": card.id,
+        "gradient": card.gradient,
+        "primary_color": card.primary_color,
+        "extracted_primary": primary,
+        "extracted_secondary": secondary,
+    }
 
