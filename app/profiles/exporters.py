@@ -981,10 +981,11 @@ def generate_svg_banner(card: ProfileCard) -> str:
     Returns:
         SVG string with gradient banner
     """
-    # Extract gradient colors
+    # Extract gradient colors from database
+    # card.gradient contains the gradient string from database (e.g., "linear-gradient(135deg, #667eea 0%, rgb(106, 104, 240) 100%)")
     primary, secondary = _extract_gradient_colors(card)
     
-    # Debug: Ensure we have valid colors
+    # Debug: Ensure we have valid colors (fallback if extraction fails)
     if not primary or not primary.startswith('#'):
         primary = card.primary_color or "#667eea"
     if not secondary or not secondary.startswith('#'):

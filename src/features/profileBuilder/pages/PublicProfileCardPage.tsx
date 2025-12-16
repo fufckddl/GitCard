@@ -55,14 +55,47 @@ export const PublicProfileCardPage: React.FC = () => {
       if (!gradient) {
         return '#764ba2';
       }
-      const hexRegex = /#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})/g;
-      const matches = gradient.match(hexRegex);
-      if (matches && matches.length >= 2) {
-        return matches[1];
+      
+      // Extract colors in order (both hex and RGB) - same logic as backend
+      const colors: string[] = [];
+      
+      // Helper to normalize hex (3-digit to 6-digit)
+      const normalizeHex = (hex: string): string => {
+        if (hex.length === 3) {
+          return `#${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}`;
+        }
+        return `#${hex}`;
+      };
+      
+      // Helper to convert RGB to hex
+      const rgbToHex = (r: number, g: number, b: number): string => {
+        return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+      };
+      
+      // Pattern to match both hex (#...) and rgb(...)
+      const colorPattern = /(?:#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})|rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\))/g;
+      
+      let match;
+      while ((match = colorPattern.exec(gradient)) !== null) {
+        if (match[1]) {
+          // Hex color found
+          colors.push(normalizeHex(match[1]));
+        } else if (match[2] && match[3] && match[4]) {
+          // RGB color found
+          const r = parseInt(match[2], 10);
+          const g = parseInt(match[3], 10);
+          const b = parseInt(match[4], 10);
+          colors.push(rgbToHex(r, g, b));
+        }
       }
-      if (matches && matches.length === 1 && matches[0].toLowerCase() !== primaryColor.toLowerCase()) {
-        return matches[0];
+      
+      // Extract secondary color
+      if (colors.length >= 2) {
+        return colors[1];
+      } else if (colors.length === 1 && colors[0].toLowerCase() !== primaryColor.toLowerCase()) {
+        return colors[0];
       }
+      
       return '#764ba2';
     })();
 
