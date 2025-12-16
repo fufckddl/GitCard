@@ -472,3 +472,33 @@ async def get_profile_card_svg(
         },
     )
 
+
+@router.get("/public/{github_login}/cards/{card_id}/banner")
+async def get_profile_card_banner(
+    github_login: str,
+    card_id: int,
+    db: Session = Depends(get_db),
+):
+    """
+    SVG 형식의 배너만 반환합니다.
+    - GitHub README에서 이미지로 참조 가능 (capsule-render 방식)
+    - 그라데이션 배경과 텍스트 포함
+    """
+    card = profile_crud.get_public_profile_card_by_github_login_and_card_id(
+        db, github_login, card_id
+    )
+
+    if not card:
+        raise HTTPException(status_code=404, detail="Profile card not found")
+
+    svg_banner = exporters.generate_svg_banner(card)
+
+    return Response(
+        content=svg_banner,
+        media_type="image/svg+xml",
+        headers={
+            "Content-Disposition": f'inline; filename="gitcard-banner-{github_login}-{card_id}.svg"',
+            "Cache-Control": "public, max-age=86400",  # 24 hours
+        },
+    )
+
