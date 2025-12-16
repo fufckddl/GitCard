@@ -65,9 +65,9 @@ async def generate_image_screenshot(
         
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
-            # Fixed viewport with DPR 2 for sharpness
+            # Large viewport to ensure full card is visible, DPR 2 for sharpness
             page = await browser.new_page(
-                viewport={"width": width, "height": height},
+                viewport={"width": width, "height": 2000},  # Increased height to accommodate full card
                 device_scale_factor=2
             )
             
@@ -94,8 +94,22 @@ async def generate_image_screenshot(
                 card_selector = ".cardWrapper"
                 await page.wait_for_selector(card_selector, timeout=10000, state="visible")
             
+            # Wait for all images to load
+            await page.evaluate("""
+                Promise.all(
+                    Array.from(document.images).map(img => {
+                        if (img.complete) return Promise.resolve();
+                        return new Promise((resolve, reject) => {
+                            img.onload = resolve;
+                            img.onerror = resolve; // Continue even if image fails
+                            setTimeout(resolve, 5000); // Timeout after 5s
+                        });
+                    })
+                )
+            """)
+            
             # Additional wait for layout stability
-            await page.wait_for_timeout(500)
+            await page.wait_for_timeout(1000)
             
             # Get the card element
             card_element = await page.query_selector(card_selector)
@@ -104,8 +118,21 @@ async def generate_image_screenshot(
                 card_element = await page.query_selector(".cardWrapper")
             
             if card_element:
-                # Screenshot only the card container
-                screenshot = await card_element.screenshot(type=format)
+                # Scroll element into view to ensure it's fully rendered
+                await card_element.scroll_into_view_if_needed()
+                
+                # Wait a bit more for any lazy-loaded content
+                await page.wait_for_timeout(500)
+                
+                # Get bounding box to verify element is fully loaded
+                box = await card_element.bounding_box()
+                if box and box["height"] > 0:
+                    # Screenshot the entire card element (element.screenshot automatically captures full bounding box)
+                    screenshot = await card_element.screenshot(type=format)
+                else:
+                    # If bounding box is invalid, wait more and retry
+                    await page.wait_for_timeout(1000)
+                    screenshot = await card_element.screenshot(type=format)
             else:
                 # Fallback: full page screenshot
                 screenshot = await page.screenshot(type=format, full_page=True)
