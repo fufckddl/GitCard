@@ -988,26 +988,16 @@ def generate_readme_template(
     """
     # URLs
     banner_url = f"{settings.api_base_url}/api/profiles/public/{github_login}/cards/{card.id}/banner"
-    card_svg_url = f"{settings.api_base_url}/api/profiles/public/{github_login}/cards/{card.id}/svg"
     card_url = f"{settings.frontend_base_url}/dashboard/{github_login}/cards/{card.id}"
     
     # Remove port from URLs for production
     banner_url = _remove_port_from_url(banner_url)
-    card_svg_url = _remove_port_from_url(card_svg_url)
     card_url = _remove_port_from_url(card_url)
     
     # Build README template with banner as image URL (capsule-render 방식)
+    # 배너는 사용자가 선택한 그라데이션 색상을 사용
     readme = f'''<div align="center">
   <img src="{banner_url}" alt="GitCard Banner" />
-</div>
-
-'''
-    
-    # GitCard Image Section (SVG 이미지 URL로 제공)
-    readme += f'''<div align="center">
-  <a href="{card_url}">
-    <img src="{card_svg_url}" alt="GitCard" />
-  </a>
 </div>
 
 '''

@@ -122,30 +122,6 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
     }
   };
 
-  const handleDownloadImage = async () => {
-    try {
-      const imageUrl = `${API_BASE_URL}/profiles/public/${githubLogin}/cards/${cardId}/image`;
-      const response = await fetch(imageUrl);
-      
-      if (!response.ok) {
-        throw new Error('이미지 다운로드 실패');
-      }
-      
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `gitcard-${githubLogin}-${cardId}.png`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('이미지 다운로드 실패:', error);
-      alert('이미지 다운로드에 실패했습니다. Playwright가 서버에 설치되어 있는지 확인해주세요.');
-    }
-  };
-
   if (isLoading) {
     return (
       <div className={styles.container}>
@@ -223,13 +199,6 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
                 👁️ 새 창에서 보기
               </Button>
             </a>
-            <Button
-              onClick={handleDownloadImage}
-              variant="secondary"
-              className={styles.viewButton}
-            >
-              🖼️ 이미지 다운로드
-            </Button>
           </div>
         </div>
         <div className={styles.linkBlock}>
@@ -242,7 +211,6 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
         <ol className={styles.instructions}>
           <li><strong>README 템플릿 (권장):</strong> 위의 "README 템플릿" 코드를 복사하여 README.md에 붙여넣으세요. GitHub에서 안정적으로 렌더링됩니다.</li>
           <li><strong>카드 이미지 마크다운:</strong> GitCard 이미지만 포함하는 간단한 형식을 원하시면 "카드 이미지 마크다운"을 사용하세요.</li>
-          <li><strong>이미지 다운로드:</strong> "이미지 다운로드" 버튼으로 프로필 카드 이미지를 저장할 수 있습니다.</li>
         </ol>
       </div>
     </div>
