@@ -641,10 +641,8 @@ def _extract_gradient_colors(card: ProfileCard) -> tuple[str, str]:
     if primary == secondary:
         secondary = default_secondary
     
-    # Debug: Log extracted colors
-    import logging
-    logger = logging.getLogger(__name__)
-    logger.debug(f"Extracted colors - gradient: {gradient_clean}, colors found: {colors}, primary: {primary}, secondary: {secondary}")
+    # Debug: Print extracted colors
+    print(f"[COLOR EXTRACT] gradient={gradient_clean}, colors_found={colors}, primary={primary}, secondary={secondary}")
     
     return primary, secondary
 
@@ -999,10 +997,8 @@ def generate_svg_banner(card: ProfileCard) -> str:
     if not secondary or not secondary.startswith('#'):
         secondary = "#764ba2"
     
-    # Debug logging to verify color extraction matches frontend
-    import logging
-    logger = logging.getLogger(__name__)
-    logger.info(f"Banner gradient extraction - card_id: {card.id}, gradient: {card.gradient}, primary: {primary}, secondary: {secondary}")
+    # Debug: Print to console for debugging
+    print(f"[SVG BANNER] card_id={card.id}, gradient={card.gradient}, extracted primary={primary}, secondary={secondary}")
     
     # Escape HTML entities for SVG text
     name = html_escape.escape(card.name)
