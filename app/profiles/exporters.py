@@ -124,13 +124,59 @@ async def generate_image_screenshot(
                 # Wait a bit more for any lazy-loaded content
                 await page.wait_for_timeout(500)
                 
-                # Get bounding box to verify element is fully loaded
+                # Measure the actual rendered height using JavaScript
+                # This accounts for all content including dynamic sections
+                actual_height = await page.evaluate("""
+                    (selector) => {
+                        const element = document.querySelector(selector);
+                        if (!element) return 0;
+                        // Get the actual scroll height (includes all content)
+                        const scrollHeight = element.scrollHeight;
+                        // Get computed styles to account for padding/margins
+                        const styles = window.getComputedStyle(element);
+                        const paddingTop = parseInt(styles.paddingTop) || 0;
+                        const paddingBottom = parseInt(styles.paddingBottom) || 0;
+                        const marginTop = parseInt(styles.marginTop) || 0;
+                        const marginBottom = parseInt(styles.marginBottom) || 0;
+                        // Return total height including all spacing
+                        return scrollHeight + paddingTop + paddingBottom + marginTop + marginBottom;
+                    }
+                """, card_selector)
+                
+                # Get bounding box
                 box = await card_element.bounding_box()
-                if box and box["height"] > 0:
-                    # Screenshot the entire card element (element.screenshot automatically captures full bounding box)
-                    screenshot = await card_element.screenshot(type=format)
+                
+                if box and actual_height > 0:
+                    # Use the larger of bounding box height or scroll height
+                    # Add extra padding to ensure nothing is cut off
+                    padding = 40
+                    final_height = max(box["height"], actual_height) + padding
+                    
+                    # Set page height to accommodate the full card
+                    await page.set_viewport_size({
+                        "width": width,
+                        "height": int(final_height) + 200  # Extra space for safety
+                    })
+                    
+                    # Wait for viewport change to take effect
+                    await page.wait_for_timeout(300)
+                    
+                    # Scroll to top of element
+                    await card_element.scroll_into_view_if_needed()
+                    await page.wait_for_timeout(200)
+                    
+                    # Screenshot with explicit clip to ensure full capture
+                    screenshot = await card_element.screenshot(
+                        type=format,
+                        clip={
+                            "x": 0,
+                            "y": 0,
+                            "width": box["width"],
+                            "height": final_height
+                        } if box["width"] > 0 and final_height > 0 else None
+                    )
                 else:
-                    # If bounding box is invalid, wait more and retry
+                    # Fallback: screenshot without clip
                     await page.wait_for_timeout(1000)
                     screenshot = await card_element.screenshot(type=format)
             else:
