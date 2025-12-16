@@ -683,8 +683,8 @@ def _extract_primary_color_for_banner(card: ProfileCard) -> str:
 
 def generate_svg_banner(card: ProfileCard) -> str:
     """
-    Generate SVG banner with gradient background using foreignObject.
-    This allows HTML/CSS gradients to work in GitHub README.
+    Generate SVG banner with gradient background using pure SVG elements.
+    This ensures reliable rendering in GitHub README without foreignObject.
     
     Args:
         card: ProfileCard instance
@@ -695,61 +695,46 @@ def generate_svg_banner(card: ProfileCard) -> str:
     # Extract gradient colors
     primary, secondary = _extract_gradient_colors(card)
     
-    # Escape HTML entities
+    # Escape HTML entities for SVG text
     name = html_escape.escape(card.name)
     title = html_escape.escape(card.title)
     tagline = html_escape.escape(card.tagline or "")
     
-    # Build SVG with foreignObject for HTML/CSS support
-    svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="200">
-  <foreignObject width="100%" height="100%">
-    <div xmlns="http://www.w3.org/1999/xhtml">
-      <style>
-        .banner-container {{
-          background: linear-gradient(135deg, {primary} 0%, {secondary} 100%);
-          height: 200px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          color: white;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-          padding: 20px;
-          box-sizing: border-box;
-        }}
-        .banner-container h1 {{
-          margin: 0 0 12px 0;
-          font-size: 42px;
-          font-weight: 700;
-          text-align: center;
-        }}
-        .banner-container h3 {{
-          margin: 0 0 8px 0;
-          font-size: 24px;
-          font-weight: 500;
-          text-align: center;
-          opacity: 0.95;
-        }}
-        .banner-container p {{
-          margin: 0;
-          font-size: 18px;
-          font-weight: 400;
-          text-align: center;
-          opacity: 0.85;
-        }}
-      </style>
-      <div class="banner-container">
-        <h1>🧩 Hello World 👋 I'm {name}!</h1>
-        <h3>{title}</h3>
+    # Banner dimensions
+    width = 900
+    height = 200
+    
+    # Build SVG with pure SVG elements (no foreignObject)
+    svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">
+  <defs>
+    <linearGradient id="bannerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="{primary}" />
+      <stop offset="100%" stop-color="{secondary}" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Gradient background -->
+  <rect width="100%" height="100%" fill="url(#bannerGradient)" />
+  
+  <!-- Name text -->
+  <text x="50%" y="80" text-anchor="middle" fill="#ffffff" font-size="42" font-weight="700" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
+    🧩 Hello World 👋 I'm {name}!
+  </text>
+  
+  <!-- Title text -->
+  <text x="50%" y="130" text-anchor="middle" fill="#ffffff" font-size="24" font-weight="500" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" opacity="0.95">
+    {title}
+  </text>
 '''
     
     if tagline:
-        svg += f'        <p>{tagline}</p>\n'
+        svg += f'''  <!-- Tagline text -->
+  <text x="50%" y="165" text-anchor="middle" fill="#ffffff" font-size="18" font-weight="400" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" opacity="0.85">
+    {tagline}
+  </text>
+'''
     
-    svg += '''      </div>
-    </div>
-  </foreignObject>
-</svg>'''
+    svg += '</svg>'
     
     return svg
 
