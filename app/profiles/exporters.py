@@ -17,6 +17,24 @@ try:
 except ImportError:
     PLAYWRIGHT_AVAILABLE = False
 
+def _check_playwright_browsers() -> bool:
+    """Check if Playwright browsers are installed."""
+    if not PLAYWRIGHT_AVAILABLE:
+        return False
+    try:
+        import subprocess
+        result = subprocess.run(
+            ["python", "-m", "playwright", "install", "--dry-run", "chromium"],
+            capture_output=True,
+            timeout=5
+        )
+        # If dry-run succeeds, browsers are already installed
+        return result.returncode == 0
+    except Exception:
+        # If check fails, assume browsers might not be installed
+        # But still try to use Playwright (might work)
+        return True
+
 
 async def generate_image_url(card: ProfileCard, github_login: str) -> str:
     """
@@ -55,6 +73,7 @@ async def generate_image_screenshot(
         Image bytes (PNG or WebP), or None if Playwright is not available
     """
     if not PLAYWRIGHT_AVAILABLE:
+        print("Playwright is not installed. Install with: pip install playwright && playwright install chromium")
         return None
     
     if format not in ("png", "webp"):
@@ -65,9 +84,10 @@ async def generate_image_screenshot(
         
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
-            # Large viewport to ensure full card is visible, DPR 2 for sharpness
+            # Very large viewport to ensure full card is visible, DPR 2 for sharpness
+            # Use fixed large height instead of dynamic adjustment
             page = await browser.new_page(
-                viewport={"width": width, "height": 2000},  # Increased height to accommodate full card
+                viewport={"width": width, "height": 4000},  # Fixed large height
                 device_scale_factor=2
             )
             
@@ -108,8 +128,9 @@ async def generate_image_screenshot(
                 )
             """)
             
-            # Additional wait for layout stability
-            await page.wait_for_timeout(1000)
+            # Scroll to top of page first
+            await page.evaluate("window.scrollTo(0, 0)")
+            await page.wait_for_timeout(500)
             
             # Get the card element
             card_element = await page.query_selector(card_selector)
@@ -121,64 +142,32 @@ async def generate_image_screenshot(
                 # Scroll element into view to ensure it's fully rendered
                 await card_element.scroll_into_view_if_needed()
                 
-                # Wait a bit more for any lazy-loaded content
+                # Wait for scroll to complete
                 await page.wait_for_timeout(500)
                 
-                # Measure the actual rendered height using JavaScript
-                # This accounts for all content including dynamic sections
-                actual_height = await page.evaluate("""
+                # Additional wait for layout stability
+                await page.wait_for_timeout(1000)
+                
+                # Verify element is fully visible by checking if it's in viewport
+                is_visible = await page.evaluate("""
                     (selector) => {
                         const element = document.querySelector(selector);
-                        if (!element) return 0;
-                        // Get the actual scroll height (includes all content)
-                        const scrollHeight = element.scrollHeight;
-                        // Get computed styles to account for padding/margins
-                        const styles = window.getComputedStyle(element);
-                        const paddingTop = parseInt(styles.paddingTop) || 0;
-                        const paddingBottom = parseInt(styles.paddingBottom) || 0;
-                        const marginTop = parseInt(styles.marginTop) || 0;
-                        const marginBottom = parseInt(styles.marginBottom) || 0;
-                        // Return total height including all spacing
-                        return scrollHeight + paddingTop + paddingBottom + marginTop + marginBottom;
+                        if (!element) return false;
+                        const rect = element.getBoundingClientRect();
+                        const viewportHeight = window.innerHeight;
+                        // Check if element top is visible and bottom is within or below viewport
+                        return rect.top >= 0 && rect.top < viewportHeight;
                     }
                 """, card_selector)
                 
-                # Get bounding box
-                box = await card_element.bounding_box()
-                
-                if box and actual_height > 0:
-                    # Use the larger of bounding box height or scroll height
-                    # Add extra padding to ensure nothing is cut off
-                    padding = 40
-                    final_height = max(box["height"], actual_height) + padding
-                    
-                    # Set page height to accommodate the full card
-                    await page.set_viewport_size({
-                        "width": width,
-                        "height": int(final_height) + 200  # Extra space for safety
-                    })
-                    
-                    # Wait for viewport change to take effect
-                    await page.wait_for_timeout(300)
-                    
-                    # Scroll to top of element
+                if not is_visible:
+                    # If not visible, scroll again
                     await card_element.scroll_into_view_if_needed()
-                    await page.wait_for_timeout(200)
-                    
-                    # Screenshot with explicit clip to ensure full capture
-                    screenshot = await card_element.screenshot(
-                        type=format,
-                        clip={
-                            "x": 0,
-                            "y": 0,
-                            "width": box["width"],
-                            "height": final_height
-                        } if box["width"] > 0 and final_height > 0 else None
-                    )
-                else:
-                    # Fallback: screenshot without clip
-                    await page.wait_for_timeout(1000)
-                    screenshot = await card_element.screenshot(type=format)
+                    await page.wait_for_timeout(500)
+                
+                # Screenshot WITHOUT clip - let element.screenshot() handle the full bounding box
+                # This is the key fix: element.screenshot() automatically captures the full element
+                screenshot = await card_element.screenshot(type=format)
             else:
                 # Fallback: full page screenshot
                 screenshot = await page.screenshot(type=format, full_page=True)
@@ -186,9 +175,17 @@ async def generate_image_screenshot(
             await browser.close()
             return screenshot
     except Exception as e:
-        print(f"Error generating screenshot: {e}")
+        error_msg = str(e)
+        print(f"Error generating screenshot: {error_msg}")
         import traceback
         traceback.print_exc()
+        
+        # Check for common Playwright browser installation errors
+        if "Executable doesn't exist" in error_msg or "BrowserType.launch" in error_msg:
+            print("\n⚠️  Playwright browsers are not installed!")
+            print("   Install with: python -m playwright install chromium")
+            print("   Or install all browsers: python -m playwright install")
+        
         return None
 
 
