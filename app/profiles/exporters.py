@@ -596,9 +596,11 @@ def _extract_gradient_colors(card: ProfileCard) -> tuple[str, str]:
     colors = []
     for match in re.finditer(color_pattern, gradient_clean):
         groups = match.groups()
-        if groups[0]:  # Hex color found
+        # groups[0] is hex color (if found)
+        # groups[1], groups[2], groups[3] are RGB values (if found)
+        if groups[0] is not None:  # Hex color found
             colors.append(normalize_hex(groups[0]))
-        elif groups[1] and groups[2] and groups[3]:  # RGB color found
+        elif groups[1] is not None and groups[2] is not None and groups[3] is not None:  # RGB color found
             r, g, b = int(groups[1]), int(groups[2]), int(groups[3])
             colors.append(rgb_to_hex(r, g, b))
     
@@ -632,12 +634,17 @@ def _extract_gradient_colors(card: ProfileCard) -> tuple[str, str]:
                 secondary = default_secondary
             return primary, secondary
         
-        # All parsing failed
+        # All parsing failed - use defaults
         return default_primary, default_secondary
     
     # Ensure primary and secondary are different
     if primary == secondary:
         secondary = default_secondary
+    
+    # Debug: Log extracted colors
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.debug(f"Extracted colors - gradient: {gradient_clean}, colors found: {colors}, primary: {primary}, secondary: {secondary}")
     
     return primary, secondary
 
@@ -983,6 +990,7 @@ def generate_svg_banner(card: ProfileCard) -> str:
     """
     # Extract gradient colors from database
     # card.gradient contains the gradient string from database (e.g., "linear-gradient(135deg, #667eea 0%, rgb(106, 104, 240) 100%)")
+    # IMPORTANT: This must match the colors extracted by the frontend in PublicProfileCardPage.tsx
     primary, secondary = _extract_gradient_colors(card)
     
     # Debug: Ensure we have valid colors (fallback if extraction fails)
@@ -990,6 +998,11 @@ def generate_svg_banner(card: ProfileCard) -> str:
         primary = card.primary_color or "#667eea"
     if not secondary or not secondary.startswith('#'):
         secondary = "#764ba2"
+    
+    # Debug logging to verify color extraction matches frontend
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"Banner gradient extraction - card_id: {card.id}, gradient: {card.gradient}, primary: {primary}, secondary: {secondary}")
     
     # Escape HTML entities for SVG text
     name = html_escape.escape(card.name)

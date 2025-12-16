@@ -483,6 +483,7 @@ async def get_profile_card_banner(
     SVG 형식의 배너만 반환합니다.
     - GitHub README에서 이미지로 참조 가능 (capsule-render 방식)
     - 그라데이션 배경과 텍스트 포함
+    - 프론트엔드의 PublicProfileCardPage와 동일한 색상을 사용합니다.
     """
     card = profile_crud.get_public_profile_card_by_github_login_and_card_id(
         db, github_login, card_id
@@ -490,6 +491,11 @@ async def get_profile_card_banner(
 
     if not card:
         raise HTTPException(status_code=404, detail="Profile card not found")
+
+    # Debug: Log the gradient value from database
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"Banner generation - card_id: {card_id}, gradient: {card.gradient}, primary_color: {card.primary_color}")
 
     svg_banner = exporters.generate_svg_banner(card)
 
