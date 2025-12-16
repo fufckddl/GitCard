@@ -681,6 +681,79 @@ def _extract_primary_color_for_banner(card: ProfileCard) -> str:
     return primary
 
 
+def generate_svg_banner(card: ProfileCard) -> str:
+    """
+    Generate SVG banner with gradient background using foreignObject.
+    This allows HTML/CSS gradients to work in GitHub README.
+    
+    Args:
+        card: ProfileCard instance
+        
+    Returns:
+        SVG string with gradient banner
+    """
+    # Extract gradient colors
+    primary, secondary = _extract_gradient_colors(card)
+    
+    # Escape HTML entities
+    name = html_escape.escape(card.name)
+    title = html_escape.escape(card.title)
+    tagline = html_escape.escape(card.tagline or "")
+    
+    # Build SVG with foreignObject for HTML/CSS support
+    svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="200">
+  <foreignObject width="100%" height="100%">
+    <div xmlns="http://www.w3.org/1999/xhtml">
+      <style>
+        .banner-container {{
+          background: linear-gradient(135deg, {primary} 0%, {secondary} 100%);
+          height: 200px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+          padding: 20px;
+          box-sizing: border-box;
+        }}
+        .banner-container h1 {{
+          margin: 0 0 12px 0;
+          font-size: 42px;
+          font-weight: 700;
+          text-align: center;
+        }}
+        .banner-container h3 {{
+          margin: 0 0 8px 0;
+          font-size: 24px;
+          font-weight: 500;
+          text-align: center;
+          opacity: 0.95;
+        }}
+        .banner-container p {{
+          margin: 0;
+          font-size: 18px;
+          font-weight: 400;
+          text-align: center;
+          opacity: 0.85;
+        }}
+      </style>
+      <div class="banner-container">
+        <h1>🧩 Hello World 👋 I'm {name}!</h1>
+        <h3>{title}</h3>
+'''
+    
+    if tagline:
+        svg += f'        <p>{tagline}</p>\n'
+    
+    svg += '''      </div>
+    </div>
+  </foreignObject>
+</svg>'''
+    
+    return svg
+
+
 def generate_readme_template(
     card: ProfileCard,
     github_login: str,
@@ -690,14 +763,14 @@ def generate_readme_template(
     Generate a GitHub README-safe markdown template.
     
     Uses:
-    - capsule-render for banner (wave type)
+    - SVG banner with gradient (using foreignObject for HTML/CSS support)
     - shields.io badges for stacks and contacts
     - github-readme-stats for GitHub statistics
     - GitCard image endpoint for the custom card
     
     This template is guaranteed to work in GitHub README as it uses
-    only markdown headings, minimal HTML (div align, img, a), and
-    external image services that GitHub supports.
+    SVG with foreignObject for gradients, markdown headings, minimal HTML (div align, img, a),
+    and external image services that GitHub supports.
     
     Args:
         card: ProfileCard instance
@@ -707,10 +780,6 @@ def generate_readme_template(
     Returns:
         Complete README markdown template
     """
-    # Extract colors for banner
-    primary_color = _extract_primary_color_for_banner(card)
-    banner_color = _hex_to_url_color(primary_color)
-    
     # URLs
     image_url = f"{settings.api_base_url}/api/profiles/public/{github_login}/cards/{card.id}/image?format=png"
     card_url = f"{settings.frontend_base_url}/dashboard/{github_login}/cards/{card.id}"
@@ -719,25 +788,15 @@ def generate_readme_template(
     image_url = _remove_port_from_url(image_url)
     card_url = _remove_port_from_url(card_url)
     
-    # Escape markdown special characters
-    name = card.name.replace('|', '\\|').replace('`', '\\`')
-    title = card.title.replace('|', '\\|').replace('`', '\\`')
-    tagline = card.tagline.replace('|', '\\|').replace('`', '\\`') if card.tagline else ""
+    # Generate SVG banner with gradient (using foreignObject for HTML/CSS support)
+    svg_banner = generate_svg_banner(card)
     
     # Build README template
     readme = f'''<div align="center">
-  <img src="https://capsule-render.vercel.app/api?type=wave&color={banner_color}&height=120" />
+{svg_banner}
 </div>
 
-<div align="center">
-  <h1>🧩 {name}</h1>
-  <h3>{title}</h3>
 '''
-    
-    if tagline:
-        readme += f"  <p>{tagline}</p>\n"
-    
-    readme += "</div>\n\n"
     
     # GitCard Image Section
     readme += f'''<div align="center">
