@@ -36,42 +36,86 @@ async def generate_image_url(card: ProfileCard, github_login: str) -> str:
 async def generate_image_screenshot(
     card: ProfileCard, 
     github_login: str,
-    width: int = 800,
-    height: int = 600
+    format: str = "png",
+    width: int = 1200,
+    height: int = 700
 ) -> Optional[bytes]:
     """
-    Generate PNG image from profile card page using Playwright.
+    Generate PNG or WebP image from profile card page using Playwright.
+    Renders the actual web card UI and clips to the card container only.
     
     Args:
         card: ProfileCard instance
         github_login: GitHub username
-        width: Screenshot width in pixels
-        height: Screenshot height in pixels
+        format: Image format ("png" or "webp", default: "png")
+        width: Viewport width in pixels (default: 1200)
+        height: Viewport height in pixels (default: 700)
         
     Returns:
-        PNG image bytes, or None if Playwright is not available
+        Image bytes (PNG or WebP), or None if Playwright is not available
     """
     if not PLAYWRIGHT_AVAILABLE:
         return None
+    
+    if format not in ("png", "webp"):
+        format = "png"
     
     try:
         url = f"{settings.frontend_base_url}/dashboard/{github_login}/cards/{card.id}"
         
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
-            page = await browser.new_page(viewport={"width": width, "height": height})
-            await page.goto(url, wait_until="networkidle", timeout=10000)
+            # Fixed viewport with DPR 2 for sharpness
+            page = await browser.new_page(
+                viewport={"width": width, "height": height},
+                device_scale_factor=2
+            )
             
-            # Wait for content to load
-            await page.wait_for_timeout(2000)
+            # Disable animations and transitions for deterministic rendering
+            await page.add_style_tag(content="""
+                * {
+                    animation: none !important;
+                    transition: none !important;
+                }
+            """)
             
-            # Take screenshot
-            screenshot = await page.screenshot(type="png", full_page=True)
+            # Navigate to the card page
+            await page.goto(url, wait_until="networkidle", timeout=30000)
+            
+            # Wait for fonts to load
+            await page.evaluate("document.fonts.ready")
+            
+            # Wait for the card container to be visible
+            card_selector = '[data-testid="gitcard-root"]'
+            try:
+                await page.wait_for_selector(card_selector, timeout=10000, state="visible")
+            except Exception:
+                # Fallback to cardWrapper if testid not found
+                card_selector = ".cardWrapper"
+                await page.wait_for_selector(card_selector, timeout=10000, state="visible")
+            
+            # Additional wait for layout stability
+            await page.wait_for_timeout(500)
+            
+            # Get the card element
+            card_element = await page.query_selector(card_selector)
+            if not card_element:
+                # Fallback: try to find the card wrapper
+                card_element = await page.query_selector(".cardWrapper")
+            
+            if card_element:
+                # Screenshot only the card container
+                screenshot = await card_element.screenshot(type=format)
+            else:
+                # Fallback: full page screenshot
+                screenshot = await page.screenshot(type=format, full_page=True)
             
             await browser.close()
             return screenshot
     except Exception as e:
         print(f"Error generating screenshot: {e}")
+        import traceback
+        traceback.print_exc()
         return None
 
 
@@ -256,30 +300,72 @@ def generate_svg(
     tagline = html_escape.escape(card.tagline or "")
 
     width = 900
-    height = 420
-
-    # Stacks 데이터를 SVG 뱃지용으로 변환
-    stacks_for_svg = []
+    
+    # Stacks를 카테고리별로 그룹화
+    stacks_by_category = {}
     if card.show_stacks and card.stacks:
-        for s in card.stacks:
-            raw_label = s.get("label") or s.get("key") or ""
+        for stack in card.stacks:
+            category = stack.get('category', 'Other')
+            if category not in stacks_by_category:
+                stacks_by_category[category] = []
+            raw_label = stack.get("label") or stack.get("key") or ""
             label = html_escape.escape(raw_label)
-            if not label:
-                continue
-            color = s.get("color") or primary
-            stacks_for_svg.append({"label": label, "color": color})
+            if label:
+                color = stack.get("color") or primary
+                stacks_by_category[category].append({"label": label, "color": color})
 
-    # Contacts text (간단 텍스트 형태로)
-    contacts_text = ""
+    # 높이 동적 계산
+    banner_height = 180
+    section_padding = 32
+    section_gap = 0
+    
+    # Stacks 섹션 높이 계산
+    stacks_height = 0
+    if stacks_by_category:
+        stacks_height += 28 + 24  # "Stacks" 헤더
+        for category, stacks in stacks_by_category.items():
+            stacks_height += 18 + 12  # 카테고리 라벨 + 간격
+            # 뱃지 행 계산
+            badge_height = 28
+            badge_gap = 8
+            row_gap = 10
+            max_width = width - 80 - 40  # 좌우 패딩 제외
+            current_row_width = 0
+            rows = 1
+            for stack in stacks[:20]:
+                text_len = len(stack["label"])
+                badge_width = max(60, min(200, text_len * 8 + 24))
+                if current_row_width + badge_width > max_width and current_row_width > 0:
+                    rows += 1
+                    current_row_width = badge_width + badge_gap
+                else:
+                    current_row_width += badge_width + badge_gap
+            stacks_height += rows * badge_height + (rows - 1) * row_gap
+            stacks_height += 24  # 카테고리 간 간격
+        stacks_height += section_padding * 2
+    
+    # Contact 섹션 높이 계산
+    contact_height = 0
     if card.show_contact and card.contacts:
-        pairs = []
-        for c in card.contacts:
-            label = html_escape.escape(c.get("label") or "")
-            value = html_escape.escape(c.get("value") or "")
-            if label and value:
-                pairs.append(f"{label}: {value}")
-        if pairs:
-            contacts_text = " • ".join(pairs)
+        contact_height += 28 + 24  # "Contact" 헤더
+        # 그리드 레이아웃: 최소 2열, 각 카드 높이 80px
+        num_contacts = min(len(card.contacts), 6)  # 최대 6개
+        cols = min(2, num_contacts)
+        rows = (num_contacts + cols - 1) // cols
+        contact_height += rows * 80 + (rows - 1) * 16  # 카드 높이 + 간격
+        contact_height += section_padding * 2
+    
+    # GitHub Stats 섹션 높이 계산
+    stats_height = 0
+    if card.show_github_stats:
+        stats_height += 28 + 24  # "Github-stats" 헤더
+        # 5개 박스: 3개 상단, 2개 하단
+        stats_height += 2 * 100 + 20  # 박스 높이 100px, 간격 20px
+        stats_height += section_padding * 2
+    
+    # 전체 높이 계산
+    total_height = banner_height + stacks_height + contact_height + stats_height
+    height = max(600, total_height)  # 최소 높이 600px
 
     svg = f"""<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" role="img" aria-labelledby="title desc">
   <defs>
@@ -287,8 +373,15 @@ def generate_svg(
       <stop offset="0%" stop-color="{primary}" />
       <stop offset="100%" stop-color="{secondary}" />
     </linearGradient>
+    <linearGradient id="statsGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="{primary}" />
+      <stop offset="100%" stop-color="{secondary}" />
+    </linearGradient>
     <filter id="cardShadow" x="-5%" y="-5%" width="110%" height="110%">
       <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="rgba(0,0,0,0.15)" />
+    </filter>
+    <filter id="smallShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="rgba(0,0,0,0.1)" />
     </filter>
   </defs>
   <title id="title">GitCard - {name}</title>
@@ -298,109 +391,165 @@ def generate_svg(
   <rect x="0" y="0" width="{width}" height="{height}" rx="16" ry="16" fill="#ffffff" filter="url(#cardShadow)" />
 
   <!-- Banner -->
-  <rect x="0" y="0" width="{width}" height="180" rx="16" ry="16" fill="url(#bannerGradient)" />
+  <rect x="0" y="0" width="{width}" height="{banner_height}" rx="16" ry="16" fill="url(#bannerGradient)" />
 
   <!-- Name -->
-  <text x="{width/2}" y="80" text-anchor="middle" fill="#ffffff" font-size="32" font-weight="700" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
+  <text x="{width/2}" y="80" text-anchor="middle" fill="#ffffff" font-size="42" font-weight="700" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
     Hello World 👋 I'm {name}!
   </text>
 
   <!-- Title -->
-  <text x="{width/2}" y="120" text-anchor="middle" fill="#ffffff" font-size="20" font-weight="500" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
+  <text x="{width/2}" y="130" text-anchor="middle" fill="#ffffff" font-size="24" font-weight="500" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" opacity="0.95">
     {title}
   </text>
 """
 
     if tagline:
         svg += f"""  <!-- Tagline -->
-  <text x="{width/2}" y="150" text-anchor="middle" fill="#f8f9fa" font-size="16" font-weight="400" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
+  <text x="{width/2}" y="160" text-anchor="middle" fill="#ffffff" font-size="18" font-weight="400" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" opacity="0.85">
     {tagline}
   </text>
 """
 
-    current_y = 210
+    current_y = banner_height + section_padding
 
-    # Stacks section (optional) - 실제 태그 색상을 사용한 뱃지 렌더링
-    if stacks_for_svg:
+    # Stacks section - 카테고리별로 그룹화하여 렌더링
+    if stacks_by_category:
         svg += f"""  <!-- Stacks Section -->
-  <text x="40" y="{current_y}" fill="#333333" font-size="18" font-weight="700" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
-    🛠 Tech Stack
+  <text x="40" y="{current_y}" fill="#333333" font-size="28" font-weight="700" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
+    Stacks
   </text>
 """
-        # 뱃지 레이아웃 설정
-        badge_start_x = 40
-        badge_start_y = current_y + 24
-        badge_x = badge_start_x
-        badge_y = badge_start_y
-        badge_height = 28
-        horizontal_gap = 8
-        vertical_gap = 10
-        max_width = width - 40
-
-        svg += "  <!-- Stack badges -->\n"
-        for stack in stacks_for_svg[:20]:  # 최대 20개까지만 표시
-            label = stack["label"]
-            color = stack["color"]
-            # 라벨 길이로 대략적인 너비 계산 (문자당 8px + 패딩)
-            text_len = len(label)
-            badge_width = max(60, min(200, text_len * 8 + 24))
-
-            # 줄바꿈 처리
-            if badge_x + badge_width > max_width:
-                badge_x = badge_start_x
-                badge_y += badge_height + vertical_gap
-
-            text_x = badge_x + badge_width / 2
-            text_y = badge_y + badge_height / 2 + 4
-
-            svg += f"""  <g>
-    <rect x="{badge_x}" y="{badge_y}" rx="14" ry="14" width="{badge_width}" height="{badge_height}" fill="{color}" />
-    <text x="{text_x}" y="{text_y}" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="600" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">{label}</text>
+        current_y += 28 + 24
+        
+        for category, stacks in stacks_by_category.items():
+            category_escaped = html_escape.escape(category.upper())
+            svg += f"""  <!-- Category: {category} -->
+  <text x="40" y="{current_y}" fill="#666666" font-size="18" font-weight="600" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" letter-spacing="0.5">
+    {category_escaped}
+  </text>
+"""
+            current_y += 18 + 12
+            
+            # 뱃지 렌더링
+            badge_start_x = 40
+            badge_x = badge_start_x
+            badge_y = current_y
+            badge_height = 28
+            horizontal_gap = 12
+            vertical_gap = 10
+            max_width = width - 80
+            
+            for stack in stacks[:20]:
+                label = stack["label"]
+                color = stack["color"]
+                text_len = len(label)
+                badge_width = max(60, min(200, text_len * 8 + 24))
+                
+                # 줄바꿈 처리
+                if badge_x + badge_width > max_width:
+                    badge_x = badge_start_x
+                    badge_y += badge_height + vertical_gap
+                
+                text_x = badge_x + badge_width / 2
+                text_y = badge_y + badge_height / 2 + 4
+                
+                svg += f"""  <g>
+    <rect x="{badge_x}" y="{badge_y}" rx="20" ry="20" width="{badge_width}" height="{badge_height}" fill="{color}" filter="url(#smallShadow)" />
+    <text x="{text_x}" y="{text_y}" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="600" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">{label}</text>
   </g>
 """
-            badge_x += badge_width + horizontal_gap
+                badge_x += badge_width + horizontal_gap
+            
+            current_y = badge_y + badge_height + 24
+        
+        current_y += section_padding - 24
 
-        current_y = badge_y + badge_height + 24
-
-    # Contact section (optional)
-    if contacts_text:
-        svg += f"""  <!-- Contact Section -->
-  <text x="40" y="{current_y}" fill="#333333" font-size="18" font-weight="700" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
-    📧 Contact
-  </text>
-  <text x="40" y="{current_y + 30}" fill="#495057" font-size="14" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
-    {contacts_text}
+    # Contact section - 카드 형태로 렌더링
+    if card.show_contact and card.contacts:
+        svg += f"""  <!-- Contact Section Background -->
+  <rect x="0" y="{current_y}" width="{width}" height="{contact_height - section_padding * 2}" fill="#f8f9fa" />
+  <text x="40" y="{current_y + section_padding}" fill="#333333" font-size="28" font-weight="700" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
+    Contact
   </text>
 """
-        current_y += 70
+        contact_start_y = current_y + section_padding + 28 + 24
+        contact_x = 40
+        contact_y = contact_start_y
+        contact_card_width = (width - 80 - 16) // 2  # 2열 그리드
+        contact_card_height = 80
+        contact_gap = 16
+        
+        for i, contact in enumerate(card.contacts[:6]):
+            if i > 0 and i % 2 == 0:
+                contact_x = 40
+                contact_y += contact_card_height + contact_gap
+            
+            label = html_escape.escape(contact.get("label", ""))
+            value = html_escape.escape(contact.get("value", ""))
+            
+            if label and value:
+                svg += f"""  <!-- Contact Card -->
+  <rect x="{contact_x}" y="{contact_y}" width="{contact_card_width}" height="{contact_card_height}" rx="12" ry="12" fill="#ffffff" filter="url(#smallShadow)" />
+  <text x="{contact_x + 20}" y="{contact_y + 24}" fill="#667eea" font-size="14" font-weight="600" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" letter-spacing="0.5">
+    {label.upper()}
+  </text>
+  <text x="{contact_x + 20}" y="{contact_y + 48}" fill="#333333" font-size="16" font-weight="400" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
+    {value[:40]}{'...' if len(value) > 40 else ''}
+  </text>
+"""
+                contact_x += contact_card_width + contact_gap
+        
+        current_y += contact_height
 
-    # GitHub stats section (optional, uses cached stats if available)
-    if stats:
-        repos = stats.get("repositories") or 0
-        stars = stats.get("stars") or 0
-        followers = stats.get("followers") or 0
-        following = stats.get("following") or 0
-        contributions = stats.get("contributions") or 0
-
-        stats_y = current_y + 10
-        box_w = (width - 80) / 5
-        box_h = 80
-
-        def stat_box(x_index: int, label: str, value: int) -> str:
-            x = 40 + x_index * (box_w + 4)
-            return f"""
+    # GitHub stats section - 그라데이션 배경 카드로 렌더링
+    if card.show_github_stats:
+        svg += f"""  <!-- GitHub Stats Section -->
+  <text x="40" y="{current_y + section_padding}" fill="#333333" font-size="28" font-weight="700" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
+    Github-stats
+  </text>
+"""
+        stats_start_y = current_y + section_padding + 28 + 24
+        
+        if stats:
+            repos = stats.get("repositories") or 0
+            stars = stats.get("stars") or 0
+            followers = stats.get("followers") or 0
+            following = stats.get("following") or 0
+            contributions = stats.get("contributions") or 0
+            
+            # 5개 박스: 3개 상단, 2개 하단
+            box_w = (width - 80 - 40) // 3  # 3열
+            box_h = 100
+            box_gap = 20
+            
+            stats_data = [
+                ("CONTRIBUTIONS", contributions),
+                ("REPOSITORIES", repos),
+                ("STARS", stars),
+                ("FOLLOWERS", followers),
+                ("FOLLOWING", following),
+            ]
+            
+            for i, (label, value) in enumerate(stats_data):
+                if i < 3:
+                    # 상단 행
+                    x = 40 + i * (box_w + box_gap)
+                    y = stats_start_y
+                else:
+                    # 하단 행 (중앙 정렬)
+                    x = 40 + (i - 3) * (box_w + box_gap) + (box_w + box_gap) // 2
+                    y = stats_start_y + box_h + box_gap
+                
+                svg += f"""  <!-- Stat Box: {label} -->
   <g>
-    <rect x="{x}" y="{stats_y}" width="{box_w}" height="{box_h}" rx="10" ry="10" fill="{primary}" opacity="0.9" />
-    <text x="{x + box_w/2}" y="{stats_y + 32}" text-anchor="middle" fill="#ffffff" font-size="22" font-weight="700" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">{value}</text>
-    <text x="{x + box_w/2}" y="{stats_y + 56}" text-anchor="middle" fill="#f1f3f5" font-size="12" font-weight="500" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif">{label}</text>
-  </g>"""
-
-        svg += "  <!-- GitHub Stats Section -->\n"
-        svg += stat_box(0, "Repos", repos)
-        svg += stat_box(1, "Stars", stars)
-        svg += stat_box(2, "Followers", followers)
-        svg += stat_box(3, "Following", following)
-        svg += stat_box(4, "Contribs", contributions)
+    <rect x="{x}" y="{y}" width="{box_w}" height="{box_h}" rx="12" ry="12" fill="url(#statsGradient)" filter="url(#smallShadow)" />
+    <text x="{x + box_w/2}" y="{y + 40}" text-anchor="middle" fill="#ffffff" font-size="36" font-weight="700" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">{value}</text>
+    <text x="{x + box_w/2}" y="{y + 70}" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="500" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" opacity="0.9" letter-spacing="0.5">
+      {label}
+    </text>
+  </g>
+"""
 
     svg += "\n</svg>"
     return svg
