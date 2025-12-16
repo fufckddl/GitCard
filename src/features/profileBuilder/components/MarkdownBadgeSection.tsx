@@ -11,10 +11,8 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
   githubLogin,
   cardId,
 }) => {
-  const [cardMarkdown, setCardMarkdown] = useState<string>('');
   const [readmeTemplate, setReadmeTemplate] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
-  const [cardCopied, setCardCopied] = useState(false);
   const [readmeCopied, setReadmeCopied] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -22,23 +20,8 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
   const publicCardUrl = `${FRONTEND_BASE_URL}/dashboard/${githubLogin}/cards/${cardId}`;
 
   useEffect(() => {
-    loadCardMarkdown();
     loadReadmeTemplate();
   }, [githubLogin, cardId]);
-
-  const loadCardMarkdown = async () => {
-    try {
-      const response = await fetch(
-        `${API_BASE_URL}/profiles/public/${githubLogin}/cards/${cardId}/markdown/card`
-      );
-      if (response.ok) {
-        const text = await response.text();
-        setCardMarkdown(text.trim());
-      }
-    } catch (error) {
-      console.error('카드용 마크다운 로드 실패:', error);
-    }
-  };
 
   const loadReadmeTemplate = async () => {
     try {
@@ -92,16 +75,6 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
     }
   };
 
-  const handleCopyCardMarkdown = async () => {
-    const success = await copyToClipboard(cardMarkdown);
-    if (success) {
-      setCardCopied(true);
-      setTimeout(() => setCardCopied(false), 2000);
-    } else {
-      alert('카드용 마크다운 복사에 실패했습니다. 아래 코드를 수동으로 선택하여 복사해주세요.');
-    }
-  };
-
   const handleCopyReadmeTemplate = async () => {
     const success = await copyToClipboard(readmeTemplate);
     if (success) {
@@ -137,10 +110,10 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
         아래 코드를 복사하여 GitHub README.md 파일에 붙여넣으세요.
       </p>
 
-      {/* README 템플릿 섹션 (권장) */}
+      {/* README 템플릿 섹션 */}
       <div className={styles.codeSection}>
         <div className={styles.codeHeader}>
-          <span className={styles.codeLabel}>📝 README 템플릿 (권장):</span>
+          <span className={styles.codeLabel}>📝 README 템플릿:</span>
           <Button
             onClick={handleCopyReadmeTemplate}
             variant={readmeCopied ? 'primary' : 'secondary'}
@@ -154,27 +127,7 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
         </div>
         <p className={styles.infoText}>
           💡 <strong>README 템플릿</strong>은 GitHub README에서 안정적으로 렌더링되도록 설계되었습니다.
-          capsule-render 배너, shields.io 배지, github-readme-stats를 사용합니다.
-        </p>
-      </div>
-
-      {/* 간단한 카드 이미지 마크다운 섹션 */}
-      <div className={styles.codeSection}>
-        <div className={styles.codeHeader}>
-          <span className={styles.codeLabel}>🖼️ 카드 이미지 마크다운 (간단):</span>
-          <Button
-            onClick={handleCopyCardMarkdown}
-            variant={cardCopied ? 'primary' : 'secondary'}
-            className={styles.copyButton}
-          >
-            {cardCopied ? '✓ 카드 마크다운 복사됨!' : '📋 카드 마크다운 복사'}
-          </Button>
-        </div>
-        <div className={styles.codeBlock}>
-          <code className={styles.code}>{cardMarkdown || '로딩 중...'}</code>
-        </div>
-        <p className={styles.infoText}>
-          💡 <strong>카드 이미지 마크다운</strong>은 GitCard 이미지만 포함하는 간단한 형식입니다.
+          SVG 배너, shields.io 배지, github-readme-stats를 사용합니다.
         </p>
       </div>
 
@@ -209,8 +162,7 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
       <div className={styles.infoBox}>
         <strong>💡 사용 방법:</strong>
         <ol className={styles.instructions}>
-          <li><strong>README 템플릿 (권장):</strong> 위의 "README 템플릿" 코드를 복사하여 README.md에 붙여넣으세요. GitHub에서 안정적으로 렌더링됩니다.</li>
-          <li><strong>카드 이미지 마크다운:</strong> GitCard 이미지만 포함하는 간단한 형식을 원하시면 "카드 이미지 마크다운"을 사용하세요.</li>
+          <li><strong>README 템플릿:</strong> 위의 "README 템플릿" 코드를 복사하여 README.md에 붙여넣으세요. GitHub에서 안정적으로 렌더링됩니다.</li>
         </ol>
       </div>
     </div>
