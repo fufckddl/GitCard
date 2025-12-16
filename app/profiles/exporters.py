@@ -102,9 +102,6 @@ async def generate_image_screenshot(
             # Navigate to the card page
             await page.goto(url, wait_until="networkidle", timeout=30000)
             
-            # Wait for fonts to load
-            await page.evaluate("document.fonts.ready")
-            
             # Wait for the card container to be visible
             card_selector = '[data-testid="gitcard-root"]'
             try:
@@ -114,19 +111,62 @@ async def generate_image_screenshot(
                 card_selector = ".cardWrapper"
                 await page.wait_for_selector(card_selector, timeout=10000, state="visible")
             
-            # Wait for all images to load
+            # Wait for all resources to load completely
+            await page.wait_for_load_state("networkidle", timeout=30000)
+            
+            # Wait for fonts to load
+            await page.evaluate("document.fonts.ready")
+            await page.wait_for_timeout(500)
+            
+            # Wait for all images to load completely
             await page.evaluate("""
-                Promise.all(
-                    Array.from(document.images).map(img => {
-                        if (img.complete) return Promise.resolve();
-                        return new Promise((resolve, reject) => {
-                            img.onload = resolve;
-                            img.onerror = resolve; // Continue even if image fails
-                            setTimeout(resolve, 5000); // Timeout after 5s
-                        });
-                    })
-                )
+                async () => {
+                    const images = Array.from(document.images);
+                    await Promise.all(
+                        images.map(img => {
+                            if (img.complete && img.naturalHeight !== 0) {
+                                return Promise.resolve();
+                            }
+                            return new Promise((resolve) => {
+                                const timeout = setTimeout(() => resolve(), 10000);
+                                img.onload = () => {
+                                    clearTimeout(timeout);
+                                    resolve();
+                                };
+                                img.onerror = () => {
+                                    clearTimeout(timeout);
+                                    resolve(); // Continue even if image fails
+                                };
+                            });
+                        })
+                    );
+                    // Additional wait to ensure images are fully rendered
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
             """)
+            
+            # Wait for CSS and stylesheets to load
+            await page.evaluate("""
+                () => {
+                    return Promise.all(
+                        Array.from(document.styleSheets).map(sheet => {
+                            try {
+                                if (sheet.cssRules) return Promise.resolve();
+                                return new Promise(resolve => {
+                                    sheet.onload = resolve;
+                                    sheet.onerror = resolve;
+                                    setTimeout(resolve, 2000);
+                                });
+                            } catch (e) {
+                                return Promise.resolve();
+                            }
+                        })
+                    );
+                }
+            """)
+            
+            # Wait for layout to stabilize (check if element size is stable)
+            await page.wait_for_timeout(1000)
             
             # Scroll to top of page first
             await page.evaluate("window.scrollTo(0, 0)")
@@ -218,28 +258,113 @@ async def generate_image_screenshot(
                     
                     # Reload page to ensure proper rendering with new viewport
                     await page.reload(wait_until="networkidle", timeout=30000)
-                    await page.wait_for_timeout(1000)
                     
-                    # Wait for fonts and images again
+                    # Wait for all resources to load completely after reload
+                    await page.wait_for_load_state("networkidle", timeout=30000)
+                    
+                    # Wait for fonts to load
                     await page.evaluate("document.fonts.ready")
+                    await page.wait_for_timeout(500)
+                    
+                    # Wait for all images to load completely
                     await page.evaluate("""
-                        Promise.all(
-                            Array.from(document.images).map(img => {
-                                if (img.complete) return Promise.resolve();
-                                return new Promise((resolve) => {
-                                    img.onload = resolve;
-                                    img.onerror = resolve;
-                                    setTimeout(resolve, 5000);
-                                });
-                            })
-                        )
+                        async () => {
+                            const images = Array.from(document.images);
+                            await Promise.all(
+                                images.map(img => {
+                                    if (img.complete && img.naturalHeight !== 0) {
+                                        return Promise.resolve();
+                                    }
+                                    return new Promise((resolve) => {
+                                        const timeout = setTimeout(() => resolve(), 10000);
+                                        img.onload = () => {
+                                            clearTimeout(timeout);
+                                            resolve();
+                                        };
+                                        img.onerror = () => {
+                                            clearTimeout(timeout);
+                                            resolve();
+                                        };
+                                    });
+                                })
+                            );
+                            // Additional wait to ensure images are fully rendered
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+                        }
                     """)
                     
-                    # Scroll to element position
-                    await page.evaluate(f"""
-                        window.scrollTo(0, {element_info['pageY'] - padding});
+                    # Wait for CSS and stylesheets
+                    await page.evaluate("""
+                        () => {
+                            return Promise.all(
+                                Array.from(document.styleSheets).map(sheet => {
+                                    try {
+                                        if (sheet.cssRules) return Promise.resolve();
+                                        return new Promise(resolve => {
+                                            sheet.onload = resolve;
+                                            sheet.onerror = resolve;
+                                            setTimeout(resolve, 2000);
+                                        });
+                                    } catch (e) {
+                                        return Promise.resolve();
+                                    }
+                                })
+                            );
+                        }
                     """)
+                    
+                    # Wait for layout to stabilize
+                    await page.wait_for_timeout(1500)
+                    
+                    # Re-query element to get updated position after reload
+                    card_element = await page.query_selector(card_selector)
+                    if not card_element:
+                        card_element = await page.query_selector(".cardWrapper")
+                    
+                    if card_element:
+                        # Get updated element position
+                        updated_element_info = await page.evaluate("""
+                            (selector) => {
+                                const element = document.querySelector(selector);
+                                if (!element) return null;
+                                const rect = element.getBoundingClientRect();
+                                return {
+                                    pageY: Math.round(rect.y + window.scrollY),
+                                    pageX: Math.round(rect.x + window.scrollX)
+                                };
+                            }
+                        """, card_selector)
+                        
+                        if updated_element_info:
+                            # Scroll to element position
+                            await page.evaluate(f"""
+                                window.scrollTo(0, {updated_element_info['pageY'] - padding});
+                            """)
+                        else:
+                            await page.evaluate(f"""
+                                window.scrollTo(0, {element_info['pageY'] - padding});
+                            """)
+                    else:
+                        await page.evaluate(f"""
+                            window.scrollTo(0, {element_info['pageY'] - padding});
+                        """)
+                    
+                    # Final wait for scroll and layout stabilization
                     await page.wait_for_timeout(1000)
+                    
+                    # Verify element is fully loaded and stable
+                    await page.evaluate("""
+                        () => {
+                            return new Promise(resolve => {
+                                // Wait for any pending animations or transitions
+                                requestAnimationFrame(() => {
+                                    requestAnimationFrame(() => {
+                                        setTimeout(resolve, 500);
+                                    });
+                                });
+                            });
+                        }
+                    """)
                     
                     # Re-query element after viewport change
                     card_element = await page.query_selector(card_selector)
@@ -796,32 +921,36 @@ def generate_svg_banner(card: ProfileCard) -> str:
     width = 900
     height = 200
     
+    # Calculate center x position
+    center_x = width / 2
+    
     # Build SVG with pure SVG elements (no foreignObject)
+    # Use absolute pixel values instead of percentages for GitHub README compatibility
     svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">
   <defs>
-    <linearGradient id="bannerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="bannerGradient" x1="0" y1="0" x2="{width}" y2="{height}">
       <stop offset="0%" stop-color="{primary}" />
       <stop offset="100%" stop-color="{secondary}" />
     </linearGradient>
   </defs>
   
   <!-- Gradient background -->
-  <rect width="100%" height="100%" fill="url(#bannerGradient)" />
+  <rect x="0" y="0" width="{width}" height="{height}" fill="url(#bannerGradient)" />
   
   <!-- Name text -->
-  <text x="50%" y="80" text-anchor="middle" fill="#ffffff" font-size="42" font-weight="700" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
+  <text x="{center_x}" y="80" text-anchor="middle" fill="#ffffff" font-size="42" font-weight="700" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
     🧩 Hello World 👋 I'm {name}!
   </text>
   
   <!-- Title text -->
-  <text x="50%" y="130" text-anchor="middle" fill="#ffffff" font-size="24" font-weight="500" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" opacity="0.95">
+  <text x="{center_x}" y="130" text-anchor="middle" fill="#ffffff" font-size="24" font-weight="500" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" opacity="0.95">
     {title}
   </text>
 '''
     
     if tagline:
         svg += f'''  <!-- Tagline text -->
-  <text x="50%" y="165" text-anchor="middle" fill="#ffffff" font-size="18" font-weight="400" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" opacity="0.85">
+  <text x="{center_x}" y="165" text-anchor="middle" fill="#ffffff" font-size="18" font-weight="400" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" opacity="0.85">
     {tagline}
   </text>
 '''
