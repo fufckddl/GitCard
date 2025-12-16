@@ -321,23 +321,24 @@ async def get_profile_card_image_url(
 async def get_profile_card_image(
     github_login: str,
     card_id: int,
-    width: int = 800,
-    height: int = 600,
+    format: str = "png",
+    v: Optional[str] = None,  # Cache busting parameter
     db: Session = Depends(get_db),
 ):
     """
-    Get profile card as PNG image.
-    Uses Playwright to take a screenshot of the profile card page.
+    Get profile card as PNG or WebP image.
+    Uses Playwright to take a screenshot of the actual web card UI.
+    The image matches the web design exactly (gradient, shadows, layout, fonts).
     This endpoint does not require authentication.
     
     Args:
         github_login: GitHub username
         card_id: Profile card ID
-        width: Image width in pixels (default: 800)
-        height: Image height in pixels (default: 600)
+        format: Image format ("png" or "webp", default: "png")
+        v: Cache busting parameter (ignored but accepted for URL versioning)
         
     Returns:
-        PNG image
+        PNG or WebP image
     """
     card = profile_crud.get_public_profile_card_by_github_login_and_card_id(
         db, github_login, card_id
@@ -346,8 +347,12 @@ async def get_profile_card_image(
     if not card:
         raise HTTPException(status_code=404, detail="Profile card not found")
     
+    # Validate format
+    if format not in ("png", "webp"):
+        format = "png"
+    
     screenshot = await exporters.generate_image_screenshot(
-        card, github_login, width, height
+        card, github_login, format=format
     )
     
     if screenshot is None:
@@ -356,11 +361,16 @@ async def get_profile_card_image(
             detail="Image generation is not available. Playwright may not be installed."
         )
     
+    # Set appropriate media type
+    media_type = "image/png" if format == "png" else "image/webp"
+    file_ext = format
+    
     return StreamingResponse(
         BytesIO(screenshot),
-        media_type="image/png",
+        media_type=media_type,
         headers={
-            "Content-Disposition": f'inline; filename="gitcard-{github_login}-{card_id}.png"'
+            "Content-Disposition": f'inline; filename="gitcard-{github_login}-{card_id}.{file_ext}"',
+            "Cache-Control": "public, max-age=86400",  # 24 hours
         }
     )
 

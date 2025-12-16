@@ -12,7 +12,7 @@ interface PreviewLayoutProps {
 
 export const PreviewLayout: React.FC<PreviewLayoutProps> = ({ config }) => {
   return (
-    <div className={styles.container}>
+    <div className={styles.container} data-testid="gitcard-root">
       <BannerSection config={config} />
       {config.showStacks && <StacksSection config={config} />}
       {config.showContact && <ContactSection config={config} />}
