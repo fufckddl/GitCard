@@ -591,7 +591,8 @@ def _extract_gradient_colors(card: ProfileCard) -> tuple[str, str]:
     
     # Pattern to match color values: either hex (#...) or rgb(...)
     # This regex finds both hex and rgb patterns, preserving their order
-    color_pattern = r"(?:#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})|rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\))"
+    # IMPORTANT: {6} must come before {3} to match 6-digit hex before 3-digit hex
+    color_pattern = r"(?:#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})|rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\))"
     
     colors = []
     for match in re.finditer(color_pattern, gradient_clean):
@@ -599,26 +600,36 @@ def _extract_gradient_colors(card: ProfileCard) -> tuple[str, str]:
         # groups[0] is hex color (if found)
         # groups[1], groups[2], groups[3] are RGB values (if found)
         if groups[0] is not None:  # Hex color found
-            colors.append(normalize_hex(groups[0]))
+            hex_color = normalize_hex(groups[0])
+            colors.append(hex_color)
+            print(f"[COLOR EXTRACT] Found hex color: {groups[0]} -> {hex_color}")
         elif groups[1] is not None and groups[2] is not None and groups[3] is not None:  # RGB color found
             r, g, b = int(groups[1]), int(groups[2]), int(groups[3])
-            colors.append(rgb_to_hex(r, g, b))
+            rgb_hex = rgb_to_hex(r, g, b)
+            colors.append(rgb_hex)
+            print(f"[COLOR EXTRACT] Found RGB color: rgb({r}, {g}, {b}) -> {rgb_hex}")
     
     # Extract primary and secondary colors
+    print(f"[COLOR EXTRACT] Total colors found: {len(colors)}, colors: {colors}")
     if len(colors) >= 2:
         primary = colors[0]
         secondary = colors[1]
+        print(f"[COLOR EXTRACT] Using colors[0]={primary}, colors[1]={secondary}")
     elif len(colors) == 1:
         primary = colors[0]
         secondary = default_secondary
+        print(f"[COLOR EXTRACT] Only one color found, using default secondary: {secondary}")
     else:
         # No colors found, try fallback patterns
         # Pattern 1: Try hex only
-        hex_regex = r"#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})"
+        # IMPORTANT: {6} must come before {3} to match 6-digit hex before 3-digit hex
+        hex_regex = r"#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})"
         hex_matches = re.findall(hex_regex, gradient_clean)
+        print(f"[COLOR EXTRACT FALLBACK] Hex matches: {hex_matches}")
         if hex_matches:
             primary = normalize_hex(hex_matches[0])
             secondary = normalize_hex(hex_matches[1]) if len(hex_matches) >= 2 else default_secondary
+            print(f"[COLOR EXTRACT FALLBACK] Using hex fallback - primary={primary}, secondary={secondary}")
             return primary, secondary
         
         # Pattern 2: Try RGB only
