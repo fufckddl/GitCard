@@ -553,8 +553,10 @@ def _extract_gradient_colors(card: ProfileCard) -> tuple[str, str]:
     Extract gradient colors from card.gradient field in database.
     
     Supports formats:
-    - linear-gradient(135deg, #667eea 0%, #764ba2 100%)  (most common)
-    - linear-gradient(135deg, rgb(102, 126, 234) 0%, rgb(118, 75, 162) 100%)
+    - linear-gradient(135deg, #667eea 0%, #764ba2 100%)  (hex + hex)
+    - linear-gradient(135deg, rgb(102, 126, 234) 0%, rgb(118, 75, 162) 100%)  (rgb + rgb)
+    - linear-gradient(135deg, #667eea 0%, rgb(106, 104, 240) 100%)  (hex + rgb) - MIXED FORMAT
+    - linear-gradient(135deg, rgb(102, 126, 234) 0%, #764ba2 100%)  (rgb + hex) - MIXED FORMAT
     - #667eea, #764ba2
     - #667eea
     """
@@ -573,69 +575,71 @@ def _extract_gradient_colors(card: ProfileCard) -> tuple[str, str]:
     # Normalize: remove whitespace for easier parsing
     gradient_clean = gradient.strip()
     
-    # Pattern 1: Extract hex colors from linear-gradient format
-    # Matches: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
-    # More robust regex that captures the # symbol as well
-    hex_regex = r"#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})"
-    hex_matches = re.findall(hex_regex, gradient_clean)
+    # Helper functions
+    def normalize_hex(hex_str: str) -> str:
+        """Convert 3-digit hex to 6-digit hex."""
+        if len(hex_str) == 3:
+            return f"#{hex_str[0]}{hex_str[0]}{hex_str[1]}{hex_str[1]}{hex_str[2]}{hex_str[2]}"
+        return f"#{hex_str}"
     
-    if hex_matches:
-        # Convert 3-digit to 6-digit hex if needed
-        def normalize_hex(hex_str: str) -> str:
-            if len(hex_str) == 3:
-                return f"#{hex_str[0]}{hex_str[0]}{hex_str[1]}{hex_str[1]}{hex_str[2]}{hex_str[2]}"
-            return f"#{hex_str}"
-        
-        primary = normalize_hex(hex_matches[0])
-        # Ensure we have two different colors
-        if len(hex_matches) >= 2:
-            secondary = normalize_hex(hex_matches[1])
-        else:
-            # If only one color found, use a darker/lighter version or default
-            secondary = default_secondary
-        
-        # Ensure primary and secondary are different
-        if primary == secondary:
-            secondary = default_secondary
-        
-        return primary, secondary
+    def rgb_to_hex(r: int, g: int, b: int) -> str:
+        """Convert RGB to hex."""
+        return f"#{r:02x}{g:02x}{b:02x}"
     
-    # Pattern 2: Try to parse rgb() values
-    rgb_regex = r"rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)"
-    rgb_matches = re.findall(rgb_regex, gradient_clean)
+    # Find all color values in order (both hex and RGB)
+    # We need to find colors in the order they appear in the gradient string
     
-    if rgb_matches:
-        def rgb_to_hex(r: int, g: int, b: int) -> str:
-            return f"#{r:02x}{g:02x}{b:02x}"
-        
-        r, g, b = map(int, rgb_matches[0])
-        primary = rgb_to_hex(r, g, b)
-        
-        if len(rgb_matches) >= 2:
-            r2, g2, b2 = map(int, rgb_matches[1])
-            secondary = rgb_to_hex(r2, g2, b2)
-        else:
-            secondary = default_secondary
-        
-        return primary, secondary
+    # Pattern to match color values: either hex (#...) or rgb(...)
+    # This regex finds both hex and rgb patterns, preserving their order
+    color_pattern = r"(?:#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})|rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\))"
     
-    # Pattern 3: Try to find any hex color in the string (fallback)
-    any_hex_regex = r"#([A-Fa-f0-9]{3,6})"
-    any_hex_matches = re.findall(any_hex_regex, gradient_clean)
+    colors = []
+    for match in re.finditer(color_pattern, gradient_clean):
+        groups = match.groups()
+        if groups[0]:  # Hex color found
+            colors.append(normalize_hex(groups[0]))
+        elif groups[1] and groups[2] and groups[3]:  # RGB color found
+            r, g, b = int(groups[1]), int(groups[2]), int(groups[3])
+            colors.append(rgb_to_hex(r, g, b))
     
-    if any_hex_matches:
-        def normalize_hex(hex_str: str) -> str:
-            if len(hex_str) == 3:
-                return f"#{hex_str[0]}{hex_str[0]}{hex_str[1]}{hex_str[1]}{hex_str[2]}{hex_str[2]}"
-            return f"#{hex_str}"
+    # Extract primary and secondary colors
+    if len(colors) >= 2:
+        primary = colors[0]
+        secondary = colors[1]
+    elif len(colors) == 1:
+        primary = colors[0]
+        secondary = default_secondary
+    else:
+        # No colors found, try fallback patterns
+        # Pattern 1: Try hex only
+        hex_regex = r"#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})"
+        hex_matches = re.findall(hex_regex, gradient_clean)
+        if hex_matches:
+            primary = normalize_hex(hex_matches[0])
+            secondary = normalize_hex(hex_matches[1]) if len(hex_matches) >= 2 else default_secondary
+            return primary, secondary
         
-        primary = normalize_hex(any_hex_matches[0])
-        secondary = normalize_hex(any_hex_matches[1]) if len(any_hex_matches) >= 2 else default_secondary
+        # Pattern 2: Try RGB only
+        rgb_regex = r"rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)"
+        rgb_matches = re.findall(rgb_regex, gradient_clean)
+        if rgb_matches:
+            r, g, b = map(int, rgb_matches[0])
+            primary = rgb_to_hex(r, g, b)
+            if len(rgb_matches) >= 2:
+                r2, g2, b2 = map(int, rgb_matches[1])
+                secondary = rgb_to_hex(r2, g2, b2)
+            else:
+                secondary = default_secondary
+            return primary, secondary
         
-        return primary, secondary
+        # All parsing failed
+        return default_primary, default_secondary
     
-    # If all parsing fails, use defaults
-    return default_primary, default_secondary
+    # Ensure primary and secondary are different
+    if primary == secondary:
+        secondary = default_secondary
+    
+    return primary, secondary
 
 
 def generate_svg(
