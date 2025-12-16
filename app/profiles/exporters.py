@@ -139,35 +139,127 @@ async def generate_image_screenshot(
                 card_element = await page.query_selector(".cardWrapper")
             
             if card_element:
-                # Scroll element into view to ensure it's fully rendered
-                await card_element.scroll_into_view_if_needed()
-                
-                # Wait for scroll to complete
-                await page.wait_for_timeout(500)
-                
-                # Additional wait for layout stability
-                await page.wait_for_timeout(1000)
-                
-                # Verify element is fully visible by checking if it's in viewport
-                is_visible = await page.evaluate("""
+                # Get element's actual dimensions using multiple methods for accuracy
+                element_info = await page.evaluate("""
                     (selector) => {
                         const element = document.querySelector(selector);
-                        if (!element) return false;
+                        if (!element) return null;
+                        
+                        // Get bounding rect (relative to viewport)
                         const rect = element.getBoundingClientRect();
-                        const viewportHeight = window.innerHeight;
-                        // Check if element top is visible and bottom is within or below viewport
-                        return rect.top >= 0 && rect.top < viewportHeight;
+                        
+                        // Get scroll dimensions (actual content size)
+                        const scrollHeight = element.scrollHeight;
+                        const scrollWidth = element.scrollWidth;
+                        
+                        // Get client dimensions (visible area)
+                        const clientHeight = element.clientHeight;
+                        const clientWidth = element.clientWidth;
+                        
+                        // Get computed styles for padding/border
+                        const styles = window.getComputedStyle(element);
+                        const paddingTop = parseFloat(styles.paddingTop) || 0;
+                        const paddingBottom = parseFloat(styles.paddingBottom) || 0;
+                        const paddingLeft = parseFloat(styles.paddingLeft) || 0;
+                        const paddingRight = parseFloat(styles.paddingRight) || 0;
+                        const borderTop = parseFloat(styles.borderTopWidth) || 0;
+                        const borderBottom = parseFloat(styles.borderBottomWidth) || 0;
+                        const borderLeft = parseFloat(styles.borderLeftWidth) || 0;
+                        const borderRight = parseFloat(styles.borderRightWidth) || 0;
+                        
+                        // Calculate total dimensions including padding and border
+                        const totalHeight = scrollHeight + paddingTop + paddingBottom + borderTop + borderBottom;
+                        const totalWidth = scrollWidth + paddingLeft + paddingRight + borderLeft + borderRight;
+                        
+                        // Use the maximum of all measurements to ensure we capture everything
+                        const finalHeight = Math.max(
+                            Math.round(rect.height),
+                            Math.round(scrollHeight),
+                            Math.round(clientHeight),
+                            Math.round(totalHeight)
+                        );
+                        const finalWidth = Math.max(
+                            Math.round(rect.width),
+                            Math.round(scrollWidth),
+                            Math.round(clientWidth),
+                            Math.round(totalWidth)
+                        );
+                        
+                        return {
+                            x: Math.round(rect.x),
+                            y: Math.round(rect.y),
+                            width: finalWidth,
+                            height: finalHeight,
+                            scrollHeight: scrollHeight,
+                            scrollWidth: scrollWidth,
+                            pageY: Math.round(rect.y + window.scrollY),
+                            pageX: Math.round(rect.x + window.scrollX)
+                        };
                     }
                 """, card_selector)
                 
-                if not is_visible:
-                    # If not visible, scroll again
-                    await card_element.scroll_into_view_if_needed()
+                if element_info:
+                    # Calculate required viewport size
+                    # Add extra padding to ensure nothing is cut off
+                    padding = 50
+                    required_height = element_info['pageY'] + element_info['height'] + padding
+                    required_width = element_info['pageX'] + element_info['width'] + padding
+                    
+                    # Ensure minimum viewport size
+                    min_viewport_height = max(required_height, 4000)
+                    min_viewport_width = max(required_width, width)
+                    
+                    # Resize viewport to accommodate full element
+                    await page.set_viewport_size({
+                        'width': min_viewport_width,
+                        'height': min_viewport_height
+                    })
                     await page.wait_for_timeout(500)
-                
-                # Screenshot WITHOUT clip - let element.screenshot() handle the full bounding box
-                # This is the key fix: element.screenshot() automatically captures the full element
-                screenshot = await card_element.screenshot(type=format)
+                    
+                    # Reload page to ensure proper rendering with new viewport
+                    await page.reload(wait_until="networkidle", timeout=30000)
+                    await page.wait_for_timeout(1000)
+                    
+                    # Wait for fonts and images again
+                    await page.evaluate("document.fonts.ready")
+                    await page.evaluate("""
+                        Promise.all(
+                            Array.from(document.images).map(img => {
+                                if (img.complete) return Promise.resolve();
+                                return new Promise((resolve) => {
+                                    img.onload = resolve;
+                                    img.onerror = resolve;
+                                    setTimeout(resolve, 5000);
+                                });
+                            })
+                        )
+                    """)
+                    
+                    # Scroll to element position
+                    await page.evaluate(f"""
+                        window.scrollTo(0, {element_info['pageY'] - padding});
+                    """)
+                    await page.wait_for_timeout(1000)
+                    
+                    # Re-query element after viewport change
+                    card_element = await page.query_selector(card_selector)
+                    if not card_element:
+                        card_element = await page.query_selector(".cardWrapper")
+                    
+                    if card_element:
+                        # Take screenshot - element.screenshot() should capture full element now
+                        screenshot = await card_element.screenshot(
+                            type=format,
+                            timeout=15000
+                        )
+                    else:
+                        # Fallback: full page screenshot
+                        screenshot = await page.screenshot(type=format, full_page=True)
+                else:
+                    # Fallback: try regular element screenshot
+                    await card_element.scroll_into_view_if_needed()
+                    await page.wait_for_timeout(1000)
+                    screenshot = await card_element.screenshot(type=format, timeout=10000)
             else:
                 # Fallback: full page screenshot
                 screenshot = await page.screenshot(type=format, full_page=True)
