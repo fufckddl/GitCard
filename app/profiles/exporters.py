@@ -575,7 +575,8 @@ def _extract_gradient_colors(card: ProfileCard) -> tuple[str, str]:
     
     # Pattern 1: Extract hex colors from linear-gradient format
     # Matches: linear-gradient(135deg, #667eea 0%, #764ba2 100%)
-    hex_regex = r"#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})\b"
+    # More robust regex that captures the # symbol as well
+    hex_regex = r"#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})"
     hex_matches = re.findall(hex_regex, gradient_clean)
     
     if hex_matches:
@@ -586,7 +587,16 @@ def _extract_gradient_colors(card: ProfileCard) -> tuple[str, str]:
             return f"#{hex_str}"
         
         primary = normalize_hex(hex_matches[0])
-        secondary = normalize_hex(hex_matches[1]) if len(hex_matches) >= 2 else default_secondary
+        # Ensure we have two different colors
+        if len(hex_matches) >= 2:
+            secondary = normalize_hex(hex_matches[1])
+        else:
+            # If only one color found, use a darker/lighter version or default
+            secondary = default_secondary
+        
+        # Ensure primary and secondary are different
+        if primary == secondary:
+            secondary = default_secondary
         
         return primary, secondary
     
@@ -970,6 +980,12 @@ def generate_svg_banner(card: ProfileCard) -> str:
     # Extract gradient colors
     primary, secondary = _extract_gradient_colors(card)
     
+    # Debug: Ensure we have valid colors
+    if not primary or not primary.startswith('#'):
+        primary = card.primary_color or "#667eea"
+    if not secondary or not secondary.startswith('#'):
+        secondary = "#764ba2"
+    
     # Escape HTML entities for SVG text
     name = html_escape.escape(card.name)
     title = html_escape.escape(card.title)
@@ -983,10 +999,11 @@ def generate_svg_banner(card: ProfileCard) -> str:
     center_x = width / 2
     
     # Build SVG with pure SVG elements (no foreignObject)
-    # Use absolute pixel values instead of percentages for GitHub README compatibility
+    # Use absolute pixel values for GitHub README compatibility
+    # For 135deg gradient: from top-left (0,0) to bottom-right (width, height)
     svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">
   <defs>
-    <linearGradient id="bannerGradient" x1="0" y1="0" x2="{width}" y2="{height}">
+    <linearGradient id="bannerGradient" x1="0" y1="0" x2="{width}" y2="{height}" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="{primary}" />
       <stop offset="100%" stop-color="{secondary}" />
     </linearGradient>
