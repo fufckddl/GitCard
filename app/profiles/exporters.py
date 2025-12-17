@@ -694,6 +694,10 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
             # Get icon from contact type mapping
             icon_slug = CONTACT_ICON_MAP.get(contact_type) if contact_type else None
             
+            # Debug: Print contact info for troubleshooting
+            if not icon_slug and contact_type:
+                print(f"[HTML] Icon not found for contact_type: '{contact_type}', label: '{label}'")
+            
             is_email = '@' in value and not value.startswith('http')
             is_url = value.startswith('http://') or value.startswith('https://')
             
@@ -710,10 +714,13 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
                 target_attr = 'target="_blank"'
                 rel_attr = 'rel="noopener noreferrer"'
             
-            # Build icon HTML
+            # Build icon HTML - always include icon if type is specified
             icon_html = ""
             if icon_slug:
                 icon_html = f'<img src="https://cdn.simpleicons.org/{icon_slug}/black" alt="{label}" style="width: 32px; height: 32px; margin-right: 16px; object-fit: contain; flex-shrink: 0;" />'
+            elif contact_type:
+                # If type is specified but icon not found, log warning
+                print(f"[HTML] Warning: Contact type '{contact_type}' specified but icon not in CONTACT_ICON_MAP")
             
             html += f"""      <a href="{href}" {target_attr} {rel_attr} style="display: flex; flex-direction: row; align-items: center; gap: 16px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); text-decoration: none; color: inherit;">
         {icon_html}
