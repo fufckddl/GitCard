@@ -74,9 +74,9 @@ async def create_profile_card(
         show_stacks=card_data.show_stacks,
         show_contact=card_data.show_contact,
         show_github_stats=card_data.show_github_stats,
-        stack_alignment=card_data.stack_alignment,
         stacks=card_data.stacks,
         contacts=card_data.contacts,
+        stack_alignment=card_data.stack_alignment,
     )
     
     return {
