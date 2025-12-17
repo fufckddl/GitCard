@@ -1321,16 +1321,31 @@ def generate_readme_template(
                     
                     # If key is empty, try to use label as key (normalize to lowercase, replace spaces with hyphens)
                     if not stack_key and stack_label:
-                        # Try to find icon by normalizing label (e.g., "Node.js" -> "nodejs")
+                        # Try to find icon by normalizing label (e.g., "Node.js" -> "nodejs", "Java" -> "java")
                         normalized_label = stack_label.lower().replace(' ', '-').replace('.', '').replace('++', 'plusplus')
-                        stack_key = normalized_label
+                        # Try exact match first
+                        if normalized_label in STACK_ICON_MAP:
+                            stack_key = normalized_label
+                        else:
+                            # Try variations (e.g., "node.js" -> "nodejs", "c++" -> "cpp")
+                            variations = [
+                                normalized_label.replace('-', ''),
+                                normalized_label.replace('.', ''),
+                                normalized_label.replace(' ', ''),
+                            ]
+                            for variant in variations:
+                                if variant in STACK_ICON_MAP:
+                                    stack_key = variant
+                                    break
                     
                     # Get icon slug from mapping
                     icon_slug = STACK_ICON_MAP.get(stack_key) if stack_key else None
                     
-                    # Debug: Print if icon not found
+                    # Debug: Print if icon not found (only in development)
                     if not icon_slug and stack_key:
-                        print(f"[README] Icon not found for stack_key: {stack_key}, label: {stack_label}")
+                        print(f"[README] Icon not found for stack_key: '{stack_key}', label: '{stack_label}'")
+                    elif not icon_slug:
+                        print(f"[README] No stack_key for label: '{stack_label}'")
                     
                     # Remove # from color for URL
                     color_code = stack_color.replace('#', '')
