@@ -1319,8 +1319,18 @@ def generate_readme_template(
                     stack_color = stack_info.get('color', '#667eea') if isinstance(stack_info, dict) else '#667eea'
                     stack_key = stack_info.get('key', '') if isinstance(stack_info, dict) else ''
                     
+                    # If key is empty, try to use label as key (normalize to lowercase, replace spaces with hyphens)
+                    if not stack_key and stack_label:
+                        # Try to find icon by normalizing label (e.g., "Node.js" -> "nodejs")
+                        normalized_label = stack_label.lower().replace(' ', '-').replace('.', '').replace('++', 'plusplus')
+                        stack_key = normalized_label
+                    
                     # Get icon slug from mapping
                     icon_slug = STACK_ICON_MAP.get(stack_key) if stack_key else None
+                    
+                    # Debug: Print if icon not found
+                    if not icon_slug and stack_key:
+                        print(f"[README] Icon not found for stack_key: {stack_key}, label: {stack_label}")
                     
                     # Remove # from color for URL
                     color_code = stack_color.replace('#', '')
@@ -1356,13 +1366,8 @@ def generate_readme_template(
                 # Determine contact type and create appropriate badge
                 label_escaped = label.replace('-', '--').replace('_', '__').replace(' ', '%20')
                 
-                if '@' in value:
-                    # Email
-                    contact_type = 'email'
-                    contact_value_escaped = value.replace('@', '%40').replace(' ', '%20')
-                    badge_url = f"https://img.shields.io/badge/{label_escaped}-{contact_value_escaped}-EA4335?style=for-the-badge&logo=gmail&logoColor=white"
-                    link = f"mailto:{value}"
-                elif value.startswith('http://') or value.startswith('https://'):
+                # Check URL first (before email check) to avoid false positives
+                if value.startswith('http://') or value.startswith('https://'):
                     # URL
                     contact_type = 'url'
                     domain = value.replace('http://', '').replace('https://', '').split('/')[0].replace('.', '%2E')
@@ -1374,6 +1379,12 @@ def generate_readme_template(
                     username = value.split('/')[-1] if '/' in value else value
                     badge_url = f"https://img.shields.io/badge/{label_escaped}-{username}-181717?style=for-the-badge&logo=github&logoColor=white"
                     link = value if value.startswith('http') else f"https://{value}"
+                elif '@' in value and not value.startswith('http'):
+                    # Email (only if it's not a URL)
+                    contact_type = 'email'
+                    contact_value_escaped = value.replace('@', '%40').replace(' ', '%20')
+                    badge_url = f"https://img.shields.io/badge/{label_escaped}-{contact_value_escaped}-EA4335?style=for-the-badge&logo=gmail&logoColor=white"
+                    link = f"mailto:{value}"
                 else:
                     # Plain text or other
                     contact_type = 'text'

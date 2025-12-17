@@ -290,29 +290,29 @@ export const ProfileCardDetailPage: React.FC = () => {
           </div>
         ) : (
           <>
-            <div className={styles.previewContainer}>
-              <div className={styles.previewWrapper}>
-                <PreviewLayout
-                  config={{
-                    cardTitle: card.card_title,
-                    name: card.name,
-                    title: card.title,
-                    tagline: card.tagline,
-                    primaryColor: card.primary_color || '#667eea',
+          <div className={styles.previewContainer}>
+            <div className={styles.previewWrapper}>
+              <PreviewLayout
+                config={{
+                  cardTitle: card.card_title,
+                  name: card.name,
+                  title: card.title,
+                  tagline: card.tagline,
+                  primaryColor: card.primary_color || '#667eea',
                     secondaryColor: '#764ba2',
                     gradient:
                       card.gradient ||
                       `linear-gradient(135deg, ${card.primary_color || '#667eea'} 0%, #764ba2 100%)`,
-                    showStacks: card.show_stacks,
-                    showContact: card.show_contact,
-                    showGithubStats: card.show_github_stats,
+                  showStacks: card.show_stacks,
+                  showContact: card.show_contact,
+                  showGithubStats: card.show_github_stats,
                     stackAlignment: card.stack_alignment || 'center',
                     stacks: convertStacks(card.stacks),
-                    contacts: card.contacts,
-                  }}
-                />
-              </div>
+                  contacts: card.contacts,
+                }}
+              />
             </div>
+          </div>
             {user?.github_login && (
               <MarkdownBadgeSection
                 githubLogin={user.github_login}

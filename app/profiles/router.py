@@ -186,10 +186,10 @@ async def update_profile_card(
         stacks=card_data.stacks,
         contacts=card_data.contacts,
     )
-
+    
     if not card:
         raise HTTPException(status_code=404, detail="Profile card not found")
-
+    
     return {
         "id": card.id,
         "user_id": card.user_id,
