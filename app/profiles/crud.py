@@ -27,6 +27,7 @@ def create_profile_card(
     contacts: List[Dict],
 ) -> ProfileCard:
     """Create a new profile card."""
+    print(f"[CREATE_CARD] stack_alignment={stack_alignment}")  # Debug log
     card = ProfileCard(
         user_id=user_id,
         card_title=card_title,
@@ -45,6 +46,7 @@ def create_profile_card(
     db.add(card)
     db.commit()
     db.refresh(card)
+    print(f"[CREATE_CARD] Saved card_id={card.id}, stack_alignment={card.stack_alignment}")  # Debug log
     return card
 
 
@@ -106,6 +108,7 @@ def update_profile_card(
     if show_github_stats is not None:
         card.show_github_stats = show_github_stats
     if stack_alignment is not None:
+        print(f"[UPDATE_CARD] Updating stack_alignment from '{card.stack_alignment}' to '{stack_alignment}'")  # Debug log
         card.stack_alignment = stack_alignment
     if stacks is not None:
         card.stacks = stacks
