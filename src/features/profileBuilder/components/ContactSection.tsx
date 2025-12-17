@@ -41,7 +41,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ config }) => {
             >
               {displayIcon && (
                 <img
-                  src={`https://cdn.simpleicons.org/${displayIcon}/white`}
+                  src={`https://cdn.simpleicons.org/${displayIcon}/black`}
                   alt={displayLabel}
                   className={styles.icon}
                 />

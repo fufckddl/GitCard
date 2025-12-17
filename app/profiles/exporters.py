@@ -15,11 +15,13 @@ from app.config import settings
 CONTACT_ICON_MAP: Dict[str, str] = {
     "mail": "gmail",
     "instagram": "instagram",
-    "linkedin": "linkedin",
+    "linkedin": "insprie",
     "velog": "velog",
     "reddit": "reddit",
     "facebook": "facebook",
     "youtube": "youtube",
+    "twitter": "twitter",
+    "thread": "threads",
 }
 
 # Stack key to Simple Icons slug mapping (matching stackMeta.ts)
@@ -110,6 +112,7 @@ STACK_ICON_MAP: Dict[str, str] = {
     "notion": "notion",
     "slack": "slack",
     "discord": "discord",
+    "figma": "figma",
     # AI/ML
     "pandas": "pandas",
     "numpy": "numpy",
@@ -710,7 +713,7 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
             # Build icon HTML
             icon_html = ""
             if icon_slug:
-                icon_html = f'<img src="https://cdn.simpleicons.org/{icon_slug}/white" alt="{label}" style="width: 32px; height: 32px; margin-right: 16px; object-fit: contain; flex-shrink: 0;" />'
+                icon_html = f'<img src="https://cdn.simpleicons.org/{icon_slug}/black" alt="{label}" style="width: 32px; height: 32px; margin-right: 16px; object-fit: contain; flex-shrink: 0;" />'
             
             html += f"""      <a href="{href}" {target_attr} {rel_attr} style="display: flex; flex-direction: row; align-items: center; gap: 16px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); text-decoration: none; color: inherit;">
         {icon_html}

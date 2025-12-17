@@ -167,6 +167,7 @@ export const STACK_META_LIST: StackMeta[] = [
   { key: "notion", label: "Notion", category: "collaboration", color: "#000000", icon: "notion" },
   { key: "slack", label: "Slack", category: "collaboration", color: "#4A154B", icon: "slack" },
   { key: "discord", label: "Discord", category: "collaboration", color: "#5865F2", icon: "discord" },
+  { key: "figma", label: "Figma", category: "collaboration", color: "#F24E1E", icon: "figma" },
 
   // ==========================================================================
   // AI / ML
