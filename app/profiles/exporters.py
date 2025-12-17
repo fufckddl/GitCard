@@ -1296,8 +1296,9 @@ def generate_readme_template(
                 stacks_by_category[category] = []
             label = stack.get('label') or stack.get('key', '')
             color = stack.get('color', '#667eea')
+            stack_key = stack.get('key', '')  # Get key for icon lookup
             if label:
-                stacks_by_category[category].append({'label': label, 'color': color})
+                stacks_by_category[category].append({'label': label, 'color': color, 'key': stack_key})
         
         # Render categories in order matching stackMeta.ts
         for category in category_order:
