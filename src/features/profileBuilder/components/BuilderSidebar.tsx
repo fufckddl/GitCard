@@ -147,6 +147,20 @@ export const BuilderSidebar: React.FC<BuilderSidebarProps> = ({ profileConfig })
                 스택 섹션 표시
               </label>
             </div>
+            {config.showStacks && (
+              <div className={styles.formGroup}>
+                <label>스택 배지 정렬</label>
+                <select
+                  value={config.stackAlignment}
+                  onChange={(e) => updateConfig({ stackAlignment: e.target.value as 'left' | 'center' | 'right' })}
+                  className={styles.select}
+                >
+                  <option value="left">좌측</option>
+                  <option value="center">가운데</option>
+                  <option value="right">우측</option>
+                </select>
+              </div>
+            )}
             <div className={styles.formGroup}>
               <label className={styles.checkboxLabel}>
                 <input

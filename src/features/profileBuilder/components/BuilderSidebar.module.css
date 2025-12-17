@@ -168,6 +168,22 @@
   cursor: pointer;
 }
 
+.select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+  background: white;
+  cursor: pointer;
+}
+
+.select:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
 .list {
   display: flex;
   flex-direction: column;

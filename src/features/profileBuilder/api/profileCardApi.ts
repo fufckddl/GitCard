@@ -15,6 +15,7 @@ export interface ProfileCard {
   show_stacks: boolean;
   show_contact: boolean;
   show_github_stats: boolean;
+  stack_alignment: 'left' | 'center' | 'right';  // 스택 배지 정렬
   stacks: Array<{ id: string; key?: string; label: string; category: string; color: string }>;
   contacts: Array<{ id: string; label: string; value: string }>;
   created_at: string;
@@ -43,6 +44,7 @@ export const saveProfileCard = async (config: ProfileConfig): Promise<ProfileCar
       show_stacks: config.showStacks,
       show_contact: config.showContact,
       show_github_stats: config.showGithubStats,
+      stack_alignment: config.stackAlignment,
       stacks: config.stacks,
       contacts: config.contacts,
     }),
@@ -108,6 +110,7 @@ export const updateProfileCard = async (
       show_stacks: config.showStacks,
       show_contact: config.showContact,
       show_github_stats: config.showGithubStats,
+      stack_alignment: config.stackAlignment,
       stacks: config.stacks,
       contacts: config.contacts,
     }),

@@ -100,6 +100,7 @@ export const ProfileCardDetailPage: React.FC = () => {
         showStacks: card.show_stacks,
         showContact: card.show_contact,
         showGithubStats: card.show_github_stats,
+        stackAlignment: card.stack_alignment || 'center',
         stacks: convertStacks(card.stacks),
         contacts: card.contacts,
       });
@@ -185,6 +186,7 @@ export const ProfileCardDetailPage: React.FC = () => {
         showStacks: card.show_stacks,
         showContact: card.show_contact,
         showGithubStats: card.show_github_stats,
+        stackAlignment: card.stack_alignment || 'center',
         stacks: convertStacks(card.stacks),
         contacts: card.contacts,
       });

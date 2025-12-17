@@ -55,10 +55,17 @@ export const StacksSection: React.FC<StacksSectionProps> = ({ config }) => {
 
           const categoryLabel = categoryLabels[category] || category.toUpperCase();
 
+          const alignmentStyle = {
+            justifyContent: 
+              config.stackAlignment === 'left' ? 'flex-start' :
+              config.stackAlignment === 'right' ? 'flex-end' :
+              'center'
+          };
+
           return (
             <div key={category} className={styles.categoryGroup}>
               <h3 className={styles.categoryTitle}>{categoryLabel}</h3>
-              <div className={styles.badges}>
+              <div className={styles.badges} style={alignmentStyle}>
                 {stacks.map((stack) => {
                   // Use stackMeta if key exists, otherwise use stack's own values
                   const meta = stack.key ? getStackMeta(stack.key) : null;

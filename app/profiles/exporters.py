@@ -490,9 +490,13 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
                 stacks = stacks_by_category[category]
                 category_label = category_labels.get(category, category.upper())
                 category_escaped = html_escape.escape(category_label)
+                # Get alignment from card
+                alignment = card.stack_alignment or 'center'
+                justify_content = 'flex-start' if alignment == 'left' else ('flex-end' if alignment == 'right' else 'center')
+                
                 html += f"""      <div style="display: flex; flex-direction: column; gap: 12px;">
         <h3 style="font-size: 18px; font-weight: 600; margin: 0; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">{category_escaped}</h3>
-        <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: {justify_content};">
 """
                 for stack in stacks:
                     # Use label and color from stack data (should match stackMeta.ts)
@@ -1182,7 +1186,10 @@ def generate_readme_template(
                 
                 # Add category heading
                 readme += f"### {category_label}\n\n"
-                readme += '<div align="center">\n\n'
+                # Get alignment from card
+                alignment = card.stack_alignment or 'center'
+                align_value = alignment  # 'left', 'center', or 'right'
+                readme += f'<div align="{align_value}">\n\n'
                 
                 # Generate shields.io badges for each stack in this category
                 for stack_info in stacks[:20]:  # Limit to 20 stacks per category

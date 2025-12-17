@@ -22,6 +22,7 @@ def create_profile_card(
     show_stacks: bool,
     show_contact: bool,
     show_github_stats: bool,
+    stack_alignment: str = "center",
     stacks: List[Dict],
     contacts: List[Dict],
 ) -> ProfileCard:
@@ -37,6 +38,7 @@ def create_profile_card(
         show_stacks=show_stacks,
         show_contact=show_contact,
         show_github_stats=show_github_stats,
+        stack_alignment=stack_alignment,
         stacks=stacks,
         contacts=contacts,
     )
@@ -76,6 +78,7 @@ def update_profile_card(
     show_stacks: Optional[bool] = None,
     show_contact: Optional[bool] = None,
     show_github_stats: Optional[bool] = None,
+    stack_alignment: Optional[str] = None,
     stacks: Optional[List[Dict]] = None,
     contacts: Optional[List[Dict]] = None,
 ) -> Optional[ProfileCard]:
@@ -102,6 +105,8 @@ def update_profile_card(
         card.show_contact = show_contact
     if show_github_stats is not None:
         card.show_github_stats = show_github_stats
+    if stack_alignment is not None:
+        card.stack_alignment = stack_alignment
     if stacks is not None:
         card.stacks = stacks
     if contacts is not None:
