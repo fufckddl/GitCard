@@ -22,9 +22,9 @@ def create_profile_card(
     show_stacks: bool,
     show_contact: bool,
     show_github_stats: bool,
-    stack_alignment: str = "center",
     stacks: List[Dict],
     contacts: List[Dict],
+    stack_alignment: str = "center",
 ) -> ProfileCard:
     """Create a new profile card."""
     print(f"[CREATE_CARD] stack_alignment={stack_alignment}")  # Debug log
