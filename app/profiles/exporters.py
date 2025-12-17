@@ -449,7 +449,14 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
     if card.show_stacks and card.stacks:
         for stack in card.stacks:
             # Use category from stack data (should match stackMeta.ts categories)
-            category = stack.get('category', 'tool')  # Default to 'tool' if not specified
+            # Normalize category to lowercase to handle case variations
+            category_raw = stack.get('category', 'tool')
+            category = category_raw.lower() if isinstance(category_raw, str) else 'tool'
+            
+            # Ensure category is in category_order, otherwise default to 'tool'
+            if category not in category_order:
+                category = 'tool'
+            
             if category not in stacks_by_category:
                 stacks_by_category[category] = []
             stacks_by_category[category].append(stack)
