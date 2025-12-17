@@ -38,7 +38,9 @@
 }
 
 .badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 8px 16px;
   border-radius: 20px;
   font-size: 14px;
@@ -46,6 +48,12 @@
   color: white;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.badgeIcon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
 }
 
 .badge:hover {

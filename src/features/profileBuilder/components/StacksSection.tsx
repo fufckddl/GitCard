@@ -71,6 +71,7 @@ export const StacksSection: React.FC<StacksSectionProps> = ({ config }) => {
                   const meta = stack.key ? getStackMeta(stack.key) : null;
                   const displayLabel = stack.label || meta?.label || stack.key || 'Unknown';
                   const displayColor = stack.color || meta?.color || '#667eea';
+                  const iconSlug = meta?.icon;
                   
                   return (
                     <span
@@ -78,6 +79,13 @@ export const StacksSection: React.FC<StacksSectionProps> = ({ config }) => {
                       className={styles.badge}
                       style={{ backgroundColor: displayColor }}
                     >
+                      {iconSlug && (
+                        <img
+                          src={`https://cdn.simpleicons.org/${iconSlug}/white`}
+                          alt=""
+                          className={styles.badgeIcon}
+                        />
+                      )}
                       {displayLabel}
                     </span>
                   );
