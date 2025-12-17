@@ -11,7 +11,9 @@ export type ContactType =
   | "velog"
   | "reddit"
   | "facebook"
-  | "youtube";
+  | "youtube"
+  | "twitter"
+  | "thread";
 
 export interface ContactMeta {
   type: ContactType;
@@ -42,7 +44,7 @@ export const CONTACT_META_LIST: ContactMeta[] = [
   {
     type: "linkedin",
     label: "LinkedIn",
-    icon: "linkedin",
+    icon: "insprie",
     color: "#0077B5",
     placeholder: "https://linkedin.com/in/username",
   },
@@ -73,6 +75,20 @@ export const CONTACT_META_LIST: ContactMeta[] = [
     icon: "youtube",
     color: "#FF0000",
     placeholder: "https://youtube.com/@username",
+  },
+  {
+    type: "twitter",
+    label: "Twitter",
+    icon: "twitter",
+    color: "#1DA1F2",
+    placeholder: "https://twitter.com/username",
+  },
+  {
+    type: "thread",
+    label: "Threads",
+    icon: "threads",
+    color: "#000000",
+    placeholder: "https://threads.net/@username",
   },
 ];
 
