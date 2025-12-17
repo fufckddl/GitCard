@@ -459,7 +459,7 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
   <!-- Banner Section -->
   <div style="background: {gradient}; padding: 60px 40px; text-align: center; color: white; border-radius: 12px 12px 0 0;">
     <div style="max-width: 800px; margin: 0 auto;">
-      <h1 style="font-size: 42px; font-weight: 700; margin: 0 0 16px 0; line-height: 1.2;">🧩 Hello World 👋 I'm {name}!</h1>
+      <h1 style="font-size: 42px; font-weight: 700; margin: 0 0 16px 0; line-height: 1.2;">Hello World 👋 I'm {name}!</h1>
       <p style="font-size: 24px; font-weight: 500; margin: 0 0 12px 0; opacity: 0.95;">{title}</p>
 """
     
@@ -557,6 +557,10 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
       <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: {gradient}; border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
         <div style="font-size: 36px; font-weight: 700; margin-bottom: 8px;">-</div>
         <div style="font-size: 14px; font-weight: 500; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px;">Followers</div>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: {gradient}; border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
+        <div style="font-size: 36px; font-weight: 700; margin-bottom: 8px;">-</div>
+        <div style="font-size: 14px; font-weight: 500; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px;">Following</div>
       </div>
     </div>
     <p style="text-align: center; margin-top: 16px; color: #666; font-size: 14px;">※ GitHub 통계는 <a href="{card_url}" target="_blank" rel="noopener noreferrer" style="color: #667eea; text-decoration: none;">프로필 카드 페이지</a>에서 확인하세요.</p>
@@ -1208,9 +1212,6 @@ def generate_readme_template(
         # GitHub stats cards using github-readme-stats
         readme += f'  <img src="https://github-readme-stats.vercel.app/api?username={github_login}&show_icons=true&theme=default" alt="{github_login} stats" />\n'
         readme += f'  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username={github_login}&layout=compact&theme=default" alt="Top Languages" />\n'
-        
-        # Optional: GitHub streak stats
-        readme += f'  <img src="https://github-readme-streak-stats.demolab.com/?user={github_login}&theme=default" alt="GitHub Streak" />\n'
         
         readme += "\n</div>\n\n"
     
