@@ -4,7 +4,7 @@ import { StackBadgeEditor } from './StackBadgeEditor';
 import { ContactEditor } from './ContactEditor';
 import { StackSelector } from './StackSelector';
 import { ContactSelector } from './ContactSelector';
-import { getContactMeta, ContactMeta } from '../../../shared/contactMeta';
+import { ContactMeta } from '../../../shared/contactMeta';
 import styles from './BuilderSidebar.module.css';
 
 interface BuilderSidebarProps {
