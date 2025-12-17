@@ -15,12 +15,12 @@ from app.config import settings
 CONTACT_ICON_MAP: Dict[str, str] = {
     "mail": "gmail",
     "instagram": "instagram",
-    "linkedin": "insprie",
+    "linkedin": "inspire",
     "velog": "velog",
     "reddit": "reddit",
     "facebook": "facebook",
     "youtube": "youtube",
-    "twitter": "twitter",
+    "x": "x",
     "thread": "threads",
 }
 
