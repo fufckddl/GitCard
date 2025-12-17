@@ -1324,15 +1324,19 @@ def generate_readme_template(
                     # Remove # from color for URL
                     color_code = stack_color.replace('#', '')
                     # Escape special characters for URL (shields.io format)
+                    # shields.io format: label-message-color
+                    # For tech stack badges, we use label as both label and message
                     stack_label_escaped = stack_label.replace('-', '--').replace('_', '__').replace(' ', '%20')
                     
                     # Build shields.io badge URL with optional logo
+                    # Format: https://img.shields.io/badge/{label}-{color}?logo={iconSlug}&logoColor=white&style=for-the-badge
+                    # shields.io allows label-color format without message
                     if icon_slug:
                         # Use shields.io with logo parameter
-                        badge_url = f"https://img.shields.io/badge/{stack_label_escaped}-{color_code}?style=for-the-badge&logo={icon_slug}&logoColor=white"
+                        badge_url = f"https://img.shields.io/badge/{stack_label_escaped}-{color_code}?logo={icon_slug}&logoColor=white&style=for-the-badge"
                     else:
                         # Fallback to badge without logo
-                        badge_url = f"https://img.shields.io/badge/{stack_label_escaped}-{color_code}?style=for-the-badge&logoColor=white"
+                        badge_url = f"https://img.shields.io/badge/{stack_label_escaped}-{color_code}?style=for-the-badge"
                     
                     readme += f'  <img src="{badge_url}" alt="{stack_label}" />\n'
                 
