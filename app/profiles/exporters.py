@@ -11,6 +11,17 @@ import html as html_escape
 from app.profiles.db_models import ProfileCard
 from app.config import settings
 
+# Contact type to Simple Icons slug mapping (matching contactMeta.ts)
+CONTACT_ICON_MAP: Dict[str, str] = {
+    "mail": "gmail",
+    "instagram": "instagram",
+    "linkedin": "linkedin",
+    "velog": "velog",
+    "reddit": "reddit",
+    "facebook": "facebook",
+    "youtube": "youtube",
+}
+
 # Stack key to Simple Icons slug mapping (matching stackMeta.ts)
 # This should be kept in sync with src/shared/stackMeta.ts
 STACK_ICON_MAP: Dict[str, str] = {
@@ -675,7 +686,12 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
         for contact in card.contacts:
             label = html_escape.escape(contact.get('label', ''))
             value = html_escape.escape(contact.get('value', ''))
-            is_email = '@' in value
+            contact_type = contact.get('type', '')
+            
+            # Get icon from contact type mapping
+            icon_slug = CONTACT_ICON_MAP.get(contact_type) if contact_type else None
+            
+            is_email = '@' in value and not value.startswith('http')
             is_url = value.startswith('http://') or value.startswith('https://')
             
             if is_email:
@@ -691,9 +707,17 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
                 target_attr = 'target="_blank"'
                 rel_attr = 'rel="noopener noreferrer"'
             
-            html += f"""      <a href="{href}" {target_attr} {rel_attr} style="display: flex; flex-direction: column; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); text-decoration: none; color: inherit;">
-        <span style="font-size: 14px; font-weight: 600; color: #667eea; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">{label}</span>
-        <span style="font-size: 16px; color: #333; word-break: break-word;">{value}</span>
+            # Build icon HTML
+            icon_html = ""
+            if icon_slug:
+                icon_html = f'<img src="https://cdn.simpleicons.org/{icon_slug}/white" alt="{label}" style="width: 32px; height: 32px; margin-right: 16px; object-fit: contain; flex-shrink: 0;" />'
+            
+            html += f"""      <a href="{href}" {target_attr} {rel_attr} style="display: flex; flex-direction: row; align-items: center; gap: 16px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); text-decoration: none; color: inherit;">
+        {icon_html}
+        <div style="display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0;">
+          <span style="font-size: 14px; font-weight: 600; color: #667eea; text-transform: uppercase; letter-spacing: 0.5px;">{label}</span>
+          <span style="font-size: 16px; color: #333; word-break: break-word;">{value}</span>
+        </div>
       </a>
 """
         html += """    </div>
@@ -1413,35 +1437,52 @@ def generate_readme_template(
         for contact in card.contacts[:6]:  # Limit to 6 contacts
             label = contact.get('label', '')
             value = contact.get('value', '')
+            contact_type = contact.get('type', '')
             
             if label and value:
+                # Get icon from contact type mapping
+                icon_slug = CONTACT_ICON_MAP.get(contact_type) if contact_type else None
+                
                 # Determine contact type and create appropriate badge
                 label_escaped = label.replace('-', '--').replace('_', '__').replace(' ', '%20')
                 
                 # Check URL first (before email check) to avoid false positives
                 if value.startswith('http://') or value.startswith('https://'):
                     # URL
-                    contact_type = 'url'
+                    contact_type_detected = 'url'
                     domain = value.replace('http://', '').replace('https://', '').split('/')[0].replace('.', '%2E')
-                    badge_url = f"https://img.shields.io/badge/{label_escaped}-{domain}-4285F4?style=for-the-badge&logo=google-chrome&logoColor=white"
+                    # Use contact type icon if available, otherwise use default
+                    if icon_slug:
+                        badge_url = f"https://img.shields.io/badge/{label_escaped}-{domain}-4285F4?style=for-the-badge&logo={icon_slug}&logoColor=white"
+                    else:
+                        badge_url = f"https://img.shields.io/badge/{label_escaped}-{domain}-4285F4?style=for-the-badge&logo=google-chrome&logoColor=white"
                     link = value
                 elif 'github.com' in value.lower() or 'github.io' in value.lower():
                     # GitHub profile
-                    contact_type = 'github'
+                    contact_type_detected = 'github'
                     username = value.split('/')[-1] if '/' in value else value
-                    badge_url = f"https://img.shields.io/badge/{label_escaped}-{username}-181717?style=for-the-badge&logo=github&logoColor=white"
+                    if icon_slug:
+                        badge_url = f"https://img.shields.io/badge/{label_escaped}-{username}-181717?style=for-the-badge&logo={icon_slug}&logoColor=white"
+                    else:
+                        badge_url = f"https://img.shields.io/badge/{label_escaped}-{username}-181717?style=for-the-badge&logo=github&logoColor=white"
                     link = value if value.startswith('http') else f"https://{value}"
                 elif '@' in value and not value.startswith('http'):
                     # Email (only if it's not a URL)
-                    contact_type = 'email'
+                    contact_type_detected = 'email'
                     contact_value_escaped = value.replace('@', '%40').replace(' ', '%20')
-                    badge_url = f"https://img.shields.io/badge/{label_escaped}-{contact_value_escaped}-EA4335?style=for-the-badge&logo=gmail&logoColor=white"
+                    if icon_slug:
+                        badge_url = f"https://img.shields.io/badge/{label_escaped}-{contact_value_escaped}-EA4335?style=for-the-badge&logo={icon_slug}&logoColor=white"
+                    else:
+                        badge_url = f"https://img.shields.io/badge/{label_escaped}-{contact_value_escaped}-EA4335?style=for-the-badge&logo=gmail&logoColor=white"
                     link = f"mailto:{value}"
                 else:
                     # Plain text or other
-                    contact_type = 'text'
+                    contact_type_detected = 'text'
                     value_escaped = value.replace(' ', '%20').replace('-', '--').replace('_', '__')
-                    badge_url = f"https://img.shields.io/badge/{label_escaped}-{value_escaped}-667eea?style=for-the-badge"
+                    if icon_slug:
+                        badge_url = f"https://img.shields.io/badge/{label_escaped}-{value_escaped}-667eea?style=for-the-badge&logo={icon_slug}&logoColor=white"
+                    else:
+                        badge_url = f"https://img.shields.io/badge/{label_escaped}-{value_escaped}-667eea?style=for-the-badge"
                     link = f"https://{value}" if not value.startswith('http') else value
                 
                 readme += f'  <a href="{link}">\n'

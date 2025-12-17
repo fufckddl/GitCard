@@ -1,5 +1,6 @@
 import React from 'react';
 import { ProfileConfig } from '../types/profileConfig';
+import { getContactMeta } from '../../../shared/contactMeta';
 import styles from './ContactSection.module.css';
 
 interface ContactSectionProps {
@@ -11,7 +12,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ config }) => {
     return null;
   }
 
-  const isEmail = (value: string) => value.includes('@');
+  const isEmail = (value: string) => value.includes('@') && !value.startsWith('http');
   const isUrl = (value: string) => value.startsWith('http://') || value.startsWith('https://');
 
   return (
@@ -26,6 +27,10 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ config }) => {
             href = `https://${contact.value}`;
           }
 
+          const contactMeta = contact.type ? getContactMeta(contact.type as any) : null;
+          const displayLabel = contact.label || contactMeta?.label || 'Contact';
+          const displayIcon = contactMeta?.icon;
+
           return (
             <a
               key={contact.id}
@@ -34,8 +39,17 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ config }) => {
               rel={isUrl(contact.value) || !isEmail(contact.value) ? 'noopener noreferrer' : undefined}
               className={styles.contactCard}
             >
-              <span className={styles.label}>{contact.label}</span>
-              <span className={styles.value}>{contact.value}</span>
+              {displayIcon && (
+                <img
+                  src={`https://cdn.simpleicons.org/${displayIcon}/white`}
+                  alt={displayLabel}
+                  className={styles.icon}
+                />
+              )}
+              <div className={styles.textContainer}>
+                <span className={styles.label}>{displayLabel}</span>
+                <span className={styles.value}>{contact.value}</span>
+              </div>
             </a>
           );
         })}

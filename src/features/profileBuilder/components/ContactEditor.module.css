@@ -21,9 +21,16 @@
 
 .preview {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  gap: 12px;
   flex: 1;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 .label {
@@ -36,6 +43,16 @@
   font-size: 12px;
   color: #666;
   word-break: break-word;
+  flex: 1;
+}
+
+.type {
+  font-size: 10px;
+  color: #999;
+  font-family: monospace;
+  background: #f0f0f0;
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
 .actions {
@@ -105,5 +122,12 @@
 .formGroup input[type="text"]:focus {
   outline: none;
   border-color: #667eea;
+}
+
+.helpText {
+  display: block;
+  font-size: 11px;
+  color: #999;
+  margin-top: 4px;
 }
 

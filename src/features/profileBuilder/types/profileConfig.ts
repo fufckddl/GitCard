@@ -8,7 +8,8 @@ export type StackBadge = {
 
 export type ContactItem = {
   id: string;
-  label: string;    // e.g. "Gmail", "Velog", "Notion"
+  type?: string;    // Contact type from contactMeta (e.g., "mail", "instagram", "linkedin")
+  label: string;    // e.g. "Gmail", "Velog", "Notion" (can be overridden)
   value: string;    // e.g. email or URL
 };
 

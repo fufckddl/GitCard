@@ -3,6 +3,8 @@ import { useProfileConfig } from '../hooks/useProfileConfig';
 import { StackBadgeEditor } from './StackBadgeEditor';
 import { ContactEditor } from './ContactEditor';
 import { StackSelector } from './StackSelector';
+import { ContactSelector } from './ContactSelector';
+import { getContactMeta, ContactMeta } from '../../../shared/contactMeta';
 import styles from './BuilderSidebar.module.css';
 
 interface BuilderSidebarProps {
@@ -23,6 +25,7 @@ export const BuilderSidebar: React.FC<BuilderSidebarProps> = ({ profileConfig })
 
   const [activeTab, setActiveTab] = useState<'general' | 'stacks' | 'contacts'>('general');
   const [showStackSelector, setShowStackSelector] = useState(false);
+  const [showContactSelector, setShowContactSelector] = useState(false);
 
   const handleAddStack = () => {
     setShowStackSelector(true);
@@ -39,10 +42,16 @@ export const BuilderSidebar: React.FC<BuilderSidebarProps> = ({ profileConfig })
   };
 
   const handleAddContact = () => {
+    setShowContactSelector(true);
+  };
+
+  const handleContactSelect = (contactMeta: ContactMeta) => {
     addContact({
-      label: 'New Contact',
+      type: contactMeta.type,
+      label: contactMeta.label,
       value: '',
     });
+    setShowContactSelector(false);
   };
 
   return (
@@ -224,6 +233,12 @@ export const BuilderSidebar: React.FC<BuilderSidebarProps> = ({ profileConfig })
                 + 추가
               </button>
             </div>
+            {showContactSelector && (
+              <ContactSelector
+                onSelect={handleContactSelect}
+                onClose={() => setShowContactSelector(false)}
+              />
+            )}
             <div className={styles.list}>
               {config.contacts.map((contact) => (
                 <ContactEditor
