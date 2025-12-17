@@ -54,6 +54,7 @@ export interface StackMeta {
   label: string;
   category: StackCategory;
   color: string; // hex color
+  icon?: string; // Simple Icons slug (e.g., "javascript", "react", "python")
 }
 
 /**
@@ -64,145 +65,145 @@ export const STACK_META_LIST: StackMeta[] = [
   // ==========================================================================
   // LANGUAGES
   // ==========================================================================
-  { key: "javascript", label: "JavaScript", category: "language", color: "#F7DF1E" },
-  { key: "typescript", label: "TypeScript", category: "language", color: "#3178C6" },
-  { key: "python", label: "Python", category: "language", color: "#3776AB" },
-  { key: "java", label: "Java", category: "language", color: "#ED8B00" },
-  { key: "kotlin", label: "Kotlin", category: "language", color: "#7F52FF" },
-  { key: "swift", label: "Swift", category: "language", color: "#FA7343" },
-  { key: "dart", label: "Dart", category: "language", color: "#0175C2" },
-  { key: "c", label: "C", category: "language", color: "#A8B9CC" },
-  { key: "cpp", label: "C++", category: "language", color: "#00599C" },
-  { key: "csharp", label: "C#", category: "language", color: "#239120" },
-  { key: "go", label: "Go", category: "language", color: "#00ADD8" },
-  { key: "rust", label: "Rust", category: "language", color: "#000000" },
-  { key: "php", label: "PHP", category: "language", color: "#777BB4" },
-  { key: "ruby", label: "Ruby", category: "language", color: "#CC342D" },
-  { key: "scala", label: "Scala", category: "language", color: "#DC322F" },
-  { key: "r", label: "R", category: "language", color: "#276DC3" },
-  { key: "shell", label: "Shell", category: "language", color: "#89E051" },
+  { key: "javascript", label: "JavaScript", category: "language", color: "#F7DF1E", icon: "javascript" },
+  { key: "typescript", label: "TypeScript", category: "language", color: "#3178C6", icon: "typescript" },
+  { key: "python", label: "Python", category: "language", color: "#3776AB", icon: "python" },
+  { key: "java", label: "Java", category: "language", color: "#ED8B00", icon: "java" },
+  { key: "kotlin", label: "Kotlin", category: "language", color: "#7F52FF", icon: "kotlin" },
+  { key: "swift", label: "Swift", category: "language", color: "#FA7343", icon: "swift" },
+  { key: "dart", label: "Dart", category: "language", color: "#0175C2", icon: "dart" },
+  { key: "c", label: "C", category: "language", color: "#A8B9CC", icon: "c" },
+  { key: "cpp", label: "C++", category: "language", color: "#00599C", icon: "cplusplus" },
+  { key: "csharp", label: "C#", category: "language", color: "#239120", icon: "csharp" },
+  { key: "go", label: "Go", category: "language", color: "#00ADD8", icon: "go" },
+  { key: "rust", label: "Rust", category: "language", color: "#000000", icon: "rust" },
+  { key: "php", label: "PHP", category: "language", color: "#777BB4", icon: "php" },
+  { key: "ruby", label: "Ruby", category: "language", color: "#CC342D", icon: "ruby" },
+  { key: "scala", label: "Scala", category: "language", color: "#DC322F", icon: "scala" },
+  { key: "r", label: "R", category: "language", color: "#276DC3", icon: "r" },
+  { key: "shell", label: "Shell", category: "language", color: "#89E051", icon: "gnubash" },
 
   // ==========================================================================
   // FRONTEND
   // ==========================================================================
-  { key: "react", label: "React", category: "frontend", color: "#61DAFB" },
-  { key: "nextjs", label: "Next.js", category: "frontend", color: "#000000" },
-  { key: "vue", label: "Vue.js", category: "frontend", color: "#4FC08D" },
-  { key: "nuxt", label: "Nuxt", category: "frontend", color: "#00DC82" },
-  { key: "svelte", label: "Svelte", category: "frontend", color: "#FF3E00" },
-  { key: "angular", label: "Angular", category: "frontend", color: "#DD0031" },
-  { key: "jquery", label: "jQuery", category: "frontend", color: "#0769AD" },
-  { key: "html", label: "HTML", category: "frontend", color: "#E34F26" },
-  { key: "css", label: "CSS", category: "frontend", color: "#1572B6" },
-  { key: "sass", label: "Sass", category: "frontend", color: "#CC6699" },
-  { key: "tailwind", label: "Tailwind CSS", category: "frontend", color: "#06B6D4" },
-  { key: "bootstrap", label: "Bootstrap", category: "frontend", color: "#7952B3" },
-  { key: "styled-components", label: "Styled Components", category: "frontend", color: "#DB7093" },
-  { key: "vite", label: "Vite", category: "frontend", color: "#646CFF" },
+  { key: "react", label: "React", category: "frontend", color: "#61DAFB", icon: "react" },
+  { key: "nextjs", label: "Next.js", category: "frontend", color: "#000000", icon: "nextdotjs" },
+  { key: "vue", label: "Vue.js", category: "frontend", color: "#4FC08D", icon: "vuedotjs" },
+  { key: "nuxt", label: "Nuxt", category: "frontend", color: "#00DC82", icon: "nuxtdotjs" },
+  { key: "svelte", label: "Svelte", category: "frontend", color: "#FF3E00", icon: "svelte" },
+  { key: "angular", label: "Angular", category: "frontend", color: "#DD0031", icon: "angular" },
+  { key: "jquery", label: "jQuery", category: "frontend", color: "#0769AD", icon: "jquery" },
+  { key: "html", label: "HTML", category: "frontend", color: "#E34F26", icon: "html5" },
+  { key: "css", label: "CSS", category: "frontend", color: "#1572B6", icon: "css3" },
+  { key: "sass", label: "Sass", category: "frontend", color: "#CC6699", icon: "sass" },
+  { key: "tailwind", label: "Tailwind CSS", category: "frontend", color: "#06B6D4", icon: "tailwindcss" },
+  { key: "bootstrap", label: "Bootstrap", category: "frontend", color: "#7952B3", icon: "bootstrap" },
+  { key: "styled-components", label: "Styled Components", category: "frontend", color: "#DB7093", icon: "styledcomponents" },
+  { key: "vite", label: "Vite", category: "frontend", color: "#646CFF", icon: "vite" },
 
   // ==========================================================================
   // MOBILE
   // ==========================================================================
-  { key: "react-native", label: "React Native", category: "mobile", color: "#61DAFB" },
-  { key: "flutter", label: "Flutter", category: "mobile", color: "#02569B" },
-  { key: "android", label: "Android", category: "mobile", color: "#3DDC84" },
-  { key: "ios", label: "iOS", category: "mobile", color: "#000000" },
-  { key: "swiftui", label: "SwiftUI", category: "mobile", color: "#FA7343" },
+  { key: "react-native", label: "React Native", category: "mobile", color: "#61DAFB", icon: "react" },
+  { key: "flutter", label: "Flutter", category: "mobile", color: "#02569B", icon: "flutter" },
+  { key: "android", label: "Android", category: "mobile", color: "#3DDC84", icon: "android" },
+  { key: "ios", label: "iOS", category: "mobile", color: "#000000", icon: "ios" },
+  { key: "swiftui", label: "SwiftUI", category: "mobile", color: "#FA7343", icon: "swift" },
 
   // ==========================================================================
   // BACKEND
   // ==========================================================================
-  { key: "nodejs", label: "Node.js", category: "backend", color: "#339933" },
-  { key: "express", label: "Express", category: "backend", color: "#000000" },
-  { key: "nest", label: "NestJS", category: "backend", color: "#E0234E" },
-  { key: "fastapi", label: "FastAPI", category: "backend", color: "#009688" },
-  { key: "django", label: "Django", category: "backend", color: "#092E20" },
-  { key: "flask", label: "Flask", category: "backend", color: "#000000" },
-  { key: "spring", label: "Spring", category: "backend", color: "#6DB33F" },
-  { key: "spring-boot", label: "Spring Boot", category: "backend", color: "#6DB33F" },
-  { key: "laravel", label: "Laravel", category: "backend", color: "#FF2D20" },
-  { key: "ruby-on-rails", label: "Ruby on Rails", category: "backend", color: "#CC0000" },
-  { key: "aspnet", label: "ASP.NET", category: "backend", color: "#512BD4" },
-  { key: "grpc", label: "gRPC", category: "backend", color: "#244C5A" },
+  { key: "nodejs", label: "Node.js", category: "backend", color: "#339933", icon: "nodedotjs" },
+  { key: "express", label: "Express", category: "backend", color: "#000000", icon: "express" },
+  { key: "nest", label: "NestJS", category: "backend", color: "#E0234E", icon: "nestjs" },
+  { key: "fastapi", label: "FastAPI", category: "backend", color: "#009688", icon: "fastapi" },
+  { key: "django", label: "Django", category: "backend", color: "#092E20", icon: "django" },
+  { key: "flask", label: "Flask", category: "backend", color: "#000000", icon: "flask" },
+  { key: "spring", label: "Spring", category: "backend", color: "#6DB33F", icon: "spring" },
+  { key: "spring-boot", label: "Spring Boot", category: "backend", color: "#6DB33F", icon: "springboot" },
+  { key: "laravel", label: "Laravel", category: "backend", color: "#FF2D20", icon: "laravel" },
+  { key: "ruby-on-rails", label: "Ruby on Rails", category: "backend", color: "#CC0000", icon: "rubyonrails" },
+  { key: "aspnet", label: "ASP.NET", category: "backend", color: "#512BD4", icon: "dotnet" },
+  { key: "grpc", label: "gRPC", category: "backend", color: "#244C5A", icon: "grpc" },
 
   // ==========================================================================
   // DATABASE
   // ==========================================================================
-  { key: "mysql", label: "MySQL", category: "database", color: "#4479A1" },
-  { key: "postgresql", label: "PostgreSQL", category: "database", color: "#336791" },
-  { key: "sqlite", label: "SQLite", category: "database", color: "#003B57" },
-  { key: "mariadb", label: "MariaDB", category: "database", color: "#C49A41" },
-  { key: "mongodb", label: "MongoDB", category: "database", color: "#47A248" },
-  { key: "redis", label: "Redis", category: "database", color: "#DC382D" },
-  { key: "elasticsearch", label: "Elasticsearch", category: "database", color: "#005571" },
-  { key: "dynamodb", label: "DynamoDB", category: "database", color: "#4053D6" },
-  { key: "firebase-firestore", label: "Firebase Firestore", category: "database", color: "#FFCA28" },
+  { key: "mysql", label: "MySQL", category: "database", color: "#4479A1", icon: "mysql" },
+  { key: "postgresql", label: "PostgreSQL", category: "database", color: "#336791", icon: "postgresql" },
+  { key: "sqlite", label: "SQLite", category: "database", color: "#003B57", icon: "sqlite" },
+  { key: "mariadb", label: "MariaDB", category: "database", color: "#C49A41", icon: "mariadb" },
+  { key: "mongodb", label: "MongoDB", category: "database", color: "#47A248", icon: "mongodb" },
+  { key: "redis", label: "Redis", category: "database", color: "#DC382D", icon: "redis" },
+  { key: "elasticsearch", label: "Elasticsearch", category: "database", color: "#005571", icon: "elasticsearch" },
+  { key: "dynamodb", label: "DynamoDB", category: "database", color: "#4053D6", icon: "amazondynamodb" },
+  { key: "firebase-firestore", label: "Firebase Firestore", category: "database", color: "#FFCA28", icon: "firebase" },
 
   // ==========================================================================
   // INFRA / DEVOPS
   // ==========================================================================
-  { key: "aws", label: "AWS", category: "infra", color: "#232F3E" },
-  { key: "gcp", label: "Google Cloud", category: "infra", color: "#4285F4" },
-  { key: "azure", label: "Azure", category: "infra", color: "#0078D4" },
-  { key: "docker", label: "Docker", category: "infra", color: "#2496ED" },
-  { key: "kubernetes", label: "Kubernetes", category: "infra", color: "#326CE5" },
-  { key: "nginx", label: "Nginx", category: "infra", color: "#009639" },
-  { key: "apache", label: "Apache", category: "infra", color: "#D22128" },
-  { key: "gitlab-ci", label: "GitLab CI", category: "infra", color: "#FC6D26" },
-  { key: "github-actions", label: "GitHub Actions", category: "infra", color: "#2088FF" },
-  { key: "jenkins", label: "Jenkins", category: "infra", color: "#D24939" },
-  { key: "vercel", label: "Vercel", category: "infra", color: "#000000" },
-  { key: "netlify", label: "Netlify", category: "infra", color: "#00C7B7" },
-  { key: "cloudflare", label: "Cloudflare", category: "infra", color: "#F38020" },
+  { key: "aws", label: "AWS", category: "infra", color: "#232F3E", icon: "amazonaws" },
+  { key: "gcp", label: "Google Cloud", category: "infra", color: "#4285F4", icon: "googlecloud" },
+  { key: "azure", label: "Azure", category: "infra", color: "#0078D4", icon: "microsoftazure" },
+  { key: "docker", label: "Docker", category: "infra", color: "#2496ED", icon: "docker" },
+  { key: "kubernetes", label: "Kubernetes", category: "infra", color: "#326CE5", icon: "kubernetes" },
+  { key: "nginx", label: "Nginx", category: "infra", color: "#009639", icon: "nginx" },
+  { key: "apache", label: "Apache", category: "infra", color: "#D22128", icon: "apache" },
+  { key: "gitlab-ci", label: "GitLab CI", category: "infra", color: "#FC6D26", icon: "gitlab" },
+  { key: "github-actions", label: "GitHub Actions", category: "infra", color: "#2088FF", icon: "githubactions" },
+  { key: "jenkins", label: "Jenkins", category: "infra", color: "#D24939", icon: "jenkins" },
+  { key: "vercel", label: "Vercel", category: "infra", color: "#000000", icon: "vercel" },
+  { key: "netlify", label: "Netlify", category: "infra", color: "#00C7B7", icon: "netlify" },
+  { key: "cloudflare", label: "Cloudflare", category: "infra", color: "#F38020", icon: "cloudflare" },
 
   // ==========================================================================
   // COLLABORATION
   // ==========================================================================
-  { key: "git", label: "Git", category: "collaboration", color: "#F05032" },
-  { key: "github", label: "GitHub", category: "collaboration", color: "#181717" },
-  { key: "gitlab", label: "GitLab", category: "collaboration", color: "#FC6D26" },
-  { key: "bitbucket", label: "Bitbucket", category: "collaboration", color: "#0052CC" },
-  { key: "jira", label: "Jira", category: "collaboration", color: "#0052CC" },
-  { key: "notion", label: "Notion", category: "collaboration", color: "#000000" },
-  { key: "slack", label: "Slack", category: "collaboration", color: "#4A154B" },
-  { key: "discord", label: "Discord", category: "collaboration", color: "#5865F2" },
+  { key: "git", label: "Git", category: "collaboration", color: "#F05032", icon: "git" },
+  { key: "github", label: "GitHub", category: "collaboration", color: "#181717", icon: "github" },
+  { key: "gitlab", label: "GitLab", category: "collaboration", color: "#FC6D26", icon: "gitlab" },
+  { key: "bitbucket", label: "Bitbucket", category: "collaboration", color: "#0052CC", icon: "bitbucket" },
+  { key: "jira", label: "Jira", category: "collaboration", color: "#0052CC", icon: "jira" },
+  { key: "notion", label: "Notion", category: "collaboration", color: "#000000", icon: "notion" },
+  { key: "slack", label: "Slack", category: "collaboration", color: "#4A154B", icon: "slack" },
+  { key: "discord", label: "Discord", category: "collaboration", color: "#5865F2", icon: "discord" },
 
   // ==========================================================================
   // AI / ML
   // ==========================================================================
-  { key: "pandas", label: "Pandas", category: "ai-ml", color: "#150458" },
-  { key: "numpy", label: "NumPy", category: "ai-ml", color: "#013243" },
-  { key: "scikit-learn", label: "Scikit-learn", category: "ai-ml", color: "#F7931E" },
-  { key: "tensorflow", label: "TensorFlow", category: "ai-ml", color: "#FF6F00" },
-  { key: "pytorch", label: "PyTorch", category: "ai-ml", color: "#EE4C2C" },
-  { key: "opencv", label: "OpenCV", category: "ai-ml", color: "#5C3EE8" },
+  { key: "pandas", label: "Pandas", category: "ai-ml", color: "#150458", icon: "pandas" },
+  { key: "numpy", label: "NumPy", category: "ai-ml", color: "#013243", icon: "numpy" },
+  { key: "scikit-learn", label: "Scikit-learn", category: "ai-ml", color: "#F7931E", icon: "scikitlearn" },
+  { key: "tensorflow", label: "TensorFlow", category: "ai-ml", color: "#FF6F00", icon: "tensorflow" },
+  { key: "pytorch", label: "PyTorch", category: "ai-ml", color: "#EE4C2C", icon: "pytorch" },
+  { key: "opencv", label: "OpenCV", category: "ai-ml", color: "#5C3EE8", icon: "opencv" },
   { key: "yolov5", label: "YOLOv5", category: "ai-ml", color: "#00A8FF" },
   { key: "yolov8", label: "YOLOv8", category: "ai-ml", color: "#00A8FF" },
-  { key: "huggingface", label: "Hugging Face", category: "ai-ml", color: "#FFD21E" },
+  { key: "huggingface", label: "Hugging Face", category: "ai-ml", color: "#FFD21E", icon: "huggingface" },
   { key: "transformers", label: "Transformers", category: "ai-ml", color: "#FFD21E" },
 
   // ==========================================================================
   // TESTING
   // ==========================================================================
-  { key: "jest", label: "Jest", category: "testing", color: "#C21325" },
+  { key: "jest", label: "Jest", category: "testing", color: "#C21325", icon: "jest" },
   { key: "react-testing-library", label: "React Testing Library", category: "testing", color: "#E33332" },
-  { key: "cypress", label: "Cypress", category: "testing", color: "#17202C" },
-  { key: "playwright", label: "Playwright", category: "testing", color: "#2EAD33" },
-  { key: "pytest", label: "pytest", category: "testing", color: "#0A9EDC" },
-  { key: "junit", label: "JUnit", category: "testing", color: "#25A162" },
+  { key: "cypress", label: "Cypress", category: "testing", color: "#17202C", icon: "cypress" },
+  { key: "playwright", label: "Playwright", category: "testing", color: "#2EAD33", icon: "playwright" },
+  { key: "pytest", label: "pytest", category: "testing", color: "#0A9EDC", icon: "pytest" },
+  { key: "junit", label: "JUnit", category: "testing", color: "#25A162", icon: "junit" },
 
   // ==========================================================================
   // TOOLING
   // ==========================================================================
-  { key: "webpack", label: "Webpack", category: "tool", color: "#8DD6F9" },
-  { key: "rollup", label: "Rollup", category: "tool", color: "#EC4A3F" },
+  { key: "webpack", label: "Webpack", category: "tool", color: "#8DD6F9", icon: "webpack" },
+  { key: "rollup", label: "Rollup", category: "tool", color: "#EC4A3F", icon: "rollupdotjs" },
   { key: "esbuild", label: "esbuild", category: "tool", color: "#FFCF00" },
-  { key: "babel", label: "Babel", category: "tool", color: "#F9DC3E" },
-  { key: "eslint", label: "ESLint", category: "tool", color: "#4B32C3" },
-  { key: "prettier", label: "Prettier", category: "tool", color: "#F7B93E" },
-  { key: "npm", label: "npm", category: "tool", color: "#CB3837" },
-  { key: "yarn", label: "Yarn", category: "tool", color: "#2C8EBB" },
-  { key: "pnpm", label: "pnpm", category: "tool", color: "#F69220" },
+  { key: "babel", label: "Babel", category: "tool", color: "#F9DC3E", icon: "babel" },
+  { key: "eslint", label: "ESLint", category: "tool", color: "#4B32C3", icon: "eslint" },
+  { key: "prettier", label: "Prettier", category: "tool", color: "#F7B93E", icon: "prettier" },
+  { key: "npm", label: "npm", category: "tool", color: "#CB3837", icon: "npm" },
+  { key: "yarn", label: "Yarn", category: "tool", color: "#2C8EBB", icon: "yarn" },
+  { key: "pnpm", label: "pnpm", category: "tool", color: "#F69220", icon: "pnpm" },
 ];
 
 /**

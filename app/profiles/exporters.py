@@ -11,6 +11,119 @@ import html as html_escape
 from app.profiles.db_models import ProfileCard
 from app.config import settings
 
+# Stack key to Simple Icons slug mapping (matching stackMeta.ts)
+# This should be kept in sync with src/shared/stackMeta.ts
+STACK_ICON_MAP: Dict[str, str] = {
+    # Languages
+    "javascript": "javascript",
+    "typescript": "typescript",
+    "python": "python",
+    "java": "java",
+    "kotlin": "kotlin",
+    "swift": "swift",
+    "dart": "dart",
+    "c": "c",
+    "cpp": "cplusplus",
+    "csharp": "csharp",
+    "go": "go",
+    "rust": "rust",
+    "php": "php",
+    "ruby": "ruby",
+    "scala": "scala",
+    "r": "r",
+    "shell": "gnubash",
+    # Frontend
+    "react": "react",
+    "nextjs": "nextdotjs",
+    "vue": "vuedotjs",
+    "nuxt": "nuxtdotjs",
+    "svelte": "svelte",
+    "angular": "angular",
+    "jquery": "jquery",
+    "html": "html5",
+    "css": "css3",
+    "sass": "sass",
+    "tailwind": "tailwindcss",
+    "bootstrap": "bootstrap",
+    "styled-components": "styledcomponents",
+    "vite": "vite",
+    # Mobile
+    "react-native": "react",
+    "flutter": "flutter",
+    "android": "android",
+    "ios": "ios",
+    "swiftui": "swift",
+    # Backend
+    "nodejs": "nodedotjs",
+    "express": "express",
+    "nest": "nestjs",
+    "fastapi": "fastapi",
+    "django": "django",
+    "flask": "flask",
+    "spring": "spring",
+    "spring-boot": "springboot",
+    "laravel": "laravel",
+    "ruby-on-rails": "rubyonrails",
+    "aspnet": "dotnet",
+    "grpc": "grpc",
+    # Database
+    "mysql": "mysql",
+    "postgresql": "postgresql",
+    "sqlite": "sqlite",
+    "mariadb": "mariadb",
+    "mongodb": "mongodb",
+    "redis": "redis",
+    "elasticsearch": "elasticsearch",
+    "dynamodb": "amazondynamodb",
+    "firebase-firestore": "firebase",
+    # Infra
+    "aws": "amazonaws",
+    "gcp": "googlecloud",
+    "azure": "microsoftazure",
+    "docker": "docker",
+    "kubernetes": "kubernetes",
+    "nginx": "nginx",
+    "apache": "apache",
+    "gitlab-ci": "gitlab",
+    "github-actions": "githubactions",
+    "jenkins": "jenkins",
+    "vercel": "vercel",
+    "netlify": "netlify",
+    "cloudflare": "cloudflare",
+    # Collaboration
+    "git": "git",
+    "github": "github",
+    "gitlab": "gitlab",
+    "bitbucket": "bitbucket",
+    "jira": "jira",
+    "notion": "notion",
+    "slack": "slack",
+    "discord": "discord",
+    # AI/ML
+    "pandas": "pandas",
+    "numpy": "numpy",
+    "scikit-learn": "scikitlearn",
+    "tensorflow": "tensorflow",
+    "pytorch": "pytorch",
+    "opencv": "opencv",
+    "huggingface": "huggingface",
+    # Testing
+    "jest": "jest",
+    "cypress": "cypress",
+    "playwright": "playwright",
+    "pytest": "pytest",
+    "junit": "junit",
+    # Tools
+    "webpack": "webpack",
+    "rollup": "rollupdotjs",
+    "babel": "babel",
+    "eslint": "eslint",
+    "prettier": "prettier",
+    "npm": "npm",
+    "yarn": "yarn",
+    "pnpm": "pnpm",
+}
+
 try:
     from playwright.async_api import async_playwright
     PLAYWRIGHT_AVAILABLE = True
@@ -502,7 +615,15 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
                     # Use label and color from stack data (should match stackMeta.ts)
                     stack_label = html_escape.escape(stack.get('label', stack.get('key', '')))
                     stack_color = stack.get('color', '#667eea')
-                    html += f"""          <span style="display: inline-block; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; color: white; background-color: {stack_color}; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);">{stack_label}</span>
+                    stack_key = stack.get('key', '')
+                    icon_slug = STACK_ICON_MAP.get(stack_key) if stack_key else None
+                    
+                    # Build badge HTML with optional icon
+                    icon_html = ""
+                    if icon_slug:
+                        icon_html = f'<img src="https://cdn.simpleicons.org/{icon_slug}/white" alt="" style="width: 16px; height: 16px; margin-right: 6px; vertical-align: middle; object-fit: contain;" />'
+                    
+                    html += f"""          <span style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; color: white; background-color: {stack_color}; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);">{icon_html}{stack_label}</span>
 """
                 html += """        </div>
       </div>
@@ -1195,13 +1316,24 @@ def generate_readme_template(
                 for stack_info in stacks[:20]:  # Limit to 20 stacks per category
                     stack_label = stack_info.get('label') if isinstance(stack_info, dict) else stack_info
                     stack_color = stack_info.get('color', '#667eea') if isinstance(stack_info, dict) else '#667eea'
+                    stack_key = stack_info.get('key', '') if isinstance(stack_info, dict) else ''
+                    
+                    # Get icon slug from mapping
+                    icon_slug = STACK_ICON_MAP.get(stack_key) if stack_key else None
                     
                     # Remove # from color for URL
                     color_code = stack_color.replace('#', '')
                     # Escape special characters for URL (shields.io format)
                     stack_label_escaped = stack_label.replace('-', '--').replace('_', '__').replace(' ', '%20')
-                    # Use shields.io for-the-badge style with custom color
-                    badge_url = f"https://img.shields.io/badge/{stack_label_escaped}-{color_code}?style=for-the-badge&logoColor=white"
+                    
+                    # Build shields.io badge URL with optional logo
+                    if icon_slug:
+                        # Use shields.io with logo parameter
+                        badge_url = f"https://img.shields.io/badge/{stack_label_escaped}-{color_code}?style=for-the-badge&logo={icon_slug}&logoColor=white"
+                    else:
+                        # Fallback to badge without logo
+                        badge_url = f"https://img.shields.io/badge/{stack_label_escaped}-{color_code}?style=for-the-badge&logoColor=white"
+                    
                     readme += f'  <img src="{badge_url}" alt="{stack_label}" />\n'
                 
                 readme += "\n</div>\n\n"
