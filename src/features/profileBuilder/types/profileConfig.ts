@@ -23,6 +23,7 @@ export type ProfileConfig = {
   showStacks: boolean;
   showContact: boolean;
   showGithubStats: boolean;
+  stackAlignment: 'left' | 'center' | 'right';  // 스택 배지 정렬
   stacks: StackBadge[];
   contacts: ContactItem[];
 };

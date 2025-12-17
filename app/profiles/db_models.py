@@ -24,6 +24,7 @@ class ProfileCard(Base):
     show_stacks = Column(Boolean, default=True, nullable=False)
     show_contact = Column(Boolean, default=True, nullable=False)
     show_github_stats = Column(Boolean, default=True, nullable=False)
+    stack_alignment = Column(String(10), nullable=False, default="center")  # "left", "center", "right"
     stacks = Column(JSON, nullable=False, default=list)
     contacts = Column(JSON, nullable=False, default=list)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)

@@ -21,6 +21,7 @@ const DEFAULT_CONFIG: ProfileConfig = {
   showStacks: true,
   showContact: true,
   showGithubStats: true,
+  stackAlignment: 'center',
   stacks: [
     { id: '1', key: 'react', label: 'React', category: 'frontend', color: '#61DAFB' },
     { id: '2', key: 'typescript', label: 'TypeScript', category: 'frontend', color: '#3178C6' },
