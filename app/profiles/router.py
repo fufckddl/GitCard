@@ -539,3 +539,34 @@ async def get_profile_card_banner_debug(
         "extracted_secondary": secondary,
     }
 
+
+@router.get("/public/{github_login}/cards/{card_id}/html")
+async def get_profile_card_html(
+    github_login: str,
+    card_id: int,
+    db: Session = Depends(get_db),
+):
+    """
+    HTML 형식의 프로필 카드를 반환합니다.
+    - 인라인 스타일을 사용하여 독립적으로 렌더링 가능
+    - stackMeta.ts의 카테고리 구조를 따름 (언어, 프론트엔드, 백엔드, 모바일, 데이터베이스 등)
+    - 각 스택의 key, label, color를 올바르게 사용
+    """
+    card = profile_crud.get_public_profile_card_by_github_login_and_card_id(
+        db, github_login, card_id
+    )
+
+    if not card:
+        raise HTTPException(status_code=404, detail="Profile card not found")
+
+    html = exporters.generate_html(card, github_login)
+
+    return Response(
+        content=html,
+        media_type="text/html",
+        headers={
+            "Content-Disposition": f'inline; filename="gitcard-{github_login}-{card_id}.html"',
+            "Cache-Control": "public, max-age=86400",  # 24 hours
+        },
+    )
+

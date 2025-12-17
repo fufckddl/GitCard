@@ -426,11 +426,30 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
     title = html_escape.escape(card.title)
     tagline = html_escape.escape(card.tagline) if card.tagline else ""
     
-    # Organize stacks by category
+    # Organize stacks by category (following stackMeta.ts structure)
+    # Category order and labels matching stackMeta.ts
+    category_order = [
+        "language", "frontend", "mobile", "backend", "database",
+        "infra", "collaboration", "ai-ml", "testing", "tool"
+    ]
+    category_labels = {
+        "language": "언어",
+        "frontend": "프론트엔드",
+        "mobile": "모바일",
+        "backend": "백엔드",
+        "database": "데이터베이스",
+        "infra": "인프라",
+        "collaboration": "협업 도구",
+        "ai-ml": "AI/ML",
+        "testing": "테스팅",
+        "tool": "도구",
+    }
+    
     stacks_by_category = {}
     if card.show_stacks and card.stacks:
         for stack in card.stacks:
-            category = stack.get('category', 'Other')
+            # Use category from stack data (should match stackMeta.ts categories)
+            category = stack.get('category', 'tool')  # Default to 'tool' if not specified
             if category not in stacks_by_category:
                 stacks_by_category[category] = []
             stacks_by_category[category].append(stack)
@@ -440,7 +459,7 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
   <!-- Banner Section -->
   <div style="background: {gradient}; padding: 60px 40px; text-align: center; color: white; border-radius: 12px 12px 0 0;">
     <div style="max-width: 800px; margin: 0 auto;">
-      <h1 style="font-size: 42px; font-weight: 700; margin: 0 0 16px 0; line-height: 1.2;">Hello World 👋 I'm {name}!</h1>
+      <h1 style="font-size: 42px; font-weight: 700; margin: 0 0 16px 0; line-height: 1.2;">🧩 Hello World 👋 I'm {name}!</h1>
       <p style="font-size: 24px; font-weight: 500; margin: 0 0 12px 0; opacity: 0.95;">{title}</p>
 """
     
@@ -451,25 +470,30 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
   </div>
 """
     
-    # Stacks Section
+    # Stacks Section - Render categories in order matching stackMeta.ts
     if card.show_stacks and stacks_by_category:
         html += """  <!-- Stacks Section -->
   <div style="padding: 32px 40px; background: white;">
     <h2 style="font-size: 28px; font-weight: 700; margin: 0 0 24px 0; color: #333;">Stacks</h2>
     <div style="display: flex; flex-direction: column; gap: 24px;">
 """
-        for category, stacks in stacks_by_category.items():
-            category_escaped = html_escape.escape(category)
-            html += f"""      <div style="display: flex; flex-direction: column; gap: 12px;">
+        # Render categories in the order defined in stackMeta.ts
+        for category in category_order:
+            if category in stacks_by_category and stacks_by_category[category]:
+                stacks = stacks_by_category[category]
+                category_label = category_labels.get(category, category.upper())
+                category_escaped = html_escape.escape(category_label)
+                html += f"""      <div style="display: flex; flex-direction: column; gap: 12px;">
         <h3 style="font-size: 18px; font-weight: 600; margin: 0; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">{category_escaped}</h3>
         <div style="display: flex; flex-wrap: wrap; gap: 12px;">
 """
-            for stack in stacks:
-                stack_label = html_escape.escape(stack.get('label', stack.get('key', '')))
-                stack_color = stack.get('color', '#667eea')
-                html += f"""          <span style="display: inline-block; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; color: white; background-color: {stack_color}; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);">{stack_label}</span>
+                for stack in stacks:
+                    # Use label and color from stack data (should match stackMeta.ts)
+                    stack_label = html_escape.escape(stack.get('label', stack.get('key', '')))
+                    stack_color = stack.get('color', '#667eea')
+                    html += f"""          <span style="display: inline-block; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; color: white; background-color: {stack_color}; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);">{stack_label}</span>
 """
-            html += """        </div>
+                html += """        </div>
       </div>
 """
         html += """    </div>
@@ -533,10 +557,6 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
       <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: {gradient}; border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
         <div style="font-size: 36px; font-weight: 700; margin-bottom: 8px;">-</div>
         <div style="font-size: 14px; font-weight: 500; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px;">Followers</div>
-      </div>
-      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: {gradient}; border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
-        <div style="font-size: 36px; font-weight: 700; margin-bottom: 8px;">-</div>
-        <div style="font-size: 14px; font-weight: 500; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px;">Following</div>
       </div>
     </div>
     <p style="text-align: center; margin-top: 16px; color: #666; font-size: 14px;">※ GitHub 통계는 <a href="{card_url}" target="_blank" rel="noopener noreferrer" style="color: #667eea; text-decoration: none;">프로필 카드 페이지</a>에서 확인하세요.</p>
