@@ -3,6 +3,29 @@ import { ProfileConfig } from '../types/profileConfig';
 import { getStackMeta, type StackCategory } from '../../../shared/stackMeta';
 import styles from './StacksSection.module.css';
 
+// Determine if a hex color is light or dark
+const isLightColor = (hexColor: string): boolean => {
+  // Remove # if present
+  const hex = hexColor.replace('#', '');
+  
+  // Convert 3-digit hex to 6-digit
+  const fullHex = hex.length === 3 
+    ? hex.split('').map(c => c + c).join('')
+    : hex;
+  
+  // Convert to RGB
+  const r = parseInt(fullHex.substring(0, 2), 16);
+  const g = parseInt(fullHex.substring(2, 4), 16);
+  const b = parseInt(fullHex.substring(4, 6), 16);
+  
+  // Calculate relative luminance
+  // Using the formula: 0.299*R + 0.587*G + 0.114*B
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  
+  // If luminance is greater than 0.5, it's a light color
+  return luminance > 0.5;
+};
+
 interface StacksSectionProps {
   config: ProfileConfig;
 }
@@ -73,15 +96,20 @@ export const StacksSection: React.FC<StacksSectionProps> = ({ config }) => {
                   const displayColor = stack.color || meta?.color || '#667eea';
                   const iconSlug = meta?.icon;
                   
+                  // Determine icon color based on background color brightness
+                  const isLight = isLightColor(displayColor);
+                  const iconColor = isLight ? 'black' : 'white';
+                  const textColor = isLight ? 'black' : 'white';
+                  
                   return (
                     <span
                       key={stack.id}
                       className={styles.badge}
-                      style={{ backgroundColor: displayColor }}
+                      style={{ backgroundColor: displayColor, color: textColor }}
                     >
                       {iconSlug && (
                         <img
-                          src={`https://cdn.simpleicons.org/${iconSlug}/white`}
+                          src={`https://cdn.simpleicons.org/${iconSlug}/${iconColor}`}
                           alt=""
                           className={styles.badgeIcon}
                         />

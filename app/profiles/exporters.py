@@ -18,7 +18,7 @@ STACK_ICON_MAP: Dict[str, str] = {
     "javascript": "javascript",
     "typescript": "typescript",
     "python": "python",
-    "java": "java",
+    "java": "openjdk",
     "kotlin": "kotlin",
     "swift": "swift",
     "dart": "dart",
@@ -123,6 +123,33 @@ STACK_ICON_MAP: Dict[str, str] = {
     "yarn": "yarn",
     "pnpm": "pnpm",
 }
+
+def _is_light_color(hex_color: str) -> bool:
+    """
+    Determine if a hex color is light or dark.
+    Returns True if light (should use black icon), False if dark (should use white icon).
+    
+    Uses relative luminance formula: https://www.w3.org/WAI/GL/wiki/Relative_luminance
+    """
+    # Remove # if present
+    hex_color = hex_color.lstrip('#')
+    
+    # Convert 3-digit hex to 6-digit
+    if len(hex_color) == 3:
+        hex_color = ''.join([c * 2 for c in hex_color])
+    
+    # Convert to RGB
+    r = int(hex_color[0:2], 16)
+    g = int(hex_color[2:4], 16)
+    b = int(hex_color[4:6], 16)
+    
+    # Calculate relative luminance
+    # Using the formula: 0.299*R + 0.587*G + 0.114*B
+    luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+    
+    # If luminance is greater than 0.5, it's a light color
+    return luminance > 0.5
+
 
 try:
     from playwright.async_api import async_playwright
@@ -618,12 +645,18 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
                     stack_key = stack.get('key', '')
                     icon_slug = STACK_ICON_MAP.get(stack_key) if stack_key else None
                     
+                    # Determine icon color based on background color brightness
+                    is_light = _is_light_color(stack_color)
+                    icon_color = "black" if is_light else "white"
+                    # Also adjust text color based on background
+                    text_color = "black" if is_light else "white"
+                    
                     # Build badge HTML with optional icon
                     icon_html = ""
                     if icon_slug:
-                        icon_html = f'<img src="https://cdn.simpleicons.org/{icon_slug}/white" alt="" style="width: 16px; height: 16px; margin-right: 6px; vertical-align: middle; object-fit: contain;" />'
+                        icon_html = f'<img src="https://cdn.simpleicons.org/{icon_slug}/{icon_color}" alt="" style="width: 16px; height: 16px; margin-right: 6px; vertical-align: middle; object-fit: contain;" />'
                     
-                    html += f"""          <span style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; color: white; background-color: {stack_color}; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);">{icon_html}{stack_label}</span>
+                    html += f"""          <span style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; color: {text_color}; background-color: {stack_color}; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);">{icon_html}{stack_label}</span>
 """
                 html += """        </div>
       </div>
@@ -1354,12 +1387,16 @@ def generate_readme_template(
                     # For tech stack badges, we use label as both label and message
                     stack_label_escaped = stack_label.replace('-', '--').replace('_', '__').replace(' ', '%20')
                     
+                    # Determine icon color based on background color brightness
+                    is_light = _is_light_color(stack_color)
+                    icon_color = "black" if is_light else "white"
+                    
                     # Build shields.io badge URL with optional logo
-                    # Format: https://img.shields.io/badge/{label}-{color}?logo={iconSlug}&logoColor=white&style=for-the-badge
+                    # Format: https://img.shields.io/badge/{label}-{color}?logo={iconSlug}&logoColor={iconColor}&style=for-the-badge
                     # shields.io allows label-color format without message
                     if icon_slug:
-                        # Use shields.io with logo parameter
-                        badge_url = f"https://img.shields.io/badge/{stack_label_escaped}-{color_code}?logo={icon_slug}&logoColor=white&style=for-the-badge"
+                        # Use shields.io with logo parameter and dynamic icon color
+                        badge_url = f"https://img.shields.io/badge/{stack_label_escaped}-{color_code}?logo={icon_slug}&logoColor={icon_color}&style=for-the-badge"
                     else:
                         # Fallback to badge without logo
                         badge_url = f"https://img.shields.io/badge/{stack_label_escaped}-{color_code}?style=for-the-badge"
