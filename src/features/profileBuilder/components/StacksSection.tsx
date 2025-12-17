@@ -1,6 +1,6 @@
 import React from 'react';
 import { ProfileConfig } from '../types/profileConfig';
-import { getStackMeta, getAllCategories, type StackCategory } from '../../../shared/stackMeta';
+import { getStackMeta, type StackCategory } from '../../../shared/stackMeta';
 import styles from './StacksSection.module.css';
 
 interface StacksSectionProps {
