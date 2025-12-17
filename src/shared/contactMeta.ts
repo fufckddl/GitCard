@@ -12,7 +12,7 @@ export type ContactType =
   | "reddit"
   | "facebook"
   | "youtube"
-  | "twitter"
+  | "x"
   | "thread";
 
 export interface ContactMeta {
@@ -44,7 +44,7 @@ export const CONTACT_META_LIST: ContactMeta[] = [
   {
     type: "linkedin",
     label: "LinkedIn",
-    icon: "insprie",
+    icon: "inspire",
     color: "#0077B5",
     placeholder: "https://linkedin.com/in/username",
   },
@@ -77,11 +77,11 @@ export const CONTACT_META_LIST: ContactMeta[] = [
     placeholder: "https://youtube.com/@username",
   },
   {
-    type: "twitter",
-    label: "Twitter",
-    icon: "twitter",
-    color: "#1DA1F2",
-    placeholder: "https://twitter.com/username",
+    type: "x",
+    label: "X (Twitter)",
+    icon: "x",
+    color: "#000000",
+    placeholder: "https://x.com/username",
   },
   {
     type: "thread",

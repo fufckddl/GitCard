@@ -62,7 +62,7 @@ export const ContactEditor: React.FC<ContactEditorProps> = ({
               placeholder="e.g. mail, instagram, linkedin"
             />
             <small className={styles.helpText}>
-              타입: mail, instagram, linkedin, velog, reddit, facebook, youtube
+              타입: mail, instagram, linkedin, velog, reddit, facebook, youtube, x, thread
             </small>
           </div>
           <div className={styles.formGroup}>
