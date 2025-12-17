@@ -1137,12 +1137,36 @@ def generate_readme_template(
     # Stacks Section
     if card.show_stacks and card.stacks:
         readme += "## 🛠️ Tech Stacks\n\n"
-        readme += '<div align="center">\n\n'
+        
+        # Category order and labels matching stackMeta.ts
+        category_order = [
+            "language", "frontend", "mobile", "backend", "database",
+            "infra", "collaboration", "ai-ml", "testing", "tool"
+        ]
+        category_labels = {
+            "language": "언어",
+            "frontend": "프론트엔드",
+            "mobile": "모바일",
+            "backend": "백엔드",
+            "database": "데이터베이스",
+            "infra": "인프라",
+            "collaboration": "협업 도구",
+            "ai-ml": "AI/ML",
+            "testing": "테스팅",
+            "tool": "도구",
+        }
         
         # Group stacks by category
         stacks_by_category = {}
         for stack in card.stacks:
-            category = stack.get('category', 'Other')
+            # Normalize category to lowercase to handle case variations
+            category_raw = stack.get('category', 'tool')
+            category = category_raw.lower() if isinstance(category_raw, str) else 'tool'
+            
+            # Ensure category is in category_order, otherwise default to 'tool'
+            if category not in category_order:
+                category = 'tool'
+            
             if category not in stacks_by_category:
                 stacks_by_category[category] = []
             label = stack.get('label') or stack.get('key', '')
@@ -1150,22 +1174,30 @@ def generate_readme_template(
             if label:
                 stacks_by_category[category].append({'label': label, 'color': color})
         
-        # Generate shields.io badges for each stack
-        # Use simple badge style without logo for better compatibility
-        for category, stacks in stacks_by_category.items():
-            for stack_info in stacks[:20]:  # Limit to 20 stacks per category
-                stack_label = stack_info.get('label') if isinstance(stack_info, dict) else stack_info
-                stack_color = stack_info.get('color', '#667eea') if isinstance(stack_info, dict) else '#667eea'
+        # Render categories in order matching stackMeta.ts
+        for category in category_order:
+            if category in stacks_by_category and stacks_by_category[category]:
+                stacks = stacks_by_category[category]
+                category_label = category_labels.get(category, category.upper())
                 
-                # Remove # from color for URL
-                color_code = stack_color.replace('#', '')
-                # Escape special characters for URL (shields.io format)
-                stack_label_escaped = stack_label.replace('-', '--').replace('_', '__').replace(' ', '%20')
-                # Use shields.io for-the-badge style with custom color
-                badge_url = f"https://img.shields.io/badge/{stack_label_escaped}-{color_code}?style=for-the-badge&logoColor=white"
-                readme += f'  <img src="{badge_url}" alt="{stack_label}" />\n'
-        
-        readme += "\n</div>\n\n"
+                # Add category heading
+                readme += f"### {category_label}\n\n"
+                readme += '<div align="center">\n\n'
+                
+                # Generate shields.io badges for each stack in this category
+                for stack_info in stacks[:20]:  # Limit to 20 stacks per category
+                    stack_label = stack_info.get('label') if isinstance(stack_info, dict) else stack_info
+                    stack_color = stack_info.get('color', '#667eea') if isinstance(stack_info, dict) else '#667eea'
+                    
+                    # Remove # from color for URL
+                    color_code = stack_color.replace('#', '')
+                    # Escape special characters for URL (shields.io format)
+                    stack_label_escaped = stack_label.replace('-', '--').replace('_', '__').replace(' ', '%20')
+                    # Use shields.io for-the-badge style with custom color
+                    badge_url = f"https://img.shields.io/badge/{stack_label_escaped}-{color_code}?style=for-the-badge&logoColor=white"
+                    readme += f'  <img src="{badge_url}" alt="{stack_label}" />\n'
+                
+                readme += "\n</div>\n\n"
     
     # Contact Section
     if card.show_contact and card.contacts:
