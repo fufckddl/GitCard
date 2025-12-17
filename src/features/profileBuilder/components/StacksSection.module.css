@@ -45,7 +45,6 @@
   border-radius: 20px;
   font-size: 14px;
   font-weight: 600;
-  color: white;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }

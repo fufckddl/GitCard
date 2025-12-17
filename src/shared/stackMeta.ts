@@ -68,7 +68,7 @@ export const STACK_META_LIST: StackMeta[] = [
   { key: "javascript", label: "JavaScript", category: "language", color: "#F7DF1E", icon: "javascript" },
   { key: "typescript", label: "TypeScript", category: "language", color: "#3178C6", icon: "typescript" },
   { key: "python", label: "Python", category: "language", color: "#3776AB", icon: "python" },
-  { key: "java", label: "Java", category: "language", color: "#ED8B00", icon: "java" },
+  { key: "java", label: "Java", category: "language", color: "#ED8B00", icon: "openjdk" },
   { key: "kotlin", label: "Kotlin", category: "language", color: "#7F52FF", icon: "kotlin" },
   { key: "swift", label: "Swift", category: "language", color: "#FA7343", icon: "swift" },
   { key: "dart", label: "Dart", category: "language", color: "#0175C2", icon: "dart" },
