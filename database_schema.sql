@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS profile_cards (
     show_stacks BOOLEAN NOT NULL DEFAULT TRUE,
     show_contact BOOLEAN NOT NULL DEFAULT TRUE,
     show_github_stats BOOLEAN NOT NULL DEFAULT TRUE,
+    stack_alignment VARCHAR(10) NOT NULL DEFAULT 'center',
     stacks JSON NOT NULL DEFAULT (JSON_ARRAY()),
     contacts JSON NOT NULL DEFAULT (JSON_ARRAY()),
     created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
