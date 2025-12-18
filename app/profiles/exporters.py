@@ -1487,13 +1487,19 @@ def generate_readme_template(
                 # Get icon from contact type mapping
                 icon_slug = CONTACT_ICON_MAP.get(contact_type) if contact_type else None
                 
-                # Determine link URL
+                # Determine link URL and attributes
                 if value.startswith('http://') or value.startswith('https://'):
                     link = value
+                    target_attr = 'target="_blank"'
+                    rel_attr = 'rel="noopener noreferrer"'
                 elif '@' in value and not value.startswith('http'):
                     link = f"mailto:{value}"
+                    target_attr = ''
+                    rel_attr = ''
                 else:
                     link = f"https://{value}" if not value.startswith('http') else value
+                    target_attr = 'target="_blank"'
+                    rel_attr = 'rel="noopener noreferrer"'
                 
                 # Use Simple Icons CDN directly for icon-only display
                 # Format: https://cdn.simpleicons.org/{icon_slug}/{color}
@@ -1504,8 +1510,9 @@ def generate_readme_template(
                     # Fallback: use default link icon if contact type not found
                     icon_url = "https://cdn.simpleicons.org/link/000000"
                 
-                readme += f'  <a href="{link}">\n'
-                readme += f'    <img src="{icon_url}" alt="{label}" width="32" height="32" style="margin: 0 8px;" />\n'
+                # Create clickable icon link
+                readme += f'  <a href="{link}" {target_attr} {rel_attr}>\n'
+                readme += f'    <img src="{icon_url}" alt="{label}" width="32" height="32" style="margin: 0 8px; cursor: pointer; transition: transform 0.2s;" />\n'
                 readme += f'  </a>\n'
         
         readme += "\n</div>\n\n"
