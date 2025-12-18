@@ -17,6 +17,7 @@ export interface ProfileCard {
   show_github_stats: boolean;
   show_baekjoon?: boolean;
   baekjoon_id?: string | null;
+  stack_label_lang?: 'ko' | 'en';
   stack_alignment: 'left' | 'center' | 'right';  // 스택 배지 정렬
   stacks: Array<{ id: string; key?: string; label: string; category: string; color: string }>;
   contacts: Array<{ id: string; label: string; value: string; type?: string }>;
