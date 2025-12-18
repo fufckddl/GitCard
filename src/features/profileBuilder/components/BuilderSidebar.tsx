@@ -175,6 +175,17 @@ export const BuilderSidebar: React.FC<BuilderSidebarProps> = ({ profileConfig })
               </div>
             )}
             <div className={styles.formGroup}>
+              <label>Tech Stack 라벨 언어</label>
+              <select
+                value={config.stackLabelLang}
+                onChange={(e) => updateConfig({ stackLabelLang: e.target.value as 'ko' | 'en' })}
+                className={styles.select}
+              >
+                <option value="en">English</option>
+                <option value="ko">한국어</option>
+              </select>
+            </div>
+            <div className={styles.formGroup}>
               <label className={styles.checkboxLabel}>
                 <input
                   type="checkbox"

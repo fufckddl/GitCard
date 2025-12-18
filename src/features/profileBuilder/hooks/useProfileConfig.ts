@@ -23,6 +23,7 @@ const DEFAULT_CONFIG: ProfileConfig = {
   showGithubStats: true,
   showBaekjoon: false,
   baekjoonId: '',
+  stackLabelLang: 'en',
   stackAlignment: 'center',
   stacks: [
     { id: '1', key: 'react', label: 'React', category: 'frontend', color: '#61DAFB' },

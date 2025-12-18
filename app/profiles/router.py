@@ -37,6 +37,7 @@ class ProfileCardCreate(BaseModel):
     show_github_stats: bool
     show_baekjoon: bool = False
     baekjoon_id: Optional[str] = None
+    stack_label_lang: str = "en"  # 'ko' or 'en'
     stack_alignment: str = "center"  # "left", "center", "right"
     stacks: List[Dict]
     contacts: List[Dict]
@@ -55,6 +56,7 @@ class ProfileCardUpdate(BaseModel):
     show_baekjoon: Optional[bool] = None
     baekjoon_id: Optional[str] = None
     stack_alignment: Optional[str] = None  # "left", "center", "right"
+    stack_label_lang: Optional[str] = None  # 'ko' or 'en'
     stacks: Optional[List[Dict]] = None
     contacts: Optional[List[Dict]] = None
 
@@ -80,6 +82,7 @@ async def create_profile_card(
         show_github_stats=card_data.show_github_stats,
         show_baekjoon=card_data.show_baekjoon,
         baekjoon_id=card_data.baekjoon_id or "",
+        stack_label_lang=card_data.stack_label_lang,
         stacks=card_data.stacks,
         contacts=card_data.contacts,
         stack_alignment=card_data.stack_alignment,
@@ -99,6 +102,7 @@ async def create_profile_card(
         "show_github_stats": card.show_github_stats,
         "show_baekjoon": getattr(card, "show_baekjoon", False),
         "baekjoon_id": getattr(card, "baekjoon_id", None),
+        "stack_label_lang": getattr(card, "stack_label_lang", "en"),
         "stack_alignment": card.stack_alignment,
         "stacks": card.stacks,
         "contacts": card.contacts,
@@ -130,6 +134,7 @@ async def get_profile_cards(
             "show_github_stats": card.show_github_stats,
             "show_baekjoon": getattr(card, "show_baekjoon", False),
             "baekjoon_id": getattr(card, "baekjoon_id", None),
+            "stack_label_lang": getattr(card, "stack_label_lang", "en"),
             "stack_alignment": card.stack_alignment,
             "stacks": card.stacks,
             "contacts": card.contacts,
@@ -166,6 +171,7 @@ async def get_profile_card(
         "show_github_stats": card.show_github_stats,
         "show_baekjoon": getattr(card, "show_baekjoon", False),
         "baekjoon_id": getattr(card, "baekjoon_id", None),
+        "stack_label_lang": getattr(card, "stack_label_lang", "en"),
         "stacks": card.stacks,
         "contacts": card.contacts,
         "created_at": card.created_at.isoformat() if card.created_at else None,
@@ -196,6 +202,7 @@ async def update_profile_card(
         show_github_stats=card_data.show_github_stats,
         show_baekjoon=card_data.show_baekjoon,
         baekjoon_id=card_data.baekjoon_id,
+        stack_label_lang=card_data.stack_label_lang,
         stack_alignment=card_data.stack_alignment,
         stacks=card_data.stacks,
         contacts=card_data.contacts,
@@ -218,6 +225,7 @@ async def update_profile_card(
         "show_github_stats": card.show_github_stats,
         "show_baekjoon": getattr(card, "show_baekjoon", False),
         "baekjoon_id": getattr(card, "baekjoon_id", None),
+        "stack_label_lang": getattr(card, "stack_label_lang", "en"),
         "stack_alignment": card.stack_alignment,
         "stacks": card.stacks,
         "contacts": card.contacts,
@@ -273,6 +281,7 @@ async def get_public_profile_card(
         "show_github_stats": card.show_github_stats,
         "show_baekjoon": getattr(card, "show_baekjoon", False),
         "baekjoon_id": getattr(card, "baekjoon_id", None),
+        "stack_label_lang": getattr(card, "stack_label_lang", "en"),
         "stack_alignment": card.stack_alignment,
         "stacks": card.stacks,
         "contacts": card.contacts,
