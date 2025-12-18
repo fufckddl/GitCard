@@ -21,6 +21,8 @@ const DEFAULT_CONFIG: ProfileConfig = {
   showStacks: true,
   showContact: true,
   showGithubStats: true,
+  showBaekjoon: false,
+  baekjoonId: '',
   stackAlignment: 'center',
   stacks: [
     { id: '1', key: 'react', label: 'React', category: 'frontend', color: '#61DAFB' },
@@ -114,4 +116,3 @@ export const useProfileConfig = () => {
     removeContact,
   };
 };
-

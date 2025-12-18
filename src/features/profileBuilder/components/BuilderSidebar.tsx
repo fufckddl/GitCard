@@ -161,7 +161,11 @@ export const BuilderSidebar: React.FC<BuilderSidebarProps> = ({ profileConfig })
                 <label>스택 배지 정렬</label>
                 <select
                   value={config.stackAlignment}
-                  onChange={(e) => updateConfig({ stackAlignment: e.target.value as 'left' | 'center' | 'right' })}
+                  onChange={(e) =>
+                    updateConfig({
+                      stackAlignment: e.target.value as 'left' | 'center' | 'right',
+                    })
+                  }
                   className={styles.select}
                 >
                   <option value="left">좌측</option>
@@ -190,6 +194,27 @@ export const BuilderSidebar: React.FC<BuilderSidebarProps> = ({ profileConfig })
                 GitHub 통계 표시
               </label>
             </div>
+            <div className={styles.formGroup}>
+              <label className={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  checked={config.showBaekjoon}
+                  onChange={(e) => updateConfig({ showBaekjoon: e.target.checked })}
+                />
+                Baekjoon 티어 표시
+              </label>
+            </div>
+            {config.showBaekjoon && (
+              <div className={styles.formGroup}>
+                <label>Baekjoon ID</label>
+                <input
+                  type="text"
+                  value={config.baekjoonId}
+                  onChange={(e) => updateConfig({ baekjoonId: e.target.value })}
+                  placeholder="본인의 백준 ID"
+                />
+              </div>
+            )}
           </div>
         )}
 
@@ -260,4 +285,3 @@ export const BuilderSidebar: React.FC<BuilderSidebarProps> = ({ profileConfig })
     </div>
   );
 };
-

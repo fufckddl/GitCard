@@ -22,6 +22,8 @@ def create_profile_card(
     show_stacks: bool,
     show_contact: bool,
     show_github_stats: bool,
+    show_baekjoon: bool,
+    baekjoon_id: str,
     stacks: List[Dict],
     contacts: List[Dict],
     stack_alignment: str = "center",
@@ -39,6 +41,8 @@ def create_profile_card(
         show_stacks=show_stacks,
         show_contact=show_contact,
         show_github_stats=show_github_stats,
+        show_baekjoon=show_baekjoon,
+        baekjoon_id=baekjoon_id,
         stack_alignment=stack_alignment,
         stacks=stacks,
         contacts=contacts,
@@ -80,6 +84,8 @@ def update_profile_card(
     show_stacks: Optional[bool] = None,
     show_contact: Optional[bool] = None,
     show_github_stats: Optional[bool] = None,
+    show_baekjoon: Optional[bool] = None,
+    baekjoon_id: Optional[str] = None,
     stack_alignment: Optional[str] = None,
     stacks: Optional[List[Dict]] = None,
     contacts: Optional[List[Dict]] = None,
@@ -107,6 +113,10 @@ def update_profile_card(
         card.show_contact = show_contact
     if show_github_stats is not None:
         card.show_github_stats = show_github_stats
+    if show_baekjoon is not None:
+        card.show_baekjoon = show_baekjoon
+    if baekjoon_id is not None:
+        card.baekjoon_id = baekjoon_id
     if stack_alignment is not None:
         print(f"[UPDATE_CARD] Updating stack_alignment from '{card.stack_alignment}' to '{stack_alignment}'")  # Debug log
         card.stack_alignment = stack_alignment

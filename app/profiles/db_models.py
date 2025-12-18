@@ -24,6 +24,9 @@ class ProfileCard(Base):
     show_stacks = Column(Boolean, default=True, nullable=False)
     show_contact = Column(Boolean, default=True, nullable=False)
     show_github_stats = Column(Boolean, default=True, nullable=False)
+    # Baekjoon tier display (Solved.ac badge)
+    show_baekjoon = Column(Boolean, default=False, nullable=False)
+    baekjoon_id = Column(String(255), nullable=True)
     stack_alignment = Column(String(10), nullable=False, default="center")  # "left", "center", "right"
     stacks = Column(JSON, nullable=False, default=list)
     contacts = Column(JSON, nullable=False, default=list)
