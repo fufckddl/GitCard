@@ -677,6 +677,10 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
                                     stack_key = variant
                                     break
                     
+                    # Special case: Java should display as "OpenJDK" in HTML
+                    if stack_key == 'java':
+                        stack_label = 'OpenJDK'
+                    
                     icon_slug = STACK_ICON_MAP.get(stack_key) if stack_key else None
                     
                     # Debug: Print if icon not found
@@ -710,7 +714,7 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
         html += """  <!-- Contact Section -->
   <div style="padding: 32px 40px; background: #f8f9fa;">
     <h2 style="font-size: 28px; font-weight: 700; margin: 0 0 24px 0; color: #333;">Contact</h2>
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px;">
+    <div style="display: flex; flex-wrap: wrap; gap: 16px; justify-content: center;">
 """
         for contact in card.contacts:
             label = html_escape.escape(contact.get('label', ''))
@@ -745,21 +749,19 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
                 target_attr = 'target="_blank"'
                 rel_attr = 'rel="noopener noreferrer"'
             
-            # Build icon HTML - always include icon if type is specified
+            # Build icon HTML - only show icon, no text labels
             icon_html = ""
             if icon_slug:
-                icon_html = f'<img src="https://cdn.simpleicons.org/{icon_slug}/black" alt="{label}" style="width: 32px; height: 32px; margin-right: 16px; object-fit: contain; flex-shrink: 0;" />'
+                icon_html = f'<img src="https://cdn.simpleicons.org/{icon_slug}/black" alt="{label}" style="width: 48px; height: 48px; object-fit: contain;" />'
                 print(f"[HTML] Generated icon HTML for contact_type: '{contact_type}' with icon_slug: '{icon_slug}'")
             elif contact_type:
                 # If type is specified but icon not found, log warning
                 print(f"[HTML] Warning: Contact type '{contact_type}' specified but icon not in CONTACT_ICON_MAP")
             
-            html += f"""      <a href="{href}" {target_attr} {rel_attr} style="display: flex; flex-direction: row; align-items: center; gap: 16px; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); text-decoration: none; color: inherit;">
+            # Only display icon, no text labels or values
+            if icon_html:
+                html += f"""      <a href="{href}" {target_attr} {rel_attr} style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; padding: 8px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.15)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 8px rgba(0, 0, 0, 0.1)';">
         {icon_html}
-        <div style="display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0;">
-          <span style="font-size: 14px; font-weight: 600; color: #667eea; text-transform: uppercase; letter-spacing: 0.5px;">{label}</span>
-          <span style="font-size: 16px; color: #333; word-break: break-word;">{value}</span>
-        </div>
       </a>
 """
         html += """    </div>
