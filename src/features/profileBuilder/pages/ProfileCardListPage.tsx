@@ -73,6 +73,8 @@ export const ProfileCardListPage: React.FC = () => {
       showStacks: card.show_stacks,
       showContact: card.show_contact,
       showGithubStats: card.show_github_stats,
+      showBaekjoon: card.show_baekjoon ?? false,
+      baekjoonId: card.baekjoon_id ?? '',
       stackAlignment: card.stack_alignment || 'center',
       stacks: convertStacks(card.stacks),
       contacts: card.contacts,
