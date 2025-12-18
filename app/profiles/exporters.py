@@ -657,7 +657,33 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
                     stack_label = html_escape.escape(stack.get('label', stack.get('key', '')))
                     stack_color = stack.get('color', '#667eea')
                     stack_key = stack.get('key', '')
+                    
+                    # If key is empty, try to use label as key (normalize to lowercase, replace spaces with hyphens)
+                    if not stack_key and stack_label:
+                        # Try to find icon by normalizing label (e.g., "Node.js" -> "nodejs", "Java" -> "java")
+                        normalized_label = stack_label.lower().replace(' ', '-').replace('.', '').replace('++', 'plusplus')
+                        # Try exact match first
+                        if normalized_label in STACK_ICON_MAP:
+                            stack_key = normalized_label
+                        else:
+                            # Try variations (e.g., "node.js" -> "nodejs", "c++" -> "cpp")
+                            variations = [
+                                normalized_label.replace('-', ''),
+                                normalized_label.replace('.', ''),
+                                normalized_label.replace(' ', ''),
+                            ]
+                            for variant in variations:
+                                if variant in STACK_ICON_MAP:
+                                    stack_key = variant
+                                    break
+                    
                     icon_slug = STACK_ICON_MAP.get(stack_key) if stack_key else None
+                    
+                    # Debug: Print if icon not found
+                    if not icon_slug and stack_key:
+                        print(f"[HTML] Icon not found for stack_key: '{stack_key}', label: '{stack_label}'")
+                    elif not icon_slug and stack_label:
+                        print(f"[HTML] No stack_key for label: '{stack_label}'")
                     
                     # Determine icon color based on background color brightness
                     is_light = _is_light_color(stack_color)
@@ -691,12 +717,17 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
             value = html_escape.escape(contact.get('value', ''))
             contact_type = contact.get('type', '')
             
+            # Debug: Print contact info for troubleshooting
+            print(f"[HTML] Processing contact - type: '{contact_type}', label: '{label}', value: '{value[:50]}...'")
+            
             # Get icon from contact type mapping
             icon_slug = CONTACT_ICON_MAP.get(contact_type) if contact_type else None
             
             # Debug: Print contact info for troubleshooting
             if not icon_slug and contact_type:
-                print(f"[HTML] Icon not found for contact_type: '{contact_type}', label: '{label}'")
+                print(f"[HTML] Icon not found for contact_type: '{contact_type}', label: '{label}'. Available types: {list(CONTACT_ICON_MAP.keys())}")
+            elif not contact_type:
+                print(f"[HTML] No contact_type specified for label: '{label}'")
             
             is_email = '@' in value and not value.startswith('http')
             is_url = value.startswith('http://') or value.startswith('https://')
@@ -718,6 +749,7 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
             icon_html = ""
             if icon_slug:
                 icon_html = f'<img src="https://cdn.simpleicons.org/{icon_slug}/black" alt="{label}" style="width: 32px; height: 32px; margin-right: 16px; object-fit: contain; flex-shrink: 0;" />'
+                print(f"[HTML] Generated icon HTML for contact_type: '{contact_type}' with icon_slug: '{icon_slug}'")
             elif contact_type:
                 # If type is specified but icon not found, log warning
                 print(f"[HTML] Warning: Contact type '{contact_type}' specified but icon not in CONTACT_ICON_MAP")
