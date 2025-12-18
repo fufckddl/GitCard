@@ -768,6 +768,23 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
   </div>
 """
     
+    # Baekjoon Tier Section (Solved.ac badge) - placed below Contact
+    baekjoon_id = getattr(card, "baekjoon_id", None)
+    if getattr(card, "show_baekjoon", False) and baekjoon_id:
+        safe_handle = html_escape.escape(baekjoon_id)
+        badge_src = f"http://mazassumnida.wtf/api/v2/generate_badge?boj={safe_handle}"
+        solved_profile_url = f"https://solved.ac/{safe_handle}/"
+        html += f"""  <!-- Baekjoon Tier Section -->
+  <div style="padding: 32px 40px; background: white;">
+    <h2 style="font-size: 28px; font-weight: 700; margin: 0 0 24px 0; color: #333;">Baekjoon</h2>
+    <div style="text-align: center;">
+      <a href="{solved_profile_url}" target="_blank" rel="noopener noreferrer">
+        <img src="{badge_src}" alt="Solved.ac Profile" />
+      </a>
+    </div>
+  </div>
+"""
+    
     # GitHub Stats Section (정적 데이터만 표시, API 호출 불가)
     # HTML에서는 실제 통계를 가져올 수 없으므로 링크만 제공
     if card.show_github_stats:
@@ -1518,6 +1535,15 @@ def generate_readme_template(
         
         readme += "\n</div>\n\n"
     
+    # Baekjoon Tier Section (Solved.ac badge) - below Contact
+    baekjoon_id = getattr(card, "baekjoon_id", None)
+    if getattr(card, "show_baekjoon", False) and baekjoon_id:
+        handle = baekjoon_id
+        readme += "## 🧩 Baekjoon Tier\n\n"
+        readme += '<div align="center">\n\n'
+        readme += f'[![Solved.ac Profile](http://mazassumnida.wtf/api/v2/generate_badge?boj={handle})](https://solved.ac/{handle}/)\n\n'
+        readme += "</div>\n\n"
+
     # GitHub Stats Section
     if card.show_github_stats:
         readme += "## 🏅 GitHub Stats\n\n"

@@ -24,8 +24,10 @@ export type ProfileConfig = {
   showStacks: boolean;
   showContact: boolean;
   showGithubStats: boolean;
+  // Baekjoon tier (Solved.ac badge)
+  showBaekjoon: boolean;
+  baekjoonId: string;
   stackAlignment: 'left' | 'center' | 'right';  // 스택 배지 정렬
   stacks: StackBadge[];
   contacts: ContactItem[];
 };
-

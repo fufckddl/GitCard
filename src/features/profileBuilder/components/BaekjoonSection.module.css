@@ -1,0 +1,21 @@
+.section {
+  padding: 32px 40px;
+  background: #ffffff;
+}
+
+.sectionTitle {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 24px 0;
+  color: #333;
+}
+
+.content {
+  display: flex;
+  justify-content: center;
+}
+
+.badge {
+  max-width: 100%;
+  height: auto;
+}
