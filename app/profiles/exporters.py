@@ -1510,9 +1510,9 @@ def generate_readme_template(
                     # Fallback: use default link icon if contact type not found
                     icon_url = "https://cdn.simpleicons.org/link/000000"
                 
-                # Create clickable icon link
-                readme += f'  <a href="{link}" {target_attr} {rel_attr}>\n'
-                readme += f'    <img src="{icon_url}" alt="{label}" width="32" height="32" style="margin: 0 8px; cursor: pointer; transition: transform 0.2s;" />\n'
+                # Create clickable icon link with spacing between icons
+                readme += f'  <a href="{link}" {target_attr} {rel_attr} style="margin: 0 8px; display: inline-block;">\n'
+                readme += f'    <img src="{icon_url}" alt="{label}" width="32" height="32" style="cursor: pointer; transition: transform 0.2s;" />\n'
                 readme += f'  </a>\n'
         
         readme += "\n</div>\n\n"
