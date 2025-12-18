@@ -1324,7 +1324,7 @@ def generate_readme_template(
     stats: Optional[Dict[str, Optional[int]]] = None,
 ) -> str:
     """
-    Generate a GitHub README-safe markdown template.
+    Generate a GitHub README-safe markdown template.    
     
     Uses:
     - SVG banner as image URL (capsule-render 방식) - 안정적인 렌더링 보장
@@ -1511,8 +1511,9 @@ def generate_readme_template(
                     icon_url = "https://cdn.simpleicons.org/link/000000"
                 
                 # Create clickable icon link with spacing between icons
-                readme += f'  <a href="{link}" {target_attr} {rel_attr} style="margin: 0 8px; display: inline-block;">\n'
-                readme += f'    <img src="{icon_url}" alt="{label}" width="32" height="32" style="cursor: pointer; transition: transform 0.2s;" />\n'
+                # Use padding and display: inline-block for better compatibility with GitHub markdown
+                readme += f'  <a href="{link}" {target_attr} {rel_attr} style="padding: 0 10px; display: inline-block; text-decoration: none;">\n'
+                readme += f'    <img src="{icon_url}" alt="{label}" width="32" height="32" style="cursor: pointer; transition: transform 0.2s; display: block;" />\n'
                 readme += f'  </a>\n'
         
         readme += "\n</div>\n\n"
