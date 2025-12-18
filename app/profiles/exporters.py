@@ -1487,50 +1487,25 @@ def generate_readme_template(
                 # Get icon from contact type mapping
                 icon_slug = CONTACT_ICON_MAP.get(contact_type) if contact_type else None
                 
-                # Determine contact type and create appropriate badge
-                label_escaped = label.replace('-', '--').replace('_', '__').replace(' ', '%20')
-                
-                # Check URL first (before email check) to avoid false positives
+                # Determine link URL
                 if value.startswith('http://') or value.startswith('https://'):
-                    # URL
-                    contact_type_detected = 'url'
-                    domain = value.replace('http://', '').replace('https://', '').split('/')[0].replace('.', '%2E')
-                    # Use contact type icon if available, otherwise use default
-                    if icon_slug:
-                        badge_url = f"https://img.shields.io/badge/{label_escaped}-{domain}-4285F4?style=for-the-badge&logo={icon_slug}&logoColor=white"
-                    else:
-                        badge_url = f"https://img.shields.io/badge/{label_escaped}-{domain}-4285F4?style=for-the-badge&logo=google-chrome&logoColor=white"
                     link = value
-                elif 'github.com' in value.lower() or 'github.io' in value.lower():
-                    # GitHub profile
-                    contact_type_detected = 'github'
-                    username = value.split('/')[-1] if '/' in value else value
-                    if icon_slug:
-                        badge_url = f"https://img.shields.io/badge/{label_escaped}-{username}-181717?style=for-the-badge&logo={icon_slug}&logoColor=white"
-                    else:
-                        badge_url = f"https://img.shields.io/badge/{label_escaped}-{username}-181717?style=for-the-badge&logo=github&logoColor=white"
-                    link = value if value.startswith('http') else f"https://{value}"
                 elif '@' in value and not value.startswith('http'):
-                    # Email (only if it's not a URL)
-                    contact_type_detected = 'email'
-                    contact_value_escaped = value.replace('@', '%40').replace(' ', '%20')
-                    if icon_slug:
-                        badge_url = f"https://img.shields.io/badge/{label_escaped}-{contact_value_escaped}-EA4335?style=for-the-badge&logo={icon_slug}&logoColor=white"
-                    else:
-                        badge_url = f"https://img.shields.io/badge/{label_escaped}-{contact_value_escaped}-EA4335?style=for-the-badge&logo=gmail&logoColor=white"
                     link = f"mailto:{value}"
                 else:
-                    # Plain text or other
-                    contact_type_detected = 'text'
-                    value_escaped = value.replace(' ', '%20').replace('-', '--').replace('_', '__')
-                    if icon_slug:
-                        badge_url = f"https://img.shields.io/badge/{label_escaped}-{value_escaped}-667eea?style=for-the-badge&logo={icon_slug}&logoColor=white"
-                    else:
-                        badge_url = f"https://img.shields.io/badge/{label_escaped}-{value_escaped}-667eea?style=for-the-badge"
                     link = f"https://{value}" if not value.startswith('http') else value
                 
+                # Use Simple Icons CDN directly for icon-only display
+                # Format: https://cdn.simpleicons.org/{icon_slug}/{color}
+                if icon_slug:
+                    # Use black icon for better visibility on light backgrounds
+                    icon_url = f"https://cdn.simpleicons.org/{icon_slug}/000000"
+                else:
+                    # Fallback: use default link icon if contact type not found
+                    icon_url = "https://cdn.simpleicons.org/link/000000"
+                
                 readme += f'  <a href="{link}">\n'
-                readme += f'    <img src="{badge_url}" alt="{label}" />\n'
+                readme += f'    <img src="{icon_url}" alt="{label}" width="32" height="32" style="margin: 0 8px;" />\n'
                 readme += f'  </a>\n'
         
         readme += "\n</div>\n\n"
