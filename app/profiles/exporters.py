@@ -1513,12 +1513,12 @@ def generate_readme_template(
                     if icon_slug:
                         # Use shields.io with logo parameter and dynamic icon color
                         badge_url = f"https://img.shields.io/badge/{stack_label_escaped}-{color_code}?logo={icon_slug}&logoColor={icon_color}&style=for-the-badge"
-                    else:
+                    else: 
                         # Fallback to badge without logo
                         badge_url = f"https://img.shields.io/badge/{stack_label_escaped}-{color_code}?style=for-the-badge"
                     
                     readme += f'  <img src="{badge_url}" alt="{stack_label}" />\n'
-                
+                 
                 readme += "\n</div>\n\n"
     
     # Contact Section
