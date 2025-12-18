@@ -586,7 +586,8 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
         "language", "frontend", "mobile", "backend", "database",
         "infra", "collaboration", "ai-ml", "testing", "tool"
     ]
-    category_labels = {
+    # Category labels (Korean / English) for HTML export
+    category_labels_ko = {
         "language": "언어",
         "frontend": "프론트엔드",
         "mobile": "모바일",
@@ -598,6 +599,21 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
         "testing": "테스팅",
         "tool": "도구",
     }
+    category_labels_en = {
+        "language": "Language",
+        "frontend": "Frontend",
+        "mobile": "Mobile",
+        "backend": "Backend",
+        "database": "Database",
+        "infra": "Infra",
+        "collaboration": "Collaboration",
+        "ai-ml": "AI / ML",
+        "testing": "Testing",
+        "tool": "Tools",
+    }
+    # 카드 설정에 따라 라벨 언어 선택 ('ko' | 'en')
+    stack_label_lang = getattr(card, "stack_label_lang", "en")
+    category_labels = category_labels_ko if stack_label_lang == "ko" else category_labels_en
     
     stacks_by_category = {}
     if card.show_stacks and card.stacks:
@@ -1386,7 +1402,8 @@ def generate_readme_template(
             "language", "frontend", "mobile", "backend", "database",
             "infra", "collaboration", "ai-ml", "testing", "tool"
         ]
-        category_labels = {
+        # Category labels (Korean / English) for README export
+        category_labels_ko = {
             "language": "언어",
             "frontend": "프론트엔드",
             "mobile": "모바일",
@@ -1398,6 +1415,20 @@ def generate_readme_template(
             "testing": "테스팅",
             "tool": "도구",
         }
+        category_labels_en = {
+            "language": "Language",
+            "frontend": "Frontend",
+            "mobile": "Mobile",
+            "backend": "Backend",
+            "database": "Database",
+            "infra": "Infra",
+            "collaboration": "Collaboration",
+            "ai-ml": "AI / ML",
+            "testing": "Testing",
+            "tool": "Tools",
+        }
+        stack_label_lang = getattr(card, "stack_label_lang", "en")
+        category_labels = category_labels_ko if stack_label_lang == "ko" else category_labels_en
         
         # Group stacks by category
         stacks_by_category = {}

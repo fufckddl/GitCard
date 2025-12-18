@@ -27,6 +27,8 @@ export type ProfileConfig = {
   // Baekjoon tier (Solved.ac badge)
   showBaekjoon: boolean;
   baekjoonId: string;
+  // Tech stack category label language: 'ko' or 'en'
+  stackLabelLang: 'ko' | 'en';
   stackAlignment: 'left' | 'center' | 'right';  // 스택 배지 정렬
   stacks: StackBadge[];
   contacts: ContactItem[];

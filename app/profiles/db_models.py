@@ -27,6 +27,8 @@ class ProfileCard(Base):
     # Baekjoon tier display (Solved.ac badge)
     show_baekjoon = Column(Boolean, default=False, nullable=False)
     baekjoon_id = Column(String(255), nullable=True)
+    # Tech stack category label language: 'ko' or 'en'
+    stack_label_lang = Column(String(2), nullable=False, default="en")
     stack_alignment = Column(String(10), nullable=False, default="center")  # "left", "center", "right"
     stacks = Column(JSON, nullable=False, default=list)
     contacts = Column(JSON, nullable=False, default=list)

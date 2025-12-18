@@ -75,6 +75,7 @@ export const ProfileCardListPage: React.FC = () => {
       showGithubStats: card.show_github_stats,
       showBaekjoon: card.show_baekjoon ?? false,
       baekjoonId: card.baekjoon_id ?? '',
+      stackLabelLang: card.stack_label_lang as 'ko' | 'en' ?? 'en',
       stackAlignment: card.stack_alignment || 'center',
       stacks: convertStacks(card.stacks),
       contacts: card.contacts,

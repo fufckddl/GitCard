@@ -36,8 +36,8 @@ const categoryOrder: StackCategory[] = [
   "infra", "collaboration", "ai-ml", "testing", "tool"
 ];
 
-// Category labels in Korean (matching stackMeta.ts structure)
-const categoryLabels: Record<StackCategory, string> = {
+// Category labels in Korean
+const categoryLabelsKo: Record<StackCategory, string> = {
   "language": "언어",
   "frontend": "프론트엔드",
   "mobile": "모바일",
@@ -48,6 +48,20 @@ const categoryLabels: Record<StackCategory, string> = {
   "ai-ml": "AI/ML",
   "testing": "테스팅",
   "tool": "도구",
+};
+
+// Category labels in English (for Tech Stacks section)
+const categoryLabelsEn: Record<StackCategory, string> = {
+  "language": "Language",
+  "frontend": "Frontend",
+  "mobile": "Mobile",
+  "backend": "Backend",
+  "database": "Database",
+  "infra": "Infra",
+  "collaboration": "Collaboration",
+  "ai-ml": "AI / ML",
+  "testing": "Testing",
+  "tool": "Tools",
 };
 
 export const StacksSection: React.FC<StacksSectionProps> = ({ config }) => {
@@ -65,6 +79,9 @@ export const StacksSection: React.FC<StacksSectionProps> = ({ config }) => {
     return acc;
   }, {} as Record<StackCategory, typeof config.stacks>);
 
+  // Choose labels by language setting
+  const labels = config.stackLabelLang === 'ko' ? categoryLabelsKo : categoryLabelsEn;
+
   return (
     <div className={styles.section}>
       <h2 className={styles.sectionTitle}>Stacks</h2>
@@ -76,7 +93,7 @@ export const StacksSection: React.FC<StacksSectionProps> = ({ config }) => {
             return null;
           }
 
-          const categoryLabel = categoryLabels[category] || category.toUpperCase();
+          const categoryLabel = labels[category] || category.toUpperCase();
 
           const alignmentStyle = {
             justifyContent: 
@@ -126,4 +143,3 @@ export const StacksSection: React.FC<StacksSectionProps> = ({ config }) => {
     </div>
   );
 };
-
