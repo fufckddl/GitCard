@@ -613,7 +613,11 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
     }
     # 카드 설정에 따라 라벨 언어 선택 ('ko' | 'en')
     stack_label_lang = getattr(card, "stack_label_lang", "en")
+    # None이나 빈 문자열인 경우 영어로 기본값 설정
+    if not stack_label_lang or stack_label_lang not in ("ko", "en"):
+        stack_label_lang = "en"
     category_labels = category_labels_ko if stack_label_lang == "ko" else category_labels_en
+    print(f"[HTML] Using stack_label_lang='{stack_label_lang}', category_labels keys: {list(category_labels.keys())[:3]}...")
     
     stacks_by_category = {}
     if card.show_stacks and card.stacks:
@@ -1427,8 +1431,13 @@ def generate_readme_template(
             "testing": "Testing",
             "tool": "Tools",
         }
+        # 카드 설정에 따라 라벨 언어 선택 ('ko' | 'en')
         stack_label_lang = getattr(card, "stack_label_lang", "en")
+        # None이나 빈 문자열인 경우 영어로 기본값 설정
+        if not stack_label_lang or stack_label_lang not in ("ko", "en"):
+            stack_label_lang = "en"
         category_labels = category_labels_ko if stack_label_lang == "ko" else category_labels_en
+        print(f"[README] Using stack_label_lang='{stack_label_lang}', category_labels keys: {list(category_labels.keys())[:3]}...")
         
         # Group stacks by category
         stacks_by_category = {}
