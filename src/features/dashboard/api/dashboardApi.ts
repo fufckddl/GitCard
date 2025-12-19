@@ -35,3 +35,4 @@ export const recordVisit = async (): Promise<VisitorStats> => {
   return response.json();
 };
 
+

@@ -73,3 +73,4 @@ def get_visitor_stats(db: Session) -> dict:
         "total_visitors": get_total_visitors(db)
     }
 
+
