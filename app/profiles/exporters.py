@@ -734,7 +734,7 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
         html += """  <!-- Contact Section -->
   <div style="padding: 32px 40px; background: #f8f9fa;">
     <h2 style="font-size: 28px; font-weight: 700; margin: 0 0 24px 0; color: #333;">Contact</h2>
-    <div style="display: flex; flex-wrap: wrap; gap: 16px; justify-content: center;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px;">
 """
         for contact in card.contacts:
             label = html_escape.escape(contact.get('label', ''))
@@ -769,19 +769,25 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
                 target_attr = 'target="_blank"'
                 rel_attr = 'rel="noopener noreferrer"'
             
-            # Build icon HTML - only show icon, no text labels
+            # Build icon HTML
             icon_html = ""
             if icon_slug:
-                icon_html = f'<img src="https://cdn.simpleicons.org/{icon_slug}/black" alt="{label}" style="width: 48px; height: 48px; object-fit: contain;" />'
+                icon_html = f'<img src="https://cdn.simpleicons.org/{icon_slug}/000000" alt="{label}" style="width: 32px; height: 32px; object-fit: contain;" />'
                 print(f"[HTML] Generated icon HTML for contact_type: '{contact_type}' with icon_slug: '{icon_slug}'")
             elif contact_type:
                 # If type is specified but icon not found, log warning
                 print(f"[HTML] Warning: Contact type '{contact_type}' specified but icon not in CONTACT_ICON_MAP")
             
-            # Only display icon, no text labels or values
-            if icon_html:
-                html += f"""      <a href="{href}" {target_attr} {rel_attr} style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; padding: 8px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.15)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 8px rgba(0, 0, 0, 0.1)';">
-        {icon_html}
+            # Display contact card with icon, label, and value
+            if label and value:
+                # Use label as uppercase type name, or fallback to contact_type
+                display_label = label.upper() if label else (contact_type.upper() if contact_type else 'CONTACT')
+                html += f"""      <a href="{href}" {target_attr} {rel_attr} style="display: flex; flex-direction: column; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.15)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0, 0, 0, 0.1)';">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+          {icon_html if icon_html else '<div style="width: 32px; height: 32px; background: #e0e0e0; border-radius: 4px;"></div>'}
+          <span style="font-size: 14px; font-weight: 600; color: #667eea; text-transform: uppercase; letter-spacing: 0.5px;">{display_label}</span>
+        </div>
+        <span style="font-size: 16px; color: #333; word-break: break-word;">{value}</span>
       </a>
 """
         html += """    </div>
