@@ -1511,8 +1511,8 @@ def generate_readme_template(
         Complete README markdown template
     """
     # URLs
-    banner_url = f"{settings.api_base_url}/profiles/public/{github_login}/cards/{card.id}/banner"
-    contact_url = f"{settings.api_base_url}/profiles/public/{github_login}/cards/{card.id}/contact"
+    banner_url = f"{settings.api_base_url}/api/profiles/public/{github_login}/cards/{card.id}/banner"
+    contact_url = f"{settings.api_base_url}/api/profiles/public/{github_login}/cards/{card.id}/contact"
     card_url = f"{settings.frontend_base_url}/dashboard/{github_login}/cards/{card.id}"
     
     # Remove port from URLs for production
