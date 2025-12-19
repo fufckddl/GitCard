@@ -779,7 +779,8 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
                 print(f"[HTML] Warning: Contact type '{contact_type}' specified but icon not in CONTACT_ICON_MAP")
             
             # Display contact card with icon, label, and value
-            if label and value:
+            # Always display if value exists (value is required, label is optional)
+            if value:
                 # Use label as uppercase type name, or fallback to contact_type
                 display_label = label.upper() if label else (contact_type.upper() if contact_type else 'CONTACT')
                 
@@ -1170,12 +1171,17 @@ def generate_svg(
             
             label = html_escape.escape(contact.get("label", ""))
             value = html_escape.escape(contact.get("value", ""))
+            contact_type = contact.get("type", "")
             
-            if label and value:
+            # Always display if value exists (value is required, label is optional)
+            if value:
+                # Use label as uppercase type name, or fallback to contact_type
+                display_label = label.upper() if label else (contact_type.upper() if contact_type else 'CONTACT')
+                
                 svg += f"""  <!-- Contact Card -->
   <rect x="{contact_x}" y="{contact_y}" width="{contact_card_width}" height="{contact_card_height}" rx="12" ry="12" fill="#ffffff" filter="url(#smallShadow)" />
   <text x="{contact_x + 20}" y="{contact_y + 24}" fill="#667eea" font-size="14" font-weight="600" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" letter-spacing="0.5">
-    {label.upper()}
+    {display_label}
   </text>
   <text x="{contact_x + 20}" y="{contact_y + 48}" fill="#333333" font-size="16" font-weight="400" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
     {value[:40]}{'...' if len(value) > 40 else ''}
@@ -1554,7 +1560,8 @@ def generate_readme_template(
             value = contact.get('value', '')
             contact_type = contact.get('type', '')
             
-            if label and value:
+            # Always display if value exists (value is required, label is optional)
+            if value:
                 # Get icon from contact type mapping
                 icon_slug = CONTACT_ICON_MAP.get(contact_type) if contact_type else None
                 
