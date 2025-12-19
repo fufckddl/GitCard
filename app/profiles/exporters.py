@@ -24,7 +24,6 @@ CONTACT_ICON_MAP: Dict[str, str] = {
     "thread": "threads",
 }
 
-
 # Stack key to Simple Icons slug mapping (matching stackMeta.ts)
 # This should be kept in sync with src/shared/stackMeta.ts
 STACK_ICON_MAP: Dict[str, str] = {
@@ -1455,11 +1454,11 @@ def generate_svg_contact(card: ProfileCard) -> str:
   <rect x="{x}" y="{y}" width="{card_width}" height="{card_height}" rx="12" ry="12" fill="#ffffff" filter="url(#contactShadow)"/>
 '''
         
-        # Icon using shields.io with Simple Icons (GitHub README compatible)
+        # Icon using shields.io (GitHub README compatible)
         if icon_slug:
-            # Use shields.io icon-only badge with Simple Icons for reliable rendering
-            # Format: https://img.shields.io/badge/-{icon_slug}-000000?logo={icon_slug}&logoColor=white&style=flat-square
-            icon_badge_url = f"https://img.shields.io/badge/-{icon_slug}-000000?logo={icon_slug}&logoColor=white&style=flat-square"
+            # Use shields.io icon-only badge for reliable rendering in GitHub README
+            # Format: https://img.shields.io/badge/-{icon_slug}-000000?logo={icon_slug}&logoColor=white&style=flat
+            icon_badge_url = f"https://img.shields.io/badge/-{icon_slug}-000000?logo={icon_slug}&logoColor=white&style=flat"
             svg += f'''  <image x="{x + 20}" y="{y + 20}" width="32" height="32" href="{icon_badge_url}" preserveAspectRatio="xMidYMid meet"/>
 '''
         else:
@@ -1511,13 +1510,11 @@ def generate_readme_template(
         Complete README markdown template
     """
     # URLs
-    banner_url = f"{settings.api_base_url}/api/profiles/public/{github_login}/cards/{card.id}/banner"
-    contact_url = f"{settings.api_base_url}/api/profiles/public/{github_login}/cards/{card.id}/contact"
+    banner_url = f"{settings.api_base_url}/profiles/public/{github_login}/cards/{card.id}/banner"
     card_url = f"{settings.frontend_base_url}/dashboard/{github_login}/cards/{card.id}"
     
     # Remove port from URLs for production
     banner_url = _remove_port_from_url(banner_url)
-    contact_url = _remove_port_from_url(contact_url)
     card_url = _remove_port_from_url(card_url)
     
     # Build README template with banner as image URL (capsule-render 방식)
@@ -1661,12 +1658,65 @@ def generate_readme_template(
                  
                 readme += "\n</div>\n\n"
     
-    # Contact Section - Use SVG image (like banner)
+    # Contact Section - Use HTML tags
     if card.show_contact and card.contacts:
         readme += "## 📬 Contact\n\n"
-        readme += '<div align="center">\n'
-        readme += f'  <img src="{contact_url}" alt="GitCard Contact" />\n'
-        readme += '</div>\n\n'
+        readme += '<div align="center">\n\n'
+        
+        for contact in card.contacts[:6]:  # Limit to 6 contacts
+            label = contact.get('label', '')
+            value = contact.get('value', '')
+            contact_type = contact.get('type', '')
+            
+            # Always display if value exists (value is required, label is optional)
+            if value:
+                # Get icon from contact type mapping
+                icon_slug = CONTACT_ICON_MAP.get(contact_type) if contact_type else None
+                
+                # Determine link URL and attributes
+                if value.startswith('http://') or value.startswith('https://'):
+                    link = value
+                    target_attr = 'target="_blank"'
+                    rel_attr = 'rel="noopener noreferrer"'
+                elif '@' in value and not value.startswith('http'):
+                    link = f"mailto:{value}"
+                    target_attr = ''
+                    rel_attr = ''
+                else:
+                    link = f"https://{value}" if not value.startswith('http') else value
+                    target_attr = 'target="_blank"'
+                    rel_attr = 'rel="noopener noreferrer"'
+                
+                # Use label as uppercase type name, or fallback to contact_type
+                display_label = label.upper() if label else (contact_type.upper() if contact_type else 'CONTACT')
+                
+                # Use Simple Icons CDN directly for icon display
+                # Format: https://cdn.simpleicons.org/{icon_slug}/{color}
+                if icon_slug:
+                    # Use black icon for better visibility on light backgrounds
+                    icon_url = f"https://cdn.simpleicons.org/{icon_slug}/000000"
+                    icon_html = f'<img src="{icon_url}" alt="{display_label}" width="32" height="32" style="width: 32px; height: 32px; object-fit: contain;" />'
+                else:
+                    # Fallback: use default placeholder if contact type not found
+                    icon_html = '<div style="width: 32px; height: 32px; background: #e0e0e0; border-radius: 4px;"></div>'
+                
+                # Build attributes string conditionally to avoid empty attributes
+                attrs = f'href="{link}"'
+                if target_attr:
+                    attrs += f' {target_attr}'
+                if rel_attr:
+                    attrs += f' {rel_attr}'
+                
+                # Create contact card with icon, label, and value (similar to HTML generation)
+                readme += f'  <a {attrs} style="display: flex; flex-direction: column; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin: 8px; max-width: 300px;" onmouseover="this.style.transform=\'translateY(-2px)\'; this.style.boxShadow=\'0 4px 12px rgba(0, 0, 0, 0.15)\';" onmouseout="this.style.transform=\'translateY(0)\'; this.style.boxShadow=\'0 2px 8px rgba(0, 0, 0, 0.1)\';">\n'
+                readme += f'    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">\n'
+                readme += f'      {icon_html}\n'
+                readme += f'      <span style="font-size: 14px; font-weight: 600; color: #667eea; text-transform: uppercase; letter-spacing: 0.5px;">{display_label}</span>\n'
+                readme += f'    </div>\n'
+                readme += f'    <span style="font-size: 16px; color: #333; word-break: break-word;">{value}</span>\n'
+                readme += f'  </a>\n'
+        
+        readme += "\n</div>\n\n"
     
     # Baekjoon Tier Section (Solved.ac badge) - below Contact
     baekjoon_id = getattr(card, "baekjoon_id", None)
