@@ -24,6 +24,7 @@ CONTACT_ICON_MAP: Dict[str, str] = {
     "thread": "threads",
 }
 
+
 # Stack key to Simple Icons slug mapping (matching stackMeta.ts)
 # This should be kept in sync with src/shared/stackMeta.ts
 STACK_ICON_MAP: Dict[str, str] = {
@@ -1446,18 +1447,20 @@ def generate_svg_contact(card: ProfileCard) -> str:
         # Truncate value if too long
         display_value = value[:30] + '...' if len(value) > 30 else value
         
-        # Get icon URL from Simple Icons CDN
+        # Get icon slug from contact type mapping
         icon_slug = CONTACT_ICON_MAP.get(contact_type) if contact_type else None
-        icon_url = f"https://cdn.simpleicons.org/{icon_slug}/000000" if icon_slug else None
         
         # Contact card
         svg += f'''  <!-- Contact Card {i+1} -->
   <rect x="{x}" y="{y}" width="{card_width}" height="{card_height}" rx="12" ry="12" fill="#ffffff" filter="url(#contactShadow)"/>
 '''
         
-        # Icon (using external image)
-        if icon_url:
-            svg += f'''  <image x="{x + 20}" y="{y + 20}" width="32" height="32" href="{icon_url}" preserveAspectRatio="xMidYMid meet"/>
+        # Icon using shields.io with Simple Icons (GitHub README compatible)
+        if icon_slug:
+            # Use shields.io icon-only badge with Simple Icons for reliable rendering
+            # Format: https://img.shields.io/badge/-{icon_slug}-000000?logo={icon_slug}&logoColor=white&style=flat-square
+            icon_badge_url = f"https://img.shields.io/badge/-{icon_slug}-000000?logo={icon_slug}&logoColor=white&style=flat-square"
+            svg += f'''  <image x="{x + 20}" y="{y + 20}" width="32" height="32" href="{icon_badge_url}" preserveAspectRatio="xMidYMid meet"/>
 '''
         else:
             # Fallback: simple circle icon
@@ -1688,7 +1691,7 @@ def generate_readme_template(
     # Footer
     readme += f"""---
 <div align="center">
-  <p>Made with ❤️ using <a href="{card_url}">GitCard</a></p>
+  <p>Made with ❤️ using <a href="https://www.gitcard.kr">GitCard</a></p>
 </div>
 """
     
