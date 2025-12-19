@@ -90,7 +90,7 @@ STACK_ICON_MAP: Dict[str, str] = {
     "dynamodb": "amazondynamodb",
     "firebase-firestore": "firebase",
     # Infra
-    "aws": "icons8:amazon",  # AWS 아이콘: Icons8 사용
+    # "aws": "amazonaws",  # AWS 아이콘 제거
     "gcp": "googlecloud",
     "azure": "microsoftazure",
     "docker": "docker",
@@ -1648,23 +1648,9 @@ def generate_readme_template(
                     # Format: https://img.shields.io/badge/{label}-{color}?logo={iconSlug}&logoColor={iconColor}&style=for-the-badge
                     # shields.io allows label-color format without message
                     if icon_slug:
-                        # Check if using Icons8 (for AWS)
-                        if icon_slug.startswith("icons8:"):
-                            # Use Icons8 icon for AWS
-                            icons8_icon_name = icon_slug.replace("icons8:", "")
-                            # Icons8 icon URL: https://img.icons8.com/{style}/{size}/{icon-name}.png
-                            # Using color style with 48px size, icon ID 31761 for Amazon
-                            icons8_url = "https://img.icons8.com/ios-filled/50/000000/amazon.png"
-                            # Create badge without logo, then add Icons8 icon separately using HTML
-                            badge_url = f"https://img.shields.io/badge/{stack_label_escaped}-{color_code}?style=for-the-badge"
-                            readme += f'  <span style="display: inline-flex; align-items: center; gap: 4px; vertical-align: middle;">\n'
-                            readme += f'    <img src="{icons8_url}" alt="AWS" style="width: 20px; height: 20px; vertical-align: middle;" />\n'
-                            readme += f'    <img src="{badge_url}" alt="{stack_label}" style="vertical-align: middle;" />\n'
-                            readme += f'  </span>\n'
-                        else:
-                            # Use shields.io with Simple Icons logo parameter and dynamic icon color
-                            badge_url = f"https://img.shields.io/badge/{stack_label_escaped}-{color_code}?logo={icon_slug}&logoColor={icon_color}&style=for-the-badge"
-                            readme += f'  <img src="{badge_url}" alt="{stack_label}" />\n'
+                        # Use shields.io with Simple Icons logo parameter and dynamic icon color
+                        badge_url = f"https://img.shields.io/badge/{stack_label_escaped}-{color_code}?logo={icon_slug}&logoColor={icon_color}&style=for-the-badge"
+                        readme += f'  <img src="{badge_url}" alt="{stack_label}" />\n'
                     else: 
                         # Fallback to badge without logo
                         badge_url = f"https://img.shields.io/badge/{stack_label_escaped}-{color_code}?style=for-the-badge"
@@ -1712,7 +1698,8 @@ def generate_readme_template(
                     attrs += f' {rel_attr}'
                 
                 # Create shields.io badge for each contact
-                # Format: https://img.shields.io/badge/{label}-{message}?logo={icon_slug}&style=flat
+                # Use only label in badge (value is too complex with special characters)
+                # Format: https://img.shields.io/badge/{label}-{color}?logo={icon_slug}&style=flat
                 # shields.io requires special character escaping:
                 # - Replace '-' with '--'
                 # - Replace '_' with '__'
@@ -1722,18 +1709,20 @@ def generate_readme_template(
                     return text.replace('-', '--').replace('_', '__').replace(' ', '_')
                 
                 escaped_label = escape_shields_io(display_label)
-                escaped_value = escape_shields_io(str(value))
+                
+                # Use a neutral color for contact badges
+                badge_color = "0077B5"  # LinkedIn blue as default
                 
                 if icon_slug:
                     # Use shields.io badge with Simple Icons logo
-                    badge_url = f"https://img.shields.io/badge/{escaped_label}-{escaped_value}?logo={icon_slug}&logoColor=white&style=flat"
+                    badge_url = f"https://img.shields.io/badge/{escaped_label}-{badge_color}?logo={icon_slug}&logoColor=white&style=flat"
                 else:
                     # Fallback: badge without logo
-                    badge_url = f"https://img.shields.io/badge/{escaped_label}-{escaped_value}?style=flat"
+                    badge_url = f"https://img.shields.io/badge/{escaped_label}-{badge_color}?style=flat"
                 
-                # Create clickable badge link
-                readme += f'  <a {attrs}>\n'
-                readme += f'    <img src="{badge_url}" alt="{display_label}" />\n'
+                # Create clickable badge link with value as tooltip
+                readme += f'  <a {attrs} title="{value}">\n'
+                readme += f'    <img src="{badge_url}" alt="{display_label}: {value}" />\n'
                 readme += f'  </a>\n'
         
         readme += "\n</div>\n\n"
