@@ -782,7 +782,15 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
             if label and value:
                 # Use label as uppercase type name, or fallback to contact_type
                 display_label = label.upper() if label else (contact_type.upper() if contact_type else 'CONTACT')
-                html += f"""      <a href="{href}" {target_attr} {rel_attr} style="display: flex; flex-direction: column; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.15)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0, 0, 0, 0.1)';">
+                
+                # Build attributes string conditionally to avoid empty attributes
+                attrs = f'href="{href}"'
+                if target_attr:
+                    attrs += f' {target_attr}'
+                if rel_attr:
+                    attrs += f' {rel_attr}'
+                
+                html += f"""      <a {attrs} style="display: flex; flex-direction: column; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0, 0, 0, 0.15)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0, 0, 0, 0.1)';">
         <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
           {icon_html if icon_html else '<div style="width: 32px; height: 32px; background: #e0e0e0; border-radius: 4px;"></div>'}
           <span style="font-size: 14px; font-weight: 600; color: #667eea; text-transform: uppercase; letter-spacing: 0.5px;">{display_label}</span>
