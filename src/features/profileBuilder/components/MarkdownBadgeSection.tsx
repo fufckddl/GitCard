@@ -16,7 +16,7 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
   const [readmeCopied, setReadmeCopied] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-  const FRONTEND_BASE_URL = import.meta.env.VITE_FRONTEND_BASE_URL || 'http://3.37.130.140';
+  const FRONTEND_BASE_URL = import.meta.env.VITE_FRONTEND_BASE_URL || 'https://gitcard.kr';
   const publicCardUrl = `${FRONTEND_BASE_URL}/dashboard/${githubLogin}/cards/${cardId}`;
 
   useEffect(() => {

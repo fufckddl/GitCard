@@ -11,6 +11,8 @@ from app.database import init_db
 # Import models to ensure they are registered with Base
 from app.auth import db_models  # noqa: F401
 from app.profiles import db_models  # noqa: F401
+from app.dashboard import db_models  # noqa: F401
+from app.users import github_stats_db_models  # noqa: F401
 
 if __name__ == "__main__":
     print("Initializing database...")
