@@ -48,11 +48,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers
-app.include_router(auth_router)
-app.include_router(users_router)
-app.include_router(profiles_router)
-app.include_router(dashboard_router)
+# Include routers with /api prefix
+# Note: If Nginx strips /api prefix, routers should be registered without prefix
+# If Nginx doesn't strip prefix, use prefix="/api" here
+app.include_router(auth_router, prefix="/api")
+app.include_router(users_router, prefix="/api")
+app.include_router(profiles_router, prefix="/api")
+app.include_router(dashboard_router, prefix="/api")
 
 
 @app.get("/")
