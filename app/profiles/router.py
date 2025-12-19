@@ -546,6 +546,40 @@ async def get_profile_card_banner(
     )
 
 
+@router.get("/public/{github_login}/cards/{card_id}/contact")
+async def get_profile_card_contact(
+    github_login: str,
+    card_id: int,
+    db: Session = Depends(get_db),
+):
+    """
+    SVG 형식의 Contact 섹션만 반환합니다.
+    - GitHub README에서 이미지로 참조 가능 (capsule-render 방식)
+    - Contact 카드들을 그리드 형태로 배치
+    - 아이콘, 라벨, 값이 포함된 카드 형태
+    """
+    card = profile_crud.get_public_profile_card_by_github_login_and_card_id(
+        db, github_login, card_id
+    )
+
+    if not card:
+        raise HTTPException(status_code=404, detail="Profile card not found")
+
+    svg_contact = exporters.generate_svg_contact(card)
+
+    if not svg_contact:
+        raise HTTPException(status_code=404, detail="Contact section not available")
+
+    return Response(
+        content=svg_contact,
+        media_type="image/svg+xml",
+        headers={
+            "Content-Disposition": f'inline; filename="gitcard-contact-{github_login}-{card_id}.svg"',
+            "Cache-Control": "public, max-age=86400",  # 24 hours
+        },
+    )
+
+
 @router.get("/public/{github_login}/cards/{card_id}/banner/debug")
 async def get_profile_card_banner_debug(
     github_login: str,
