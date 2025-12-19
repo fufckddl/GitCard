@@ -41,3 +41,4 @@ async def record_visit(db: Session = Depends(get_db)):
     crud.increment_visitor_count(db)
     return crud.get_visitor_stats(db)
 
+

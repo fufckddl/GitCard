@@ -87,7 +87,7 @@ export const DashboardPage: React.FC = () => {
 
         <div className={styles.buttonGroup}>
           <Button onClick={handleGoToBuilder} variant="primary">
-            프로필 빌더 시작하기
+            GitCard 시작하기
           </Button>
           <Button onClick={() => navigate('/dashboard/cards')} variant="secondary">
             내 카드 목록
