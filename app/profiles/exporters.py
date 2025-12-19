@@ -1712,18 +1712,24 @@ def generate_readme_template(
                     attrs += f' {rel_attr}'
                 
                 # Create shields.io badge for each contact
-                # Format: https://img.shields.io/badge/{label}-{value}?logo={icon_slug}&style=flat
-                # URL encode value to handle special characters
-                from urllib.parse import quote
-                encoded_value = quote(str(value), safe='')
-                encoded_label = quote(display_label, safe='')
+                # Format: https://img.shields.io/badge/{label}-{message}?logo={icon_slug}&style=flat
+                # shields.io requires special character escaping:
+                # - Replace '-' with '--'
+                # - Replace '_' with '__'
+                # - Replace ' ' with '_' or '%20'
+                def escape_shields_io(text: str) -> str:
+                    """Escape text for shields.io badge URL"""
+                    return text.replace('-', '--').replace('_', '__').replace(' ', '_')
+                
+                escaped_label = escape_shields_io(display_label)
+                escaped_value = escape_shields_io(str(value))
                 
                 if icon_slug:
                     # Use shields.io badge with Simple Icons logo
-                    badge_url = f"https://img.shields.io/badge/{encoded_label}-{encoded_value}?logo={icon_slug}&logoColor=white&style=flat"
+                    badge_url = f"https://img.shields.io/badge/{escaped_label}-{escaped_value}?logo={icon_slug}&logoColor=white&style=flat"
                 else:
                     # Fallback: badge without logo
-                    badge_url = f"https://img.shields.io/badge/{encoded_label}-{encoded_value}?style=flat"
+                    badge_url = f"https://img.shields.io/badge/{escaped_label}-{escaped_value}?style=flat"
                 
                 # Create clickable badge link
                 readme += f'  <a {attrs}>\n'
