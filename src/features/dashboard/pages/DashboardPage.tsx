@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { Button } from '../../../shared/components/Button';
 import { fetchVisitorStats, recordVisit, VisitorStats } from '../api/dashboardApi';
+import { hasVisitedToday, markVisitedToday } from '../../../shared/utils/storage';
 import styles from './DashboardPage.module.css';
 
 export const DashboardPage: React.FC = () => {
@@ -15,9 +16,27 @@ export const DashboardPage: React.FC = () => {
     const loadStats = async () => {
       try {
         setIsLoading(true);
-        // 접속 기록 및 통계 조회
-        const updatedStats = await recordVisit();
-        setStats(updatedStats);
+        
+        // 한국 시간 기준으로 오늘 이미 접속했는지 확인
+        const alreadyVisited = hasVisitedToday();
+        
+        if (!alreadyVisited) {
+          // 오늘 첫 접속인 경우에만 접속 기록
+          try {
+            const updatedStats = await recordVisit();
+            setStats(updatedStats);
+            markVisitedToday(); // 접속 기록 저장
+          } catch (error) {
+            console.error('Failed to record visit:', error);
+            // 접속 기록 실패해도 통계만 조회
+            const statsData = await fetchVisitorStats();
+            setStats(statsData);
+          }
+        } else {
+          // 이미 오늘 접속한 경우 통계만 조회
+          const statsData = await fetchVisitorStats();
+          setStats(statsData);
+        }
       } catch (error) {
         console.error('Failed to load visitor stats:', error);
         // 실패해도 통계만 조회 시도

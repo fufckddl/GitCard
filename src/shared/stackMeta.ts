@@ -142,7 +142,7 @@ export const STACK_META_LIST: StackMeta[] = [
   // ==========================================================================
   // INFRA / DEVOPS
   // ==========================================================================
-  { key: "aws", label: "AWS", category: "infra", color: "#232F3E", icon: "amazonaws" },
+  { key: "aws", label: "AWS", category: "infra", color: "#232F3E" },
   { key: "gcp", label: "Google Cloud", category: "infra", color: "#4285F4", icon: "googlecloud" },
   { key: "azure", label: "Azure", category: "infra", color: "#0078D4", icon: "microsoftazure" },
   { key: "docker", label: "Docker", category: "infra", color: "#2496ED", icon: "docker" },

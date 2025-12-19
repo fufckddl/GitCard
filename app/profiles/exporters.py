@@ -90,7 +90,7 @@ STACK_ICON_MAP: Dict[str, str] = {
     "dynamodb": "amazondynamodb",
     "firebase-firestore": "firebase",
     # Infra
-    "aws": "amazonaws",
+    # "aws": "amazonaws",  # AWS 아이콘 제거 (저작권 문제 방지)
     "gcp": "googlecloud",
     "azure": "microsoftazure",
     "docker": "docker",
