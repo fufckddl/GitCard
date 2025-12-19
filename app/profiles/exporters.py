@@ -1658,7 +1658,7 @@ def generate_readme_template(
                  
                 readme += "\n</div>\n\n"
     
-    # Contact Section - Use HTML tags
+    # Contact Section - Use shields.io badges for each contact
     if card.show_contact and card.contacts:
         readme += "## 📬 Contact\n\n"
         readme += '<div align="center">\n\n'
@@ -1690,16 +1690,6 @@ def generate_readme_template(
                 # Use label as uppercase type name, or fallback to contact_type
                 display_label = label.upper() if label else (contact_type.upper() if contact_type else 'CONTACT')
                 
-                # Use Simple Icons CDN directly for icon display
-                # Format: https://cdn.simpleicons.org/{icon_slug}/{color}
-                if icon_slug:
-                    # Use black icon for better visibility on light backgrounds
-                    icon_url = f"https://cdn.simpleicons.org/{icon_slug}/000000"
-                    icon_html = f'<img src="{icon_url}" alt="{display_label}" width="32" height="32" style="width: 32px; height: 32px; object-fit: contain;" />'
-                else:
-                    # Fallback: use default placeholder if contact type not found
-                    icon_html = '<div style="width: 32px; height: 32px; background: #e0e0e0; border-radius: 4px;"></div>'
-                
                 # Build attributes string conditionally to avoid empty attributes
                 attrs = f'href="{link}"'
                 if target_attr:
@@ -1707,15 +1697,23 @@ def generate_readme_template(
                 if rel_attr:
                     attrs += f' {rel_attr}'
                 
-                # Create contact card with icon, label, and value (clean design matching image)
-                readme += f'  <a {attrs} style="display: inline-block; padding: 16px 20px; background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); text-decoration: none; color: inherit; margin: 8px; vertical-align: top;">\n'
-                readme += f'    <div style="display: flex; align-items: flex-start; gap: 12px;">\n'
-                readme += f'      <div style="flex-shrink: 0;">{icon_html}</div>\n'
-                readme += f'      <div style="display: flex; flex-direction: column; gap: 4px;">\n'
-                readme += f'        <span style="font-size: 13px; font-weight: 600; color: #2563eb; text-transform: uppercase; letter-spacing: 0.3px; text-decoration: underline;">{display_label}</span>\n'
-                readme += f'        <span style="font-size: 14px; color: #2563eb; text-decoration: underline; word-break: break-word;">{value}</span>\n'
-                readme += f'      </div>\n'
-                readme += f'    </div>\n'
+                # Create shields.io badge for each contact
+                # Format: https://img.shields.io/badge/{label}-{value}?logo={icon_slug}&style=flat
+                # URL encode value to handle special characters
+                from urllib.parse import quote
+                encoded_value = quote(str(value), safe='')
+                encoded_label = quote(display_label, safe='')
+                
+                if icon_slug:
+                    # Use shields.io badge with Simple Icons logo
+                    badge_url = f"https://img.shields.io/badge/{encoded_label}-{encoded_value}?logo={icon_slug}&logoColor=white&style=flat"
+                else:
+                    # Fallback: badge without logo
+                    badge_url = f"https://img.shields.io/badge/{encoded_label}-{encoded_value}?style=flat"
+                
+                # Create clickable badge link
+                readme += f'  <a {attrs}>\n'
+                readme += f'    <img src="{badge_url}" alt="{display_label}" />\n'
                 readme += f'  </a>\n'
         
         readme += "\n</div>\n\n"
