@@ -12,14 +12,14 @@ export const GitHubLoginCard: React.FC = () => {
   return (
     <div className={styles.card}>
       <div className={styles.header}>
-        <h1 className={styles.name}>Changryeol Lee</h1>
-        <p className={styles.subtitle}>AI & Full-stack Developer</p>
+        <h1 className={styles.name}>GitCard</h1>
+        <p className={styles.subtitle}>Simply introduce yourself through GitHub README</p>
       </div>
 
       <div className={styles.badges}>
-        <span className={styles.badge}>AI</span>
-        <span className={styles.badge}>Flutter</span>
-        <span className={styles.badge}>FastAPI</span>
+        <span className={styles.badge}>GitCard</span>
+        <span className={styles.badge}>GitHub</span>
+        <span className={styles.badge}>README</span>
       </div>
 
       <div className={styles.buttonContainer}>
