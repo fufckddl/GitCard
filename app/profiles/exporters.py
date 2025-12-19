@@ -1388,7 +1388,7 @@ def generate_readme_template(
         Complete README markdown template
     """
     # URLs
-    banner_url = f"{settings.api_base_url}/api/profiles/public/{github_login}/cards/{card.id}/banner"
+    banner_url = f"{settings.api_base_url}/profiles/public/{github_login}/cards/{card.id}/banner"
     card_url = f"{settings.frontend_base_url}/dashboard/{github_login}/cards/{card.id}"
     
     # Remove port from URLs for production
@@ -1575,7 +1575,14 @@ def generate_readme_template(
                 
                 # Create clickable icon link with spacing between icons
                 # Use padding and display: inline-block for better compatibility with GitHub markdown
-                readme += f'  <a href="{link}" {target_attr} {rel_attr} style="padding: 0 10px; display: inline-block; text-decoration: none;">\n'
+                # Build attributes string conditionally to avoid empty attributes
+                attrs = f'href="{link}"'
+                if target_attr:
+                    attrs += f' {target_attr}'
+                if rel_attr:
+                    attrs += f' {rel_attr}'
+                
+                readme += f'  <a {attrs} style="padding: 0 10px; display: inline-block; text-decoration: none;">\n'
                 readme += f'    <img src="{icon_url}" alt="{label}" width="32" height="32" style="cursor: pointer; transition: transform 0.2s; display: block;" />\n'
                 readme += f'  </a>\n'
         
