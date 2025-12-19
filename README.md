@@ -103,6 +103,6 @@ API 문서는 `http://localhost:8000/docs`에서 확인할 수 있습니다.
         <div style="font-size: 14px; font-weight: 500; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px;">Following</div>
       </div>
     </div>
-    <p style="text-align: center; margin-top: 16px; color: #666; font-size: 14px;">※ GitHub 통계는 <a href="http://3.37.130.140/dashboard/fufckddl/cards/2" target="_blank" rel="noopener noreferrer" style="color: #667eea;">프로필 카드 페이지</a>에서 확인하세요.</p>
+    <p style="text-align: center; margin-top: 16px; color: #666; font-size: 14px;">※ GitHub 통계는 <a href="https://gitcard.kr/dashboard/fufckddl/cards/2" target="_blank" rel="noopener noreferrer" style="color: #667eea;">프로필 카드 페이지</a>에서 확인하세요.</p>
   </div>
 </div>

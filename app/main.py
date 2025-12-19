@@ -10,12 +10,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.auth.router import router as auth_router
 from app.users.router import router as users_router
 from app.profiles.router import router as profiles_router
+from app.dashboard.router import router as dashboard_router
 from app.config import settings
 from app.database import init_db
 # Import models to ensure they are registered with Base
 from app.auth import db_models  # noqa: F401
 from app.profiles import db_models  # noqa: F401
 from app.users import github_stats_db_models  # noqa: F401
+from app.dashboard import db_models  # noqa: F401
 from app.users.github_stats_service import github_stats_background_loop
 
 app = FastAPI(
@@ -46,10 +48,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers with /api prefix
-app.include_router(auth_router, prefix="/api")
-app.include_router(users_router, prefix="/api")
-app.include_router(profiles_router, prefix="/api")
+# Include routers
+app.include_router(auth_router)
+app.include_router(users_router)
+app.include_router(profiles_router)
+app.include_router(dashboard_router)
 
 
 @app.get("/")

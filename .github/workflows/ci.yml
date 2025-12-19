@@ -122,7 +122,7 @@ jobs:
             
             echo "📦 Building frontend..."
             npm ci
-            VITE_API_BASE_URL=http://3.37.130.140/api npm run build
+            VITE_API_BASE_URL=https://gitcard.kr/api npm run build
             
             echo "🗄️ Running database migrations..."
             python init_db.py || echo "Database migration completed or skipped"
