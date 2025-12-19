@@ -1579,17 +1579,19 @@ def generate_readme_template(
                     target_attr = 'target="_blank"'
                     rel_attr = 'rel="noopener noreferrer"'
                 
-                # Use Simple Icons CDN directly for icon-only display
+                # Use label as uppercase type name, or fallback to contact_type
+                display_label = label.upper() if label else (contact_type.upper() if contact_type else 'CONTACT')
+                
+                # Use Simple Icons CDN directly for icon display
                 # Format: https://cdn.simpleicons.org/{icon_slug}/{color}
                 if icon_slug:
                     # Use black icon for better visibility on light backgrounds
                     icon_url = f"https://cdn.simpleicons.org/{icon_slug}/000000"
+                    icon_html = f'<img src="{icon_url}" alt="{display_label}" width="32" height="32" style="width: 32px; height: 32px; object-fit: contain;" />'
                 else:
-                    # Fallback: use default link icon if contact type not found
-                    icon_url = "https://cdn.simpleicons.org/link/000000"
+                    # Fallback: use default placeholder if contact type not found
+                    icon_html = '<div style="width: 32px; height: 32px; background: #e0e0e0; border-radius: 4px;"></div>'
                 
-                # Create clickable icon link with spacing between icons
-                # Use padding and display: inline-block for better compatibility with GitHub markdown
                 # Build attributes string conditionally to avoid empty attributes
                 attrs = f'href="{link}"'
                 if target_attr:
@@ -1597,8 +1599,13 @@ def generate_readme_template(
                 if rel_attr:
                     attrs += f' {rel_attr}'
                 
-                readme += f'  <a {attrs} style="padding: 0 10px; display: inline-block; text-decoration: none;">\n'
-                readme += f'    <img src="{icon_url}" alt="{label}" width="32" height="32" style="cursor: pointer; transition: transform 0.2s; display: block;" />\n'
+                # Create contact card with icon, label, and value (similar to HTML generation)
+                readme += f'  <a {attrs} style="display: flex; flex-direction: column; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); text-decoration: none; color: inherit; transition: transform 0.2s, box-shadow 0.2s; margin: 8px; max-width: 300px;" onmouseover="this.style.transform=\'translateY(-2px)\'; this.style.boxShadow=\'0 4px 12px rgba(0, 0, 0, 0.15)\';" onmouseout="this.style.transform=\'translateY(0)\'; this.style.boxShadow=\'0 2px 8px rgba(0, 0, 0, 0.1)\';">\n'
+                readme += f'    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">\n'
+                readme += f'      {icon_html}\n'
+                readme += f'      <span style="font-size: 14px; font-weight: 600; color: #667eea; text-transform: uppercase; letter-spacing: 0.5px;">{display_label}</span>\n'
+                readme += f'    </div>\n'
+                readme += f'    <span style="font-size: 16px; color: #333; word-break: break-word;">{value}</span>\n'
                 readme += f'  </a>\n'
         
         readme += "\n</div>\n\n"
