@@ -28,17 +28,7 @@ GitCard는 GitHub 프로필을 시각적으로 아름답고 전문적인 프로�
 
 ### README에 삽입하기
 
-생성된 프로필 카드를 GitHub README에 삽입하려면:
-
-```markdown
-[![GitCard](https://www.gitcard.kr/api/profiles/{username}/{card_id}/image)](https://www.gitcard.kr/{username}/{card_id})
-```
-
-또는 SVG 형식으로:
-
-```markdown
-![GitCard](https://www.gitcard.kr/api/profiles/{username}/{card_id}/svg)
-```
+생성된 프로필 카드를 GitHub README에 삽입하려면 생성된 HTML코드를 README.md에 넣어주세요.
 
 ## 📸 예시
 
