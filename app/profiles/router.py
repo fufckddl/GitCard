@@ -1,12 +1,12 @@
 """
-Profile cards router.
+프로필 카드 라우터.
 
-Endpoints:
-- POST /api/profiles: Create a new profile card
-- GET /api/profiles: Get all profile cards for current user
-- GET /api/profiles/{card_id}: Get a specific profile card
-- PUT /api/profiles/{card_id}: Update a profile card
-- DELETE /api/profiles/{card_id}: Delete a profile card
+엔드포인트:
+- POST /api/profiles: 새 프로필 카드 생성
+- GET /api/profiles: 현재 사용자의 모든 프로필 카드 가져오기
+- GET /api/profiles/{card_id}: 특정 프로필 카드 가져오기
+- PUT /api/profiles/{card_id}: 프로필 카드 업데이트
+- DELETE /api/profiles/{card_id}: 프로필 카드 삭제
 """
 from fastapi import APIRouter, Depends, HTTPException, Response
 from fastapi.responses import PlainTextResponse, StreamingResponse
@@ -67,7 +67,7 @@ async def create_profile_card(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Create a new profile card."""
+    """새 프로필 카드를 생성합니다."""
     card = profile_crud.create_profile_card(
         db=db,
         user_id=current_user.id,
@@ -116,7 +116,7 @@ async def get_profile_cards(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Get all profile cards for current user."""
+    """현재 사용자의 모든 프로필 카드를 가져옵니다."""
     cards = profile_crud.get_profile_cards_by_user_id(db, current_user.id)
     
     return [
@@ -151,7 +151,7 @@ async def get_profile_card(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Get a specific profile card."""
+    """특정 프로필 카드를 가져옵니다."""
     card = profile_crud.get_profile_card_by_id(db, card_id, current_user.id)
     
     if not card:
@@ -186,7 +186,7 @@ async def update_profile_card(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Update a profile card."""
+    """프로필 카드를 업데이트합니다."""
     card = profile_crud.update_profile_card(
         db=db,
         card_id=card_id,
@@ -240,7 +240,7 @@ async def delete_profile_card(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Delete a profile card."""
+    """프로필 카드를 삭제합니다."""
     success = profile_crud.delete_profile_card(db, card_id, current_user.id)
     
     if not success:
@@ -249,7 +249,7 @@ async def delete_profile_card(
     return {"message": "Profile card deleted successfully"}
 
 
-# Public endpoint (no authentication required)
+# 공개 엔드포인트 (인증 불필요)
 @router.get("/public/{github_login}/cards/{card_id}")
 async def get_public_profile_card(
     github_login: str,
@@ -257,8 +257,8 @@ async def get_public_profile_card(
     db: Session = Depends(get_db),
 ):
     """
-    Get a public profile card by GitHub login and card ID.
-    This endpoint does not require authentication.
+    GitHub 로그인 및 카드 ID로 공개 프로필 카드를 가져옵니다.
+    이 엔드포인트는 인증이 필요하지 않습니다.
     """
     card = profile_crud.get_public_profile_card_by_github_login_and_card_id(
         db, github_login, card_id
@@ -290,7 +290,7 @@ async def get_public_profile_card(
     }
 
 
-# Export endpoints (no authentication required)
+# 내보내기 엔드포인트 (인증 불필요)
 @router.get("/public/{github_login}/cards/{card_id}/markdown/card")
 async def get_profile_card_markdown_card(
     github_login: str,
@@ -344,7 +344,7 @@ async def get_profile_card_readme_template(
     if not card:
         raise HTTPException(status_code=404, detail="Profile card not found")
     
-    # Get GitHub stats if available
+    # 사용 가능한 경우 GitHub 통계 가져오기
     stats_row = (
         db.query(GitHubStats)
         .filter(GitHubStats.user_id == card.user_id)
@@ -376,14 +376,14 @@ async def get_profile_card_image_url(
     db: Session = Depends(get_db),
 ):
     """
-    Get profile card image URL and markdown formats.
-    Returns URLs and markdown that can be used in GitHub README.
-    This endpoint does not require authentication.
+    프로필 카드 이미지 URL 및 마크다운 형식을 가져옵니다.
+    GitHub README에서 사용할 수 있는 URL 및 마크다운을 반환합니다.
+    이 엔드포인트는 인증이 필요하지 않습니다.
     
     Returns:
-    - image_url: URL to the profile card page
-    - markdown_badge: Markdown badge code
-    - html_img: HTML img tag
+    - image_url: 프로필 카드 페이지 URL
+    - markdown_badge: 마크다운 배지 코드
+    - html_img: HTML img 태그
     """
     card = profile_crud.get_public_profile_card_by_github_login_and_card_id(
         db, github_login, card_id
@@ -407,23 +407,23 @@ async def get_profile_card_image(
     github_login: str,
     card_id: int,
     format: str = "png",
-    v: Optional[str] = None,  # Cache busting parameter
+    v: Optional[str] = None,  # 캐시 무효화 매개변수
     db: Session = Depends(get_db),
 ):
     """
-    Get profile card as PNG or WebP image.
-    Uses Playwright to take a screenshot of the actual web card UI.
-    The image matches the web design exactly (gradient, shadows, layout, fonts).
-    This endpoint does not require authentication.
+    프로필 카드를 PNG 또는 WebP 이미지로 가져옵니다.
+    Playwright를 사용하여 실제 웹 카드 UI의 스크린샷을 찍습니다.
+    이미지는 웹 디자인과 정확히 일치합니다 (그라데이션, 그림자, 레이아웃, 폰트).
+    이 엔드포인트는 인증이 필요하지 않습니다.
     
     Args:
-        github_login: GitHub username
-        card_id: Profile card ID
-        format: Image format ("png" or "webp", default: "png")
-        v: Cache busting parameter (ignored but accepted for URL versioning)
+        github_login: GitHub 사용자명
+        card_id: 프로필 카드 ID
+        format: 이미지 형식 ("png" 또는 "webp", 기본값: "png")
+        v: 캐시 무효화 매개변수 (URL 버전 관리를 위해 무시되지만 허용됨)
         
     Returns:
-        PNG or WebP image
+        PNG 또는 WebP 이미지
     """
     card = profile_crud.get_public_profile_card_by_github_login_and_card_id(
         db, github_login, card_id
@@ -432,7 +432,7 @@ async def get_profile_card_image(
     if not card:
         raise HTTPException(status_code=404, detail="Profile card not found")
     
-    # Validate format
+    # 형식 검증
     if format not in ("png", "webp"):
         format = "png"
     
@@ -446,7 +446,7 @@ async def get_profile_card_image(
             detail="Image generation is not available. Playwright may not be installed."
         )
     
-    # Set appropriate media type
+    # 적절한 미디어 타입 설정
     media_type = "image/png" if format == "png" else "image/webp"
     file_ext = format
     
@@ -454,10 +454,10 @@ async def get_profile_card_image(
         BytesIO(screenshot),
         media_type=media_type,
         headers={
-            "Content-Type": media_type,  # Explicit Content-Type header
+            "Content-Type": media_type,  # 명시적 Content-Type 헤더
             "Content-Disposition": f'inline; filename="gitcard-{github_login}-{card_id}.{file_ext}"',
-            "Cache-Control": "public, max-age=86400",  # 24 hours
-            "X-Content-Type-Options": "nosniff",  # Prevent MIME type sniffing
+            "Cache-Control": "public, max-age=86400",  # 24시간
+            "X-Content-Type-Options": "nosniff",  # MIME 타입 스니핑 방지
         }
     )
 
@@ -480,7 +480,7 @@ async def get_profile_card_svg(
     if not card:
         raise HTTPException(status_code=404, detail="Profile card not found")
 
-    # 해당 카드의 소유자(user_id)에 대한 GitHub stats 조회 (없으면 None)
+    # 해당 카드의 소유자(user_id)에 대한 GitHub 통계 조회 (없으면 None)
     stats_row = (
         db.query(GitHubStats)
         .filter(GitHubStats.user_id == card.user_id)
@@ -527,10 +527,10 @@ async def get_profile_card_banner(
     if not card:
         raise HTTPException(status_code=404, detail="Profile card not found")
 
-    # Debug: Print to console (will appear in systemd logs)
+    # 디버그: 콘솔에 출력 (systemd 로그에 나타남)
     print(f"[BANNER DEBUG] card_id={card_id}, gradient={card.gradient}, primary_color={card.primary_color}")
     
-    # Extract colors for debugging
+    # 디버깅을 위한 색상 추출
     primary, secondary = exporters._extract_gradient_colors(card)
     print(f"[BANNER DEBUG] Extracted colors - primary={primary}, secondary={secondary}")
 
@@ -541,7 +541,7 @@ async def get_profile_card_banner(
         media_type="image/svg+xml",
         headers={
             "Content-Disposition": f'inline; filename="gitcard-banner-{github_login}-{card_id}.svg"',
-            "Cache-Control": "public, max-age=86400",  # 24 hours
+            "Cache-Control": "public, max-age=86400",  # 24시간
         },
     )
 
@@ -553,9 +553,9 @@ async def get_profile_card_contact(
     db: Session = Depends(get_db),
 ):
     """
-    SVG 형식의 Contact 섹션만 반환합니다.
+    SVG 형식의 연락처 섹션만 반환합니다.
     - GitHub README에서 이미지로 참조 가능 (capsule-render 방식)
-    - Contact 카드들을 그리드 형태로 배치
+    - 연락처 카드들을 그리드 형태로 배치
     - 아이콘, 라벨, 값이 포함된 카드 형태
     """
     card = profile_crud.get_public_profile_card_by_github_login_and_card_id(
@@ -575,7 +575,7 @@ async def get_profile_card_contact(
         media_type="image/svg+xml",
         headers={
             "Content-Disposition": f'inline; filename="gitcard-contact-{github_login}-{card_id}.svg"',
-            "Cache-Control": "public, max-age=86400",  # 24 hours
+            "Cache-Control": "public, max-age=86400",  # 24시간
         },
     )
 
@@ -597,7 +597,7 @@ async def get_profile_card_banner_debug(
     if not card:
         raise HTTPException(status_code=404, detail="Profile card not found")
 
-    # Extract colors
+    # 색상 추출
     primary, secondary = exporters._extract_gradient_colors(card)
     
     return {
@@ -635,7 +635,7 @@ async def get_profile_card_html(
         media_type="text/html",
         headers={
             "Content-Disposition": f'inline; filename="gitcard-{github_login}-{card_id}.html"',
-            "Cache-Control": "public, max-age=86400",  # 24 hours
+            "Cache-Control": "public, max-age=86400",  # 24시간
         },
     )
 

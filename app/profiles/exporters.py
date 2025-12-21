@@ -11,7 +11,7 @@ import html as html_escape
 from app.profiles.db_models import ProfileCard
 from app.config import settings
 
-# Contact type to Simple Icons slug mapping (matching contactMeta.ts)
+# 연락처 타입을 Simple Icons slug로 매핑 (contactMeta.ts와 일치)
 CONTACT_ICON_MAP: Dict[str, str] = {
     "mail": "gmail",
     "instagram": "instagram",
@@ -24,10 +24,10 @@ CONTACT_ICON_MAP: Dict[str, str] = {
     "thread": "threads",
 }
 
-# Stack key to Simple Icons slug mapping (matching stackMeta.ts)
-# This should be kept in sync with src/shared/stackMeta.ts
+# 스택 키를 Simple Icons slug로 매핑 (stackMeta.ts와 일치)
+# src/shared/stackMeta.ts와 동기화를 유지해야 함
 STACK_ICON_MAP: Dict[str, str] = {
-    # Languages
+    # 언어
     "javascript": "javascript",
     "typescript": "typescript",
     "python": "python",
@@ -45,7 +45,7 @@ STACK_ICON_MAP: Dict[str, str] = {
     "scala": "scala",
     "r": "r",
     "shell": "gnubash",
-    # Frontend
+    # 프론트엔드
     "react": "react",
     "nextjs": "nextdotjs",
     "vue": "vuedotjs",
@@ -66,7 +66,7 @@ STACK_ICON_MAP: Dict[str, str] = {
     "android": "android",
     "ios": "ios",
     "swiftui": "swift",
-    # Backend
+    # 백엔드
     "nodejs": "nodedotjs",
     "express": "express",
     "nest": "nestjs",
@@ -79,7 +79,7 @@ STACK_ICON_MAP: Dict[str, str] = {
     "ruby-on-rails": "rubyonrails",
     "aspnet": "dotnet",
     "grpc": "grpc",
-    # Database
+    # 데이터베이스
     "mysql": "mysql",
     "postgresql": "postgresql",
     "sqlite": "sqlite",
@@ -89,7 +89,7 @@ STACK_ICON_MAP: Dict[str, str] = {
     "elasticsearch": "elasticsearch",
     "dynamodb": "amazondynamodb",
     "firebase-firestore": "firebase",
-    # Infra
+    # 인프라
     # "aws": "amazonaws",  # AWS 아이콘 제거
     "gcp": "googlecloud",
     "azure": "microsoftazure",
@@ -103,7 +103,7 @@ STACK_ICON_MAP: Dict[str, str] = {
     "vercel": "vercel",
     "netlify": "netlify",
     "cloudflare": "cloudflare",
-    # Collaboration
+    # 협업 도구
     "git": "git",
     "github": "github",
     "gitlab": "gitlab",
@@ -127,7 +127,7 @@ STACK_ICON_MAP: Dict[str, str] = {
     "playwright": "playwright",
     "pytest": "pytest",
     "junit": "junit",
-    # Tools
+    # 도구
     "webpack": "webpack",
     "rollup": "rollupdotjs",
     "babel": "babel",
@@ -140,28 +140,28 @@ STACK_ICON_MAP: Dict[str, str] = {
 
 def _is_light_color(hex_color: str) -> bool:
     """
-    Determine if a hex color is light or dark.
-    Returns True if light (should use black icon), False if dark (should use white icon).
+    hex 색상이 밝은지 어두운지 판단합니다.
+    밝으면 True 반환 (검은색 아이콘 사용), 어두우면 False 반환 (흰색 아이콘 사용).
     
-    Uses relative luminance formula: https://www.w3.org/WAI/GL/wiki/Relative_luminance
+    상대 휘도 공식 사용: https://www.w3.org/WAI/GL/wiki/Relative_luminance
     """
-    # Remove # if present
+    # # 제거 (있는 경우)
     hex_color = hex_color.lstrip('#')
     
-    # Convert 3-digit hex to 6-digit
+    # 3자리 hex를 6자리로 변환
     if len(hex_color) == 3:
         hex_color = ''.join([c * 2 for c in hex_color])
     
-    # Convert to RGB
+    # RGB로 변환
     r = int(hex_color[0:2], 16)
     g = int(hex_color[2:4], 16)
     b = int(hex_color[4:6], 16)
     
-    # Calculate relative luminance
-    # Using the formula: 0.299*R + 0.587*G + 0.114*B
+    # 상대 휘도 계산
+    # 공식 사용: 0.299*R + 0.587*G + 0.114*B
     luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
     
-    # If luminance is greater than 0.5, it's a light color
+    # 휘도가 0.5보다 크면 밝은 색상
     return luminance > 0.5
 
 
@@ -172,7 +172,7 @@ except ImportError:
     PLAYWRIGHT_AVAILABLE = False
 
 def _check_playwright_browsers() -> bool:
-    """Check if Playwright browsers are installed."""
+    """Playwright 브라우저가 설치되어 있는지 확인합니다."""
     if not PLAYWRIGHT_AVAILABLE:
         return False
     try:
@@ -182,25 +182,25 @@ def _check_playwright_browsers() -> bool:
             capture_output=True,
             timeout=5
         )
-        # If dry-run succeeds, browsers are already installed
+        # dry-run이 성공하면 브라우저가 이미 설치되어 있음
         return result.returncode == 0
     except Exception:
-        # If check fails, assume browsers might not be installed
-        # But still try to use Playwright (might work)
+        # 확인이 실패하면 브라우저가 설치되지 않았을 수 있음
+        # 하지만 여전히 Playwright를 사용해봄 (작동할 수 있음)
         return True
 
 
 async def generate_image_url(card: ProfileCard, github_login: str) -> str:
     """
-    Generate image URL for profile card.
-    Uses the public profile card page URL which can be converted to image.
+    프로필 카드의 이미지 URL을 생성합니다.
+    이미지로 변환할 수 있는 공개 프로필 카드 페이지 URL을 사용합니다.
     
     Args:
-        card: ProfileCard instance
-        github_login: GitHub username
+        card: ProfileCard 인스턴스
+        github_login: GitHub 사용자명
         
     Returns:
-        URL to the profile card page (can be used with screenshot services)
+        프로필 카드 페이지 URL (스크린샷 서비스와 함께 사용 가능)
     """
     return f"{settings.frontend_base_url}/dashboard/{github_login}/cards/{card.id}"
 
@@ -213,18 +213,18 @@ async def generate_image_screenshot(
     height: int = 700
 ) -> Optional[bytes]:
     """
-    Generate PNG or WebP image from profile card page using Playwright.
-    Renders the actual web card UI and clips to the card container only.
+    Playwright를 사용하여 프로필 카드 페이지에서 PNG 또는 WebP 이미지를 생성합니다.
+    실제 웹 카드 UI를 렌더링하고 카드 컨테이너만 잘라냅니다.
     
     Args:
-        card: ProfileCard instance
-        github_login: GitHub username
-        format: Image format ("png" or "webp", default: "png")
-        width: Viewport width in pixels (default: 1200)
-        height: Viewport height in pixels (default: 700)
+        card: ProfileCard 인스턴스
+        github_login: GitHub 사용자명
+        format: 이미지 형식 ("png" 또는 "webp", 기본값: "png")
+        width: 뷰포트 너비 (픽셀, 기본값: 1200)
+        height: 뷰포트 높이 (픽셀, 기본값: 700)
         
     Returns:
-        Image bytes (PNG or WebP), or None if Playwright is not available
+        이미지 바이트 (PNG 또는 WebP), Playwright를 사용할 수 없으면 None
     """
     if not PLAYWRIGHT_AVAILABLE:
         print("Playwright is not installed. Install with: pip install playwright && playwright install chromium")
@@ -238,14 +238,14 @@ async def generate_image_screenshot(
         
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
-            # Very large viewport to ensure full card is visible, DPR 2 for sharpness
-            # Use fixed large height instead of dynamic adjustment
+            # 전체 카드가 보이도록 매우 큰 뷰포트 사용, 선명도를 위해 DPR 2
+            # 동적 조정 대신 고정된 큰 높이 사용
             page = await browser.new_page(
-                viewport={"width": width, "height": 4000},  # Fixed large height
+                viewport={"width": width, "height": 4000},  # 고정된 큰 높이
                 device_scale_factor=2
             )
             
-            # Disable animations and transitions for deterministic rendering
+            # 결정론적 렌더링을 위해 애니메이션과 전환 비활성화
             await page.add_style_tag(content="""
                 * {
                     animation: none !important;
@@ -253,26 +253,26 @@ async def generate_image_screenshot(
                 }
             """)
             
-            # Navigate to the card page
+            # 카드 페이지로 이동
             await page.goto(url, wait_until="networkidle", timeout=30000)
             
-            # Wait for the card container to be visible
+            # 카드 컨테이너가 보일 때까지 대기
             card_selector = '[data-testid="gitcard-root"]'
             try:
                 await page.wait_for_selector(card_selector, timeout=10000, state="visible")
             except Exception:
-                # Fallback to cardWrapper if testid not found
+                # testid를 찾을 수 없으면 cardWrapper로 대체
                 card_selector = ".cardWrapper"
                 await page.wait_for_selector(card_selector, timeout=10000, state="visible")
             
-            # Wait for all resources to load completely
+            # 모든 리소스가 완전히 로드될 때까지 대기
             await page.wait_for_load_state("networkidle", timeout=30000)
             
-            # Wait for fonts to load
+            # 폰트 로드 대기
             await page.evaluate("document.fonts.ready")
             await page.wait_for_timeout(500)
             
-            # Wait for all images to load completely
+            # 모든 이미지가 완전히 로드될 때까지 대기
             await page.evaluate("""
                 async () => {
                     const images = Array.from(document.images);
@@ -299,7 +299,7 @@ async def generate_image_screenshot(
                 }
             """)
             
-            # Wait for CSS and stylesheets to load
+            # CSS와 스타일시트 로드 대기
             await page.evaluate("""
                 () => {
                     return Promise.all(
@@ -319,21 +319,21 @@ async def generate_image_screenshot(
                 }
             """)
             
-            # Wait for layout to stabilize (check if element size is stable)
+            # 레이아웃 안정화 대기 (요소 크기가 안정적인지 확인)
             await page.wait_for_timeout(1000)
             
-            # Scroll to top of page first
+            # 먼저 페이지 상단으로 스크롤
             await page.evaluate("window.scrollTo(0, 0)")
             await page.wait_for_timeout(500)
             
-            # Get the card element
+            # 카드 요소 가져오기
             card_element = await page.query_selector(card_selector)
             if not card_element:
-                # Fallback: try to find the card wrapper
+                # 대체: 카드 래퍼 찾기 시도
                 card_element = await page.query_selector(".cardWrapper")
             
             if card_element:
-                # Get element's actual dimensions using multiple methods for accuracy
+                # 정확도를 위해 여러 방법을 사용하여 요소의 실제 크기 가져오기
                 element_info = await page.evaluate("""
                     (selector) => {
                         const element = document.querySelector(selector);
@@ -393,34 +393,34 @@ async def generate_image_screenshot(
                 """, card_selector)
                 
                 if element_info:
-                    # Calculate required viewport size
-                    # Add extra padding to ensure nothing is cut off
+                    # 필요한 뷰포트 크기 계산
+                    # 잘리지 않도록 여유 공간 추가
                     padding = 50
                     required_height = element_info['pageY'] + element_info['height'] + padding
                     required_width = element_info['pageX'] + element_info['width'] + padding
                     
-                    # Ensure minimum viewport size
+                    # 최소 뷰포트 크기 보장
                     min_viewport_height = max(required_height, 4000)
                     min_viewport_width = max(required_width, width)
                     
-                    # Resize viewport to accommodate full element
+                    # 전체 요소를 수용하도록 뷰포트 크기 조정
                     await page.set_viewport_size({
                         'width': min_viewport_width,
                         'height': min_viewport_height
                     })
                     await page.wait_for_timeout(500)
                     
-                    # Reload page to ensure proper rendering with new viewport
+                    # 새 뷰포트로 올바른 렌더링을 위해 페이지 다시 로드
                     await page.reload(wait_until="networkidle", timeout=30000)
                     
-                    # Wait for all resources to load completely after reload
+                    # 다시 로드 후 모든 리소스가 완전히 로드될 때까지 대기
                     await page.wait_for_load_state("networkidle", timeout=30000)
                     
-                    # Wait for fonts to load
+                    # 폰트 로드 대기
                     await page.evaluate("document.fonts.ready")
                     await page.wait_for_timeout(500)
                     
-                    # Wait for all images to load completely
+                    # 모든 이미지가 완전히 로드될 때까지 대기
                     await page.evaluate("""
                         async () => {
                             const images = Array.from(document.images);
@@ -447,7 +447,7 @@ async def generate_image_screenshot(
                         }
                     """)
                     
-                    # Wait for CSS and stylesheets
+                    # CSS와 스타일시트 대기
                     await page.evaluate("""
                         () => {
                             return Promise.all(
@@ -467,16 +467,16 @@ async def generate_image_screenshot(
                         }
                     """)
                     
-                    # Wait for layout to stabilize
+                    # 레이아웃 안정화 대기
                     await page.wait_for_timeout(1500)
                     
-                    # Re-query element to get updated position after reload
+                    # 다시 로드 후 업데이트된 위치를 얻기 위해 요소 다시 쿼리
                     card_element = await page.query_selector(card_selector)
                     if not card_element:
                         card_element = await page.query_selector(".cardWrapper")
                     
                     if card_element:
-                        # Get updated element position
+                        # 업데이트된 요소 위치 가져오기
                         updated_element_info = await page.evaluate("""
                             (selector) => {
                                 const element = document.querySelector(selector);
@@ -490,7 +490,7 @@ async def generate_image_screenshot(
                         """, card_selector)
                         
                         if updated_element_info:
-                            # Scroll to element position
+                            # 요소 위치로 스크롤
                             await page.evaluate(f"""
                                 window.scrollTo(0, {updated_element_info['pageY'] - padding});
                             """)
@@ -503,14 +503,14 @@ async def generate_image_screenshot(
                             window.scrollTo(0, {element_info['pageY'] - padding});
                         """)
                     
-                    # Final wait for scroll and layout stabilization
+                    # 스크롤 및 레이아웃 안정화를 위한 최종 대기
                     await page.wait_for_timeout(1000)
                     
-                    # Verify element is fully loaded and stable
+                    # 요소가 완전히 로드되고 안정적인지 확인
                     await page.evaluate("""
                         () => {
                             return new Promise(resolve => {
-                                // Wait for any pending animations or transitions
+                                // 대기 중인 애니메이션 또는 전환 대기
                                 requestAnimationFrame(() => {
                                     requestAnimationFrame(() => {
                                         setTimeout(resolve, 500);
@@ -520,27 +520,27 @@ async def generate_image_screenshot(
                         }
                     """)
                     
-                    # Re-query element after viewport change
+                    # 뷰포트 변경 후 요소 다시 쿼리
                     card_element = await page.query_selector(card_selector)
                     if not card_element:
                         card_element = await page.query_selector(".cardWrapper")
                     
                     if card_element:
-                        # Take screenshot - element.screenshot() should capture full element now
+                        # 스크린샷 촬영 - element.screenshot()이 이제 전체 요소를 캡처해야 함
                         screenshot = await card_element.screenshot(
                             type=format,
                             timeout=15000
                         )
                     else:
-                        # Fallback: full page screenshot
+                        # 대체: 전체 페이지 스크린샷
                         screenshot = await page.screenshot(type=format, full_page=True)
                 else:
-                    # Fallback: try regular element screenshot
+                    # 대체: 일반 요소 스크린샷 시도
                     await card_element.scroll_into_view_if_needed()
                     await page.wait_for_timeout(1000)
                     screenshot = await card_element.screenshot(type=format, timeout=10000)
             else:
-                # Fallback: full page screenshot
+                # 대체: 전체 페이지 스크린샷
                 screenshot = await page.screenshot(type=format, full_page=True)
             
             await browser.close()
@@ -551,42 +551,42 @@ async def generate_image_screenshot(
         import traceback
         traceback.print_exc()
         
-        # Check for common Playwright browser installation errors
+        # 일반적인 Playwright 브라우저 설치 오류 확인
         if "Executable doesn't exist" in error_msg or "BrowserType.launch" in error_msg:
-            print("\n⚠️  Playwright browsers are not installed!")
-            print("   Install with: python -m playwright install chromium")
-            print("   Or install all browsers: python -m playwright install")
+            print("\n⚠️  Playwright 브라우저가 설치되지 않았습니다!")
+            print("   설치 방법: python -m playwright install chromium")
+            print("   또는 모든 브라우저 설치: python -m playwright install")
         
         return None
 
 
 def generate_html(card: ProfileCard, github_login: str) -> str:
     """
-    Generate standalone HTML representation of a profile card.
-    Uses inline styles matching the actual frontend design.
+    프로필 카드의 독립적인 HTML 표현을 생성합니다.
+    실제 프론트엔드 디자인과 일치하는 인라인 스타일을 사용합니다.
     
     Args:
-        card: ProfileCard instance
-        github_login: GitHub username
+        card: ProfileCard 인스턴스
+        github_login: GitHub 사용자명
         
     Returns:
-        Complete HTML string with inline styles matching the design
+        디자인과 일치하는 인라인 스타일이 포함된 완전한 HTML 문자열
     """
     card_url = f"{settings.frontend_base_url}/dashboard/{github_login}/cards/{card.id}"
     gradient = card.gradient or f"linear-gradient(135deg, {card.primary_color or '#667eea'} 0%, rgb(102, 126, 234) 100%)"
     
-    # Escape HTML entities
+    # HTML 엔티티 이스케이프
     name = html_escape.escape(card.name)
     title = html_escape.escape(card.title)
     tagline = html_escape.escape(card.tagline) if card.tagline else ""
     
-    # Organize stacks by category (following stackMeta.ts structure)
-    # Category order and labels matching stackMeta.ts
+    # 카테고리별로 스택 정리 (stackMeta.ts 구조 따름)
+    # stackMeta.ts와 일치하는 카테고리 순서 및 라벨
     category_order = [
         "language", "frontend", "mobile", "backend", "database",
         "infra", "collaboration", "ai-ml", "testing", "tool"
     ]
-    # Category labels (Korean / English) for HTML export
+    # HTML 내보내기용 카테고리 라벨 (한국어 / 영어)
     category_labels_ko = {
         "language": "언어",
         "frontend": "프론트엔드",
@@ -622,12 +622,12 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
     stacks_by_category = {}
     if card.show_stacks and card.stacks:
         for stack in card.stacks:
-            # Use category from stack data (should match stackMeta.ts categories)
-            # Normalize category to lowercase to handle case variations
+            # 스택 데이터에서 카테고리 사용 (stackMeta.ts 카테고리와 일치해야 함)
+            # 대소문자 변형을 처리하기 위해 카테고리를 소문자로 정규화
             category_raw = stack.get('category', 'tool')
             category = category_raw.lower() if isinstance(category_raw, str) else 'tool'
             
-            # Ensure category is in category_order, otherwise default to 'tool'
+            # 카테고리가 category_order에 있는지 확인, 없으면 'tool'로 기본값 설정
             if category not in category_order:
                 category = 'tool'
             
@@ -635,9 +635,9 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
                 stacks_by_category[category] = []
             stacks_by_category[category].append(stack)
     
-    # Build HTML with exact styling from CSS
+    # CSS와 정확히 일치하는 스타일로 HTML 빌드
     html = f"""<div style="max-width: 900px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
-  <!-- Banner Section -->
+  <!-- 배너 섹션 -->
   <div style="background: {gradient}; padding: 60px 40px; text-align: center; color: white; border-radius: 12px 12px 0 0;">
     <div style="max-width: 800px; margin: 0 auto;">
       <h1 style="font-size: 42px; font-weight: 700; margin: 0 0 16px 0; line-height: 1.2;">Hello World 👋 I'm {name}!</h1>
@@ -673,20 +673,20 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
         <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: {justify_content};">
 """
                 for stack in stacks:
-                    # Use label and color from stack data (should match stackMeta.ts)
+                    # 스택 데이터에서 라벨과 색상 사용 (stackMeta.ts와 일치해야 함)
                     stack_label = html_escape.escape(stack.get('label', stack.get('key', '')))
                     stack_color = stack.get('color', '#667eea')
                     stack_key = stack.get('key', '')
                     
-                    # If key is empty, try to use label as key (normalize to lowercase, replace spaces with hyphens)
+                    # 키가 비어 있으면 라벨을 키로 사용 시도 (소문자로 정규화, 공백을 하이픈으로 교체)
                     if not stack_key and stack_label:
-                        # Try to find icon by normalizing label (e.g., "Node.js" -> "nodejs", "Java" -> "java")
+                        # 라벨을 정규화하여 아이콘 찾기 시도 (예: "Node.js" -> "nodejs", "Java" -> "java")
                         normalized_label = stack_label.lower().replace(' ', '-').replace('.', '').replace('++', 'plusplus')
-                        # Try exact match first
+                        # 먼저 정확한 일치 시도
                         if normalized_label in STACK_ICON_MAP:
                             stack_key = normalized_label
                         else:
-                            # Try variations (e.g., "node.js" -> "nodejs", "c++" -> "cpp")
+                            # 변형 시도 (예: "node.js" -> "nodejs", "c++" -> "cpp")
                             variations = [
                                 normalized_label.replace('-', ''),
                                 normalized_label.replace('.', ''),
@@ -697,25 +697,25 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
                                     stack_key = variant
                                     break
                     
-                    # Special case: Java should display as "OpenJDK" in HTML
+                    # 특수 케이스: Java는 HTML에서 "OpenJDK"로 표시
                     if stack_key == 'java':
                         stack_label = 'OpenJDK'
                     
                     icon_slug = STACK_ICON_MAP.get(stack_key) if stack_key else None
                     
-                    # Debug: Print if icon not found
+                    # 디버그: 아이콘을 찾을 수 없으면 출력
                     if not icon_slug and stack_key:
                         print(f"[HTML] Icon not found for stack_key: '{stack_key}', label: '{stack_label}'")
                     elif not icon_slug and stack_label:
                         print(f"[HTML] No stack_key for label: '{stack_label}'")
                     
-                    # Determine icon color based on background color brightness
+                    # 배경색 밝기에 따라 아이콘 색상 결정
                     is_light = _is_light_color(stack_color)
                     icon_color = "black" if is_light else "white"
-                    # Also adjust text color based on background
+                    # 배경에 따라 텍스트 색상도 조정
                     text_color = "black" if is_light else "white"
                     
-                    # Build badge HTML with optional icon
+                    # 선택적 아이콘이 포함된 배지 HTML 빌드
                     icon_html = ""
                     if icon_slug:
                         icon_html = f'<img src="https://cdn.simpleicons.org/{icon_slug}/{icon_color}" alt="" style="width: 16px; height: 16px; margin-right: 6px; vertical-align: middle; object-fit: contain;" />'
@@ -729,9 +729,9 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
   </div>
 """
     
-    # Contact Section
+    # 연락처 섹션
     if card.show_contact and card.contacts:
-        html += """  <!-- Contact Section -->
+        html += """  <!-- 연락처 섹션 -->
   <div style="padding: 32px 40px; background: #f8f9fa;">
     <h2 style="font-size: 28px; font-weight: 700; margin: 0 0 24px 0; color: #333;">Contact</h2>
     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px;">
@@ -769,22 +769,22 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
                 target_attr = 'target="_blank"'
                 rel_attr = 'rel="noopener noreferrer"'
             
-            # Build icon HTML
+            # 아이콘 HTML 빌드
             icon_html = ""
             if icon_slug:
                 icon_html = f'<img src="https://cdn.simpleicons.org/{icon_slug}/000000" alt="{label}" style="width: 32px; height: 32px; object-fit: contain;" />'
                 print(f"[HTML] Generated icon HTML for contact_type: '{contact_type}' with icon_slug: '{icon_slug}'")
             elif contact_type:
-                # If type is specified but icon not found, log warning
+                # 타입이 지정되었지만 아이콘을 찾을 수 없으면 경고 로그
                 print(f"[HTML] Warning: Contact type '{contact_type}' specified but icon not in CONTACT_ICON_MAP")
             
-            # Display contact card with icon, label, and value
-            # Always display if value exists (value is required, label is optional)
+            # 아이콘, 라벨, 값이 포함된 연락처 카드 표시
+            # 값이 있으면 항상 표시 (값은 필수, 라벨은 선택사항)
             if value:
-                # Use label as uppercase type name, or fallback to contact_type
+                # 라벨을 대문자 타입 이름으로 사용하거나, contact_type으로 대체
                 display_label = label.upper() if label else (contact_type.upper() if contact_type else 'CONTACT')
                 
-                # Build attributes string conditionally to avoid empty attributes
+                # 빈 속성을 피하기 위해 조건부로 속성 문자열 빌드
                 attrs = f'href="{href}"'
                 if target_attr:
                     attrs += f' {target_attr}'
@@ -803,13 +803,13 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
   </div>
 """
     
-    # Baekjoon Tier Section (Solved.ac badge) - placed below Contact
+    # 백준 티어 섹션 (Solved.ac 배지) - 연락처 아래에 배치
     baekjoon_id = getattr(card, "baekjoon_id", None)
     if getattr(card, "show_baekjoon", False) and baekjoon_id:
         safe_handle = html_escape.escape(baekjoon_id)
         badge_src = f"http://mazassumnida.wtf/api/v2/generate_badge?boj={safe_handle}"
         solved_profile_url = f"https://solved.ac/{safe_handle}/"
-        html += f"""  <!-- Baekjoon Tier Section -->
+        html += f"""  <!-- 백준 티어 섹션 -->
   <div style="padding: 32px 40px; background: white;">
     <h2 style="font-size: 28px; font-weight: 700; margin: 0 0 24px 0; color: #333;">Baekjoon</h2>
     <div style="text-align: center;">
@@ -859,13 +859,13 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
 
 def _extract_gradient_colors(card: ProfileCard) -> tuple[str, str]:
     """
-    Extract gradient colors from card.gradient field in database.
+    데이터베이스의 card.gradient 필드에서 그라데이션 색상을 추출합니다.
     
-    Supports formats:
+    지원 형식:
     - linear-gradient(135deg, #667eea 0%, #764ba2 100%)  (hex + hex)
     - linear-gradient(135deg, rgb(102, 126, 234) 0%, rgb(118, 75, 162) 100%)  (rgb + rgb)
-    - linear-gradient(135deg, #667eea 0%, rgb(106, 104, 240) 100%)  (hex + rgb) - MIXED FORMAT
-    - linear-gradient(135deg, rgb(102, 126, 234) 0%, #764ba2 100%)  (rgb + hex) - MIXED FORMAT
+    - linear-gradient(135deg, #667eea 0%, rgb(106, 104, 240) 100%)  (hex + rgb) - 혼합 형식
+    - linear-gradient(135deg, rgb(102, 126, 234) 0%, #764ba2 100%)  (rgb + hex) - 혼합 형식
     - #667eea, #764ba2
     - #667eea
     """
@@ -929,9 +929,9 @@ def _extract_gradient_colors(card: ProfileCard) -> tuple[str, str]:
         secondary = default_secondary
         print(f"[COLOR EXTRACT] Only one color found, using default secondary: {secondary}")
     else:
-        # No colors found, try fallback patterns
-        # Pattern 1: Try hex only
-        # IMPORTANT: {6} must come before {3} to match 6-digit hex before 3-digit hex
+        # 색상을 찾을 수 없음, 대체 패턴 시도
+        # 패턴 1: hex만 시도
+        # 중요: 3자리 hex보다 6자리 hex를 먼저 매칭하려면 {6}이 {3}보다 앞에 와야 함
         hex_regex = r"#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})"
         hex_matches = re.findall(hex_regex, gradient_clean)
         print(f"[COLOR EXTRACT FALLBACK] Hex matches: {hex_matches}")
@@ -941,7 +941,7 @@ def _extract_gradient_colors(card: ProfileCard) -> tuple[str, str]:
             print(f"[COLOR EXTRACT FALLBACK] Using hex fallback - primary={primary}, secondary={secondary}")
             return primary, secondary
         
-        # Pattern 2: Try RGB only
+        # 패턴 2: RGB만 시도
         rgb_regex = r"rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)"
         rgb_matches = re.findall(rgb_regex, gradient_clean)
         if rgb_matches:
@@ -954,14 +954,14 @@ def _extract_gradient_colors(card: ProfileCard) -> tuple[str, str]:
                 secondary = default_secondary
             return primary, secondary
         
-        # All parsing failed - use defaults
+        # 모든 파싱 실패 - 기본값 사용
         return default_primary, default_secondary
     
-    # Ensure primary and secondary are different
+    # 주요 색상과 보조 색상이 다른지 확인
     if primary == secondary:
         secondary = default_secondary
     
-    # Debug: Print extracted colors
+    # 디버그: 추출된 색상 출력
     print(f"[COLOR EXTRACT] gradient={gradient_clean}, colors_found={colors}, primary={primary}, secondary={secondary}")
     
     return primary, secondary
@@ -985,7 +985,7 @@ def generate_svg(
 
     width = 900
     
-    # Stacks를 카테고리별로 그룹화
+    # 스택을 카테고리별로 그룹화
     stacks_by_category = {}
     if card.show_stacks and card.stacks:
         for stack in card.stacks:
@@ -997,19 +997,19 @@ def generate_svg(
             if label:
                 color = stack.get("color") or primary
                 stacks_by_category[category].append({"label": label, "color": color})
-
+    
     # 높이 동적 계산
     banner_height = 180
     section_padding = 32
     section_gap = 0
     
-    # Stacks 섹션 높이 계산
+    # 스택 섹션 높이 계산
     stacks_height = 0
     if stacks_by_category:
         stacks_height += 28 + 24  # "Stacks" 헤더
         for category, stacks in stacks_by_category.items():
             stacks_height += 18 + 12  # 카테고리 라벨 + 간격
-            # 뱃지 행 계산
+            # 배지 행 계산
             badge_height = 28
             badge_gap = 8
             row_gap = 10
@@ -1028,7 +1028,7 @@ def generate_svg(
             stacks_height += 24  # 카테고리 간 간격
         stacks_height += section_padding * 2
     
-    # Contact 섹션 높이 계산
+    # 연락처 섹션 높이 계산
     contact_height = 0
     if card.show_contact and card.contacts:
         contact_height += 28 + 24  # "Contact" 헤더
@@ -1039,7 +1039,7 @@ def generate_svg(
         contact_height += rows * 80 + (rows - 1) * 16  # 카드 높이 + 간격
         contact_height += section_padding * 2
     
-    # GitHub Stats 섹션 높이 계산
+    # GitHub 통계 섹션 높이 계산
     stats_height = 0
     if card.show_github_stats:
         stats_height += 28 + 24  # "Github-stats" 헤더
@@ -1115,7 +1115,7 @@ def generate_svg(
 """
             current_y += 18 + 12
             
-            # 뱃지 렌더링
+            # 배지 렌더링
             badge_start_x = 40
             badge_x = badge_start_x
             badge_y = current_y
@@ -1149,9 +1149,9 @@ def generate_svg(
         
         current_y += section_padding - 24
 
-    # Contact section - 카드 형태로 렌더링
+    # 연락처 섹션 - 카드 형태로 렌더링
     if card.show_contact and card.contacts:
-        svg += f"""  <!-- Contact Section Background -->
+        svg += f"""  <!-- 연락처 섹션 배경 -->
   <rect x="0" y="{current_y}" width="{width}" height="{contact_height - section_padding * 2}" fill="#f8f9fa" />
   <text x="40" y="{current_y + section_padding}" fill="#333333" font-size="28" font-weight="700" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
     Contact
@@ -1173,9 +1173,9 @@ def generate_svg(
             value = html_escape.escape(contact.get("value", ""))
             contact_type = contact.get("type", "")
             
-            # Always display if value exists (value is required, label is optional)
+            # 값이 있으면 항상 표시 (값은 필수, 라벨은 선택사항)
             if value:
-                # Use label as uppercase type name, or fallback to contact_type
+                # 라벨을 대문자 타입 이름으로 사용하거나, contact_type으로 대체
                 display_label = label.upper() if label else (contact_type.upper() if contact_type else 'CONTACT')
                 
                 svg += f"""  <!-- Contact Card -->
@@ -1191,9 +1191,9 @@ def generate_svg(
         
         current_y += contact_height
 
-    # GitHub stats section - 그라데이션 배경 카드로 렌더링
+    # GitHub 통계 섹션 - 그라데이션 배경 카드로 렌더링
     if card.show_github_stats:
-        svg += f"""  <!-- GitHub Stats Section -->
+        svg += f"""  <!-- GitHub 통계 섹션 -->
   <text x="40" y="{current_y + section_padding}" fill="#333333" font-size="28" font-weight="700" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
     Github-stats
   </text>
@@ -1246,7 +1246,7 @@ def generate_svg(
 
 def _remove_port_from_url(url: str) -> str:
     """
-    Remove port number from URL (e.g., :8000) for production use.
+    프로덕션 사용을 위해 URL에서 포트 번호 제거 (예: :8000).
     """
     from urllib.parse import urlparse, urlunparse
     parsed = urlparse(url)
@@ -1259,14 +1259,14 @@ def _remove_port_from_url(url: str) -> str:
 
 def generate_svg_markdown(card: ProfileCard, github_login: str) -> str:
     """
-    Generate markdown snippet that embeds the card image in GitHub README.
-    Uses the new image endpoint (PNG/WebP) instead of SVG for better design matching.
+    GitHub README에 카드 이미지를 포함하는 마크다운 스니펫을 생성합니다.
+    더 나은 디자인 일치를 위해 SVG 대신 새 이미지 엔드포인트(PNG/WebP)를 사용합니다.
     """
-    # Use image endpoint instead of SVG for accurate design rendering
+    # 정확한 디자인 렌더링을 위해 SVG 대신 이미지 엔드포인트 사용
     image_url = f"{settings.api_base_url}/api/profiles/public/{github_login}/cards/{card.id}/image?format=png"
     card_url = f"{settings.frontend_base_url}/dashboard/{github_login}/cards/{card.id}"
     
-    # Remove port from URLs for production (e.g., :8000)
+    # 프로덕션을 위해 URL에서 포트 제거 (예: :8000)
     image_url = _remove_port_from_url(image_url)
     card_url = _remove_port_from_url(card_url)
     
@@ -1276,8 +1276,8 @@ def generate_svg_markdown(card: ProfileCard, github_login: str) -> str:
 
 def _hex_to_url_color(hex_color: str) -> str:
     """
-    Convert hex color to URL-encoded format for capsule-render.
-    Example: #667eea -> %23667eea
+    capsule-render를 위해 hex 색상을 URL 인코딩 형식으로 변환합니다.
+    예: #667eea -> %23667eea
     """
     if hex_color.startswith('#'):
         return f"%23{hex_color[1:]}"
@@ -1286,8 +1286,8 @@ def _hex_to_url_color(hex_color: str) -> str:
 
 def _extract_primary_color_for_banner(card: ProfileCard) -> str:
     """
-    Extract primary color from card for banner.
-    Falls back to default purple gradient color.
+    배너용 카드에서 주요 색상을 추출합니다.
+    기본 보라색 그라데이션 색상으로 대체됩니다.
     """
     primary = card.primary_color or "#667eea"
     # Extract first color from gradient if available
@@ -1302,45 +1302,45 @@ def _extract_primary_color_for_banner(card: ProfileCard) -> str:
 
 def generate_svg_banner(card: ProfileCard) -> str:
     """
-    Generate SVG banner with gradient background using pure SVG elements.
-    This ensures reliable rendering in GitHub README without foreignObject.
+    순수 SVG 요소를 사용하여 그라데이션 배경이 있는 SVG 배너를 생성합니다.
+    foreignObject 없이 GitHub README에서 안정적인 렌더링을 보장합니다.
     
     Args:
-        card: ProfileCard instance
+        card: ProfileCard 인스턴스
         
     Returns:
-        SVG string with gradient banner
+        그라데이션 배너가 있는 SVG 문자열
     """
-    # Extract gradient colors from database
-    # card.gradient contains the gradient string from database (e.g., "linear-gradient(135deg, #667eea 0%, rgb(106, 104, 240) 100%)")
-    # IMPORTANT: This must match the colors extracted by the frontend in PublicProfileCardPage.tsx
+    # 데이터베이스에서 그라데이션 색상 추출
+    # card.gradient는 데이터베이스의 그라데이션 문자열을 포함합니다 (예: "linear-gradient(135deg, #667eea 0%, rgb(106, 104, 240) 100%)")
+    # 중요: 프론트엔드의 PublicProfileCardPage.tsx에서 추출한 색상과 일치해야 함
     primary, secondary = _extract_gradient_colors(card)
     
-    # Debug: Ensure we have valid colors (fallback if extraction fails)
+    # 디버그: 유효한 색상인지 확인 (추출 실패 시 대체)
     if not primary or not primary.startswith('#'):
         primary = card.primary_color or "#667eea"
     if not secondary or not secondary.startswith('#'):
         secondary = "#764ba2"
     
-    # Debug: Print to console for debugging
+    # 디버그: 디버깅을 위해 콘솔에 출력
     print(f"[SVG BANNER] card_id={card.id}, gradient={card.gradient}, extracted primary={primary}, secondary={secondary}")
     
-    # Escape HTML entities for SVG text
+    # SVG 텍스트용 HTML 엔티티 이스케이프
     name = html_escape.escape(card.name)
     title = html_escape.escape(card.title)
     tagline = html_escape.escape(card.tagline or "")
     
-    # Banner dimensions
+    # 배너 크기
     width = 900
     height = 200
     
-    # Calculate center x position
+    # 중심 x 위치 계산
     center_x = width / 2
     
-    # Build SVG with pure SVG elements (no foreignObject)
-    # Use objectBoundingBox with percentage coordinates for GitHub README compatibility
-    # GitHub README renders gradients better with objectBoundingBox and percentage values
-    # For 135deg gradient: from top-left (0%,0%) to bottom-right (100%, 100%)
+    # 순수 SVG 요소로 SVG 빌드 (foreignObject 없음)
+    # GitHub README 호환성을 위해 objectBoundingBox와 백분율 좌표 사용
+    # GitHub README는 objectBoundingBox와 백분율 값을 사용하면 그라데이션을 더 잘 렌더링합니다
+    # 135deg 그라데이션의 경우: 왼쪽 상단 (0%,0%)에서 오른쪽 하단 (100%, 100%)으로
     svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">
   <defs>
     <linearGradient id="bannerGradient" x1="0%" y1="0%" x2="100%" y2="100%" gradientUnits="objectBoundingBox">
@@ -1377,14 +1377,14 @@ def generate_svg_banner(card: ProfileCard) -> str:
 
 def generate_svg_contact(card: ProfileCard) -> str:
     """
-    Generate SVG contact section with contact cards in a grid layout.
-    This ensures reliable rendering in GitHub README without CSS dependencies.
+    그리드 레이아웃의 연락처 카드가 있는 SVG 연락처 섹션을 생성합니다.
+    CSS 의존성 없이 GitHub README에서 안정적인 렌더링을 보장합니다.
     
     Args:
-        card: ProfileCard instance
+        card: ProfileCard 인스턴스
         
     Returns:
-        SVG string with contact cards
+        연락처 카드가 있는 SVG 문자열
     """
     if not card.show_contact or not card.contacts:
         return ""
@@ -1395,20 +1395,20 @@ def generate_svg_contact(card: ProfileCard) -> str:
     if not valid_contacts:
         return ""
     
-    # Contact card dimensions
+    # 연락처 카드 크기
     card_width = 280
     card_height = 100
     card_padding = 20
     card_gap = 16
     cards_per_row = 3
     
-    # Calculate grid dimensions
+    # 그리드 크기 계산
     num_cards = len(valid_contacts)
     num_rows = (num_cards + cards_per_row - 1) // cards_per_row
     width = (card_width * cards_per_row) + (card_gap * (cards_per_row - 1)) + (card_padding * 2)
     height = (card_height * num_rows) + (card_gap * (num_rows - 1)) + (card_padding * 2)
     
-    # Build SVG
+    # SVG 빌드
     svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">
   <defs>
     <filter id="contactShadow" x="-50%" y="-50%" width="200%" height="200%">
@@ -1428,7 +1428,7 @@ def generate_svg_contact(card: ProfileCard) -> str:
   <rect x="0" y="0" width="{width}" height="{height}" fill="#f8f9fa" rx="12" ry="12"/>
 '''
     
-    # Generate contact cards
+    # 연락처 카드 생성
     for i, contact in enumerate(valid_contacts):
         row = i // cards_per_row
         col = i % cards_per_row
@@ -1440,39 +1440,39 @@ def generate_svg_contact(card: ProfileCard) -> str:
         value = html_escape.escape(contact.get('value', ''))
         contact_type = contact.get('type', '')
         
-        # Use label as uppercase type name, or fallback to contact_type
+        # 라벨을 대문자 타입 이름으로 사용하거나, contact_type으로 대체
         display_label = label.upper() if label else (contact_type.upper() if contact_type else 'CONTACT')
         
-        # Truncate value if too long
+        # 너무 길면 값 자르기
         display_value = value[:30] + '...' if len(value) > 30 else value
         
-        # Get icon slug from contact type mapping
+        # 연락처 타입 매핑에서 아이콘 slug 가져오기
         icon_slug = CONTACT_ICON_MAP.get(contact_type) if contact_type else None
         
-        # Contact card
-        svg += f'''  <!-- Contact Card {i+1} -->
+        # 연락처 카드
+        svg += f'''  <!-- 연락처 카드 {i+1} -->
   <rect x="{x}" y="{y}" width="{card_width}" height="{card_height}" rx="12" ry="12" fill="#ffffff" filter="url(#contactShadow)"/>
 '''
         
-        # Icon using shields.io (GitHub README compatible)
+        # shields.io를 사용한 아이콘 (GitHub README 호환)
         if icon_slug:
-            # Use shields.io icon-only badge for reliable rendering in GitHub README
-            # Format: https://img.shields.io/badge/-{icon_slug}-000000?logo={icon_slug}&logoColor=white&style=flat
+            # GitHub README에서 안정적인 렌더링을 위해 shields.io 아이콘 전용 배지 사용
+            # 형식: https://img.shields.io/badge/-{icon_slug}-000000?logo={icon_slug}&logoColor=white&style=flat
             icon_badge_url = f"https://img.shields.io/badge/-{icon_slug}-000000?logo={icon_slug}&logoColor=white&style=flat"
             svg += f'''  <image x="{x + 20}" y="{y + 20}" width="32" height="32" href="{icon_badge_url}" preserveAspectRatio="xMidYMid meet"/>
 '''
         else:
-            # Fallback: simple circle icon
+            # 대체: 간단한 원형 아이콘
             svg += f'''  <circle cx="{x + 36}" cy="{y + 36}" r="16" fill="#e0e0e0"/>
 '''
         
-        # Label text
+        # 라벨 텍스트
         svg += f'''  <text x="{x + 60}" y="{y + 35}" fill="#667eea" font-size="12" font-weight="600" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif" text-transform="uppercase" letter-spacing="0.5">
     {display_label}
   </text>
 '''
         
-        # Value text
+        # 값 텍스트
         svg += f'''  <text x="{x + 20}" y="{y + 70}" fill="#333333" font-size="14" font-weight="400" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
     {display_value}
   </text>
@@ -1489,35 +1489,34 @@ def generate_readme_template(
     stats: Optional[Dict[str, Optional[int]]] = None,
 ) -> str:
     """
-    Generate a GitHub README-safe markdown template.    
+    GitHub README 안전 마크다운 템플릿을 생성합니다.    
     
-    Uses:
-    - SVG banner as image URL (capsule-render 방식) - 안정적인 렌더링 보장
-    - shields.io badges for stacks and contacts
-    - github-readme-stats for GitHub statistics
-    - GitCard image endpoint for the custom card
+    사용:
+    - 이미지 URL로 SVG 배너 (capsule-render 방식) - 안정적인 렌더링 보장
+    - 스택 및 연락처용 shields.io 배지
+    - GitHub 통계용 github-readme-stats
+    - 커스텀 카드용 GitCard 이미지 엔드포인트
     
-    This template is guaranteed to work in GitHub README as it uses
-    image URLs for SVG (like capsule-render), markdown headings, minimal HTML (div align, img, a),
-    and external image services that GitHub supports.
+    이 템플릿은 GitHub README에서 작동이 보장됩니다. SVG용 이미지 URL(capsule-render와 유사),
+    마크다운 제목, 최소한의 HTML(div align, img, a), GitHub가 지원하는 외부 이미지 서비스를 사용합니다.
     
     Args:
-        card: ProfileCard instance
-        github_login: GitHub username
-        stats: Optional GitHub stats dictionary
+        card: ProfileCard 인스턴스
+        github_login: GitHub 사용자명
+        stats: 선택적 GitHub 통계 딕셔너리
         
     Returns:
-        Complete README markdown template
+        완전한 README 마크다운 템플릿
     """
-    # URLs
+    # URL
     banner_url = f"{settings.api_base_url}/profiles/public/{github_login}/cards/{card.id}/banner"
     card_url = f"{settings.frontend_base_url}/dashboard/{github_login}/cards/{card.id}"
     
-    # Remove port from URLs for production
+    # 프로덕션을 위해 URL에서 포트 제거
     banner_url = _remove_port_from_url(banner_url)
     card_url = _remove_port_from_url(card_url)
     
-    # Build README template with banner as image URL (capsule-render 방식)
+    # 이미지 URL로 배너가 있는 README 템플릿 빌드 (capsule-render 방식)
     # 배너는 사용자가 선택한 그라데이션 색상을 사용
     readme = f'''<div align="center">
   <img src="{banner_url}" alt="GitCard Banner" />
@@ -1525,16 +1524,16 @@ def generate_readme_template(
 
 '''
     
-    # Stacks Section
+    # 스택 섹션
     if card.show_stacks and card.stacks:
         readme += "## 🛠️ Tech Stacks\n\n"
         
-        # Category order and labels matching stackMeta.ts
+        # stackMeta.ts와 일치하는 카테고리 순서 및 라벨
         category_order = [
             "language", "frontend", "mobile", "backend", "database",
             "infra", "collaboration", "ai-ml", "testing", "tool"
         ]
-        # Category labels (Korean / English) for README export
+        # README 내보내기용 카테고리 라벨 (한국어 / 영어)
         category_labels_ko = {
             "language": "언어",
             "frontend": "프론트엔드",
@@ -1567,14 +1566,14 @@ def generate_readme_template(
         category_labels = category_labels_ko if stack_label_lang == "ko" else category_labels_en
         print(f"[README] Using stack_label_lang='{stack_label_lang}', category_labels keys: {list(category_labels.keys())[:3]}...")
         
-        # Group stacks by category
+        # 카테고리별로 스택 그룹화
         stacks_by_category = {}
         for stack in card.stacks:
-            # Normalize category to lowercase to handle case variations
+            # 대소문자 변형을 처리하기 위해 카테고리를 소문자로 정규화
             category_raw = stack.get('category', 'tool')
             category = category_raw.lower() if isinstance(category_raw, str) else 'tool'
             
-            # Ensure category is in category_order, otherwise default to 'tool'
+            # 카테고리가 category_order에 있는지 확인, 없으면 'tool'로 기본값 설정
             if category not in category_order:
                 category = 'tool'
             
@@ -1582,38 +1581,38 @@ def generate_readme_template(
                 stacks_by_category[category] = []
             label = stack.get('label') or stack.get('key', '')
             color = stack.get('color', '#667eea')
-            stack_key = stack.get('key', '')  # Get key for icon lookup
+            stack_key = stack.get('key', '')  # 아이콘 조회용 키 가져오기
             if label:
                 stacks_by_category[category].append({'label': label, 'color': color, 'key': stack_key})
         
-        # Render categories in order matching stackMeta.ts
+        # stackMeta.ts와 일치하는 순서로 카테고리 렌더링
         for category in category_order:
             if category in stacks_by_category and stacks_by_category[category]:
                 stacks = stacks_by_category[category]
                 category_label = category_labels.get(category, category.upper())
                 
-                # Add category heading
+                # 카테고리 제목 추가
                 readme += f"### {category_label}\n\n"
-                # Get alignment from card
+                # 카드에서 정렬 가져오기
                 alignment = card.stack_alignment or 'center'
-                align_value = alignment  # 'left', 'center', or 'right'
+                align_value = alignment  # 'left', 'center', 또는 'right'
                 readme += f'<div align="{align_value}">\n\n'
                 
-                # Generate shields.io badges for each stack in this category
-                for stack_info in stacks[:20]:  # Limit to 20 stacks per category
+                # 이 카테고리의 각 스택에 대해 shields.io 배지 생성
+                for stack_info in stacks[:20]:  # 카테고리당 최대 20개 스택 제한
                     stack_label = stack_info.get('label') if isinstance(stack_info, dict) else stack_info
                     stack_color = stack_info.get('color', '#667eea') if isinstance(stack_info, dict) else '#667eea'
                     stack_key = stack_info.get('key', '') if isinstance(stack_info, dict) else ''
                     
-                    # If key is empty, try to use label as key (normalize to lowercase, replace spaces with hyphens)
+                    # 키가 비어 있으면 라벨을 키로 사용 시도 (소문자로 정규화, 공백을 하이픈으로 교체)
                     if not stack_key and stack_label:
-                        # Try to find icon by normalizing label (e.g., "Node.js" -> "nodejs", "Java" -> "java")
+                        # 라벨을 정규화하여 아이콘 찾기 시도 (예: "Node.js" -> "nodejs", "Java" -> "java")
                         normalized_label = stack_label.lower().replace(' ', '-').replace('.', '').replace('++', 'plusplus')
-                        # Try exact match first
+                        # 먼저 정확한 일치 시도
                         if normalized_label in STACK_ICON_MAP:
                             stack_key = normalized_label
                         else:
-                            # Try variations (e.g., "node.js" -> "nodejs", "c++" -> "cpp")
+                            # 변형 시도 (예: "node.js" -> "nodejs", "c++" -> "cpp")
                             variations = [
                                 normalized_label.replace('-', ''),
                                 normalized_label.replace('.', ''),
@@ -1624,56 +1623,56 @@ def generate_readme_template(
                                     stack_key = variant
                                     break
                     
-                    # Get icon slug from mapping
+                    # 매핑에서 아이콘 slug 가져오기
                     icon_slug = STACK_ICON_MAP.get(stack_key) if stack_key else None
                     
-                    # Debug: Print if icon not found (only in development)
+                    # 디버그: 아이콘을 찾을 수 없으면 출력 (개발 환경에서만)
                     if not icon_slug and stack_key:
                         print(f"[README] Icon not found for stack_key: '{stack_key}', label: '{stack_label}'")
                     elif not icon_slug:
                         print(f"[README] No stack_key for label: '{stack_label}'")
                     
-                    # Remove # from color for URL
+                    # URL용 색상에서 # 제거
                     color_code = stack_color.replace('#', '')
-                    # Escape special characters for URL (shields.io format)
-                    # shields.io format: label-message-color
-                    # For tech stack badges, we use label as both label and message
+                    # URL용 특수 문자 이스케이프 (shields.io 형식)
+                    # shields.io 형식: label-message-color
+                    # 기술 스택 배지의 경우 라벨을 라벨과 메시지 모두로 사용
                     stack_label_escaped = stack_label.replace('-', '--').replace('_', '__').replace(' ', '%20')
                     
-                    # Determine icon color based on background color brightness
+                    # 배경색 밝기에 따라 아이콘 색상 결정
                     is_light = _is_light_color(stack_color)
                     icon_color = "black" if is_light else "white"
                     
-                    # Build shields.io badge URL with optional logo
-                    # Format: https://img.shields.io/badge/{label}-{color}?logo={iconSlug}&logoColor={iconColor}&style=for-the-badge
-                    # shields.io allows label-color format without message
+                    # 선택적 로고가 있는 shields.io 배지 URL 빌드
+                    # 형식: https://img.shields.io/badge/{label}-{color}?logo={iconSlug}&logoColor={iconColor}&style=for-the-badge
+                    # shields.io는 메시지 없이 label-color 형식을 허용합니다
                     if icon_slug:
-                        # Use shields.io with Simple Icons logo parameter and dynamic icon color
+                        # Simple Icons 로고 매개변수와 동적 아이콘 색상으로 shields.io 사용
                         badge_url = f"https://img.shields.io/badge/{stack_label_escaped}-{color_code}?logo={icon_slug}&logoColor={icon_color}&style=for-the-badge"
                         readme += f'  <img src="{badge_url}" alt="{stack_label}" />\n'
                     else: 
-                        # Fallback to badge without logo
+                        # 대체: 로고 없는 배지
                         badge_url = f"https://img.shields.io/badge/{stack_label_escaped}-{color_code}?style=for-the-badge"
                         readme += f'  <img src="{badge_url}" alt="{stack_label}" />\n'
                  
                 readme += "\n</div>\n\n"
     
-    # Contact Section - Use shields.io badges for each contact
+    # 연락처 섹션 - 각 연락처에 shields.io 배지 사용
     if card.show_contact and card.contacts:
         readme += "## 📬 Contact\n\n"
         readme += '<div align="center">\n\n'
         
-        for contact in card.contacts[:6]:  # Limit to 6 contacts
+        for contact in card.contacts[:6]:  # 최대 6개 연락처 제한
             label = contact.get('label', '')
             value = contact.get('value', '')
             contact_type = contact.get('type', '')
             
-            # Always display if value exists (value is required, label is optional)
+            # 값이 있으면 항상 표시 (값은 필수, 라벨은 선택사항)
             if value:
-                # Get icon from contact type mapping
+                # 연락처 타입 매핑에서 아이콘 가져오기
                 icon_slug = CONTACT_ICON_MAP.get(contact_type) if contact_type else None
                 
-                # Determine link URL and attributes
+                # 링크 URL 및 속성 결정
                 if value.startswith('http://') or value.startswith('https://'):
                     link = value
                     target_attr = 'target="_blank"'
@@ -1687,47 +1686,47 @@ def generate_readme_template(
                     target_attr = 'target="_blank"'
                     rel_attr = 'rel="noopener noreferrer"'
                 
-                # Use label as uppercase type name, or fallback to contact_type
+                # 라벨을 대문자 타입 이름으로 사용하거나, contact_type으로 대체
                 display_label = label.upper() if label else (contact_type.upper() if contact_type else 'CONTACT')
                 
-                # Build attributes string conditionally to avoid empty attributes
+                # 빈 속성을 피하기 위해 조건부로 속성 문자열 빌드
                 attrs = f'href="{link}"'
                 if target_attr:
                     attrs += f' {target_attr}'
                 if rel_attr:
                     attrs += f' {rel_attr}'
                 
-                # Create shields.io badge for each contact
-                # Use only label in badge (value is too complex with special characters)
-                # Format: https://img.shields.io/badge/{label}-{color}?logo={icon_slug}&style=flat
-                # shields.io requires special character escaping:
-                # - Replace '-' with '--'
-                # - Replace '_' with '__'
-                # - Replace ' ' with '_' or '%20'
+                # 각 연락처에 대한 shields.io 배지 생성
+                # 배지에는 라벨만 사용 (값은 특수 문자가 너무 복잡함)
+                # 형식: https://img.shields.io/badge/{label}-{color}?logo={icon_slug}&style=flat
+                # shields.io는 특수 문자 이스케이프가 필요합니다:
+                # - '-'를 '--'로 교체
+                # - '_'를 '__'로 교체
+                # - ' '를 '_' 또는 '%20'으로 교체
                 def escape_shields_io(text: str) -> str:
-                    """Escape text for shields.io badge URL"""
+                    """shields.io 배지 URL용 텍스트 이스케이프"""
                     return text.replace('-', '--').replace('_', '__').replace(' ', '_')
                 
                 escaped_label = escape_shields_io(display_label)
                 
-                # Use a neutral color for contact badges
-                badge_color = "0077B5"  # LinkedIn blue as default
+                # 연락처 배지에 중립 색상 사용
+                badge_color = "0077B5"  # 기본값으로 LinkedIn 파란색
                 
                 if icon_slug:
-                    # Use shields.io badge with Simple Icons logo
+                    # Simple Icons 로고가 있는 shields.io 배지 사용
                     badge_url = f"https://img.shields.io/badge/{escaped_label}-{badge_color}?logo={icon_slug}&logoColor=white&style=flat"
                 else:
-                    # Fallback: badge without logo
+                    # 대체: 로고 없는 배지
                     badge_url = f"https://img.shields.io/badge/{escaped_label}-{badge_color}?style=flat"
                 
-                # Create clickable badge link with value as tooltip
+                # 값이 툴팁인 클릭 가능한 배지 링크 생성
                 readme += f'  <a {attrs} title="{value}">\n'
                 readme += f'    <img src="{badge_url}" alt="{display_label}: {value}" />\n'
                 readme += f'  </a>\n'
         
         readme += "\n</div>\n\n"
     
-    # Baekjoon Tier Section (Solved.ac badge) - below Contact
+    # 백준 티어 섹션 (Solved.ac 배지) - 연락처 아래
     baekjoon_id = getattr(card, "baekjoon_id", None)
     if getattr(card, "show_baekjoon", False) and baekjoon_id:
         handle = baekjoon_id
@@ -1736,12 +1735,12 @@ def generate_readme_template(
         readme += f'[![Solved.ac Profile](http://mazassumnida.wtf/api/v2/generate_badge?boj={handle})](https://solved.ac/{handle}/)\n\n'
         readme += "</div>\n\n"
 
-    # GitHub Stats Section
+    # GitHub 통계 섹션
     if card.show_github_stats:
         readme += "## 🏅 GitHub Stats\n\n"
         readme += '<div align="center">\n\n'
         
-        # GitHub stats cards using github-readme-stats
+        # github-readme-stats를 사용한 GitHub 통계 카드
         readme += f'  <img src="https://github-readme-stats.vercel.app/api?username={github_login}&show_icons=true&theme=default" alt="{github_login} stats" />\n'
         readme += f'  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username={github_login}&layout=compact&theme=default" alt="Top Languages" />\n'
         
