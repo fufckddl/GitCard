@@ -42,7 +42,7 @@ class Settings(BaseSettings):
     api_base_url: str = "http://localhost:8000"
     
     # 데이터베이스 설정
-    database_url: str = "mysql+pymysql://root:password@localhost:3306/gitcard"
+    database_url: str  # 환경 변수에서 로드 (예: mysql+pymysql://username:password@host:port/database_name)
     # 형식: mysql+pymysql://username:password@host:port/database_name
     
     model_config = ConfigDict(
