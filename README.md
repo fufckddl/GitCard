@@ -1,4 +1,4 @@
-# 🎴 GitCard
+# 🎴 GitCard (Not affiliated with GitHub)
 
 **GitHub 프로필을 아름다운 카드로 만들어주는 서비스**
 
