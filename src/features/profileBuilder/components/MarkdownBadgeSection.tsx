@@ -50,7 +50,7 @@ export const MarkdownBadgeSection: React.FC<MarkdownBadgeSectionProps> = ({
       }
     }
 
-    // Fallback: 텍스트 영역 생성하여 복사
+    // 대체: 텍스트 영역 생성하여 복사
     try {
       const textArea = document.createElement('textarea');
       textArea.value = text;

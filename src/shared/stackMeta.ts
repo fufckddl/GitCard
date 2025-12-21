@@ -1,38 +1,38 @@
 /**
- * Stack Tag System for GitHub Profile README Builder
+ * GitHub 프로필 README 빌더를 위한 스택 태그 시스템
  * 
  * ============================================================================
- * DESIGN GUIDELINES
+ * 디자인 가이드라인
  * ============================================================================
  * 
- * 1. KEY NAMING RULE
- *    - All lowercase
- *    - Words separated by hyphens (`-`)
- *    - No spaces
- *    - Examples: `react`, `react-native`, `spring-boot`, `yolov8`, `github-actions`
+ * 1. 키 명명 규칙
+ *    - 모두 소문자
+ *    - 단어는 하이픈(`-`)으로 구분
+ *    - 공백 없음
+ *    - 예: `react`, `react-native`, `spring-boot`, `yolov8`, `github-actions`
  * 
- * 2. STACK CATEGORY RULE
- *    - Each tag must belong to exactly one category
- *    - Categories: "language" | "frontend" | "mobile" | "backend" | "database" 
+ * 2. 스택 카테고리 규칙
+ *    - 각 태그는 정확히 하나의 카테고리에 속해야 함
+ *    - 카테고리: "language" | "frontend" | "mobile" | "backend" | "database" 
  *                  | "infra" | "collaboration" | "ai-ml" | "testing" | "tool"
  * 
- * 3. SEPARATION OF CONCERNS
- *    - Components should only store **keys** (e.g., `"react"`, `"fastapi"`)
- *    - Styling (color, label, icon mapping) must be centralized in this file
- *    - No other file should hard-code labels/colors
+ * 3. 관심사 분리
+ *    - 컴포넌트는 **키**만 저장해야 함 (예: `"react"`, `"fastapi"`)
+ *    - 스타일링(색상, 라벨, 아이콘 매핑)은 이 파일에 중앙화되어야 함
+ *    - 다른 파일에서는 라벨/색상을 하드코딩하지 않아야 함
  * 
- * 4. EXTENSIBILITY GUIDELINE
- *    To add a new tag:
- *    1) Pick a `key` following the naming rule
- *    2) Choose the right `category`
- *    3) Add a `label` (human readable)
- *    4) Choose a `color` (hex string)
+ * 4. 확장성 가이드라인
+ *    새 태그를 추가하려면:
+ *    1) 명명 규칙을 따르는 `key` 선택
+ *    2) 올바른 `category` 선택
+ *    3) `label` 추가 (사람이 읽을 수 있는)
+ *    4) `color` 선택 (hex 문자열)
  * 
- * 5. USAGE PATTERN
- *    - UI components can:
- *      - Receive `string[]` of stack keys from user profile data
- *      - Call `getStackMeta(key)` to render name/color
- *      - Group by `StackCategory` using `getStacksByCategory` or `STACKS_BY_CATEGORY`
+ * 5. 사용 패턴
+ *    - UI 컴포넌트는:
+ *      - 사용자 프로필 데이터에서 스택 키의 `string[]`를 받을 수 있음
+ *      - `getStackMeta(key)`를 호출하여 이름/색상 렌더링
+ *      - `getStacksByCategory` 또는 `STACKS_BY_CATEGORY`를 사용하여 `StackCategory`로 그룹화
  * 
  * ============================================================================
  */
@@ -53,17 +53,17 @@ export interface StackMeta {
   key: string;
   label: string;
   category: StackCategory;
-  color: string; // hex color
-  icon?: string; // Simple Icons slug (e.g., "javascript", "react", "python")
+  color: string; // hex 색상
+  icon?: string; // Simple Icons slug (예: "javascript", "react", "python")
 }
 
 /**
- * Main array of all stack metadata entries.
- * Add new stacks here following the design guidelines above.
+ * 모든 스택 메타데이터 항목의 메인 배열.
+ * 위의 디자인 가이드라인을 따라 여기에 새 스택을 추가하세요.
  */
 export const STACK_META_LIST: StackMeta[] = [
   // ==========================================================================
-  // LANGUAGES
+  // 언어
   // ==========================================================================
   { key: "javascript", label: "JavaScript", category: "language", color: "#F7DF1E", icon: "javascript" },
   { key: "typescript", label: "TypeScript", category: "language", color: "#3178C6", icon: "typescript" },
@@ -84,7 +84,7 @@ export const STACK_META_LIST: StackMeta[] = [
   { key: "shell", label: "Shell", category: "language", color: "#89E051", icon: "gnubash" },
 
   // ==========================================================================
-  // FRONTEND
+  // 프론트엔드
   // ==========================================================================
   { key: "react", label: "React", category: "frontend", color: "#61DAFB", icon: "react" },
   { key: "nextjs", label: "Next.js", category: "frontend", color: "#000000", icon: "nextdotjs" },
@@ -102,7 +102,7 @@ export const STACK_META_LIST: StackMeta[] = [
   { key: "vite", label: "Vite", category: "frontend", color: "#646CFF", icon: "vite" },
 
   // ==========================================================================
-  // MOBILE
+  // 모바일
   // ==========================================================================
   { key: "react-native", label: "React Native", category: "mobile", color: "#61DAFB", icon: "react" },
   { key: "flutter", label: "Flutter", category: "mobile", color: "#02569B", icon: "flutter" },
@@ -111,7 +111,7 @@ export const STACK_META_LIST: StackMeta[] = [
   { key: "swiftui", label: "SwiftUI", category: "mobile", color: "#FA7343", icon: "swift" },
 
   // ==========================================================================
-  // BACKEND
+  // 백엔드
   // ==========================================================================
   { key: "nodejs", label: "Node.js", category: "backend", color: "#339933", icon: "nodedotjs" },
   { key: "express", label: "Express", category: "backend", color: "#000000", icon: "express" },
@@ -127,7 +127,7 @@ export const STACK_META_LIST: StackMeta[] = [
   { key: "grpc", label: "gRPC", category: "backend", color: "#244C5A", icon: "grpc" },
 
   // ==========================================================================
-  // DATABASE
+  // 데이터베이스
   // ==========================================================================
   { key: "mysql", label: "MySQL", category: "database", color: "#4479A1", icon: "mysql" },
   { key: "postgresql", label: "PostgreSQL", category: "database", color: "#336791", icon: "postgresql" },
@@ -140,7 +140,7 @@ export const STACK_META_LIST: StackMeta[] = [
   { key: "firebase-firestore", label: "Firebase Firestore", category: "database", color: "#FFCA28", icon: "firebase" },
 
   // ==========================================================================
-  // INFRA / DEVOPS
+  // 인프라 / DevOps
   // ==========================================================================
   { key: "aws", label: "AWS", category: "infra", color: "#232F3E" },
   { key: "gcp", label: "Google Cloud", category: "infra", color: "#4285F4", icon: "googlecloud" },
@@ -157,7 +157,7 @@ export const STACK_META_LIST: StackMeta[] = [
   { key: "cloudflare", label: "Cloudflare", category: "infra", color: "#F38020", icon: "cloudflare" },
 
   // ==========================================================================
-  // COLLABORATION
+  // 협업 도구
   // ==========================================================================
   { key: "git", label: "Git", category: "collaboration", color: "#F05032", icon: "git" },
   { key: "github", label: "GitHub", category: "collaboration", color: "#181717", icon: "github" },
@@ -184,7 +184,7 @@ export const STACK_META_LIST: StackMeta[] = [
   { key: "transformers", label: "Transformers", category: "ai-ml", color: "#FFD21E" },
 
   // ==========================================================================
-  // TESTING
+  // 테스팅
   // ==========================================================================
   { key: "jest", label: "Jest", category: "testing", color: "#C21325", icon: "jest" },
   { key: "react-testing-library", label: "React Testing Library", category: "testing", color: "#E33332" },
@@ -194,7 +194,7 @@ export const STACK_META_LIST: StackMeta[] = [
   { key: "junit", label: "JUnit", category: "testing", color: "#25A162", icon: "junit" },
 
   // ==========================================================================
-  // TOOLING
+  // 도구
   // ==========================================================================
   { key: "webpack", label: "Webpack", category: "tool", color: "#8DD6F9", icon: "webpack" },
   { key: "rollup", label: "Rollup", category: "tool", color: "#EC4A3F", icon: "rollupdotjs" },
@@ -208,21 +208,21 @@ export const STACK_META_LIST: StackMeta[] = [
 ];
 
 /**
- * Fast lookup map: stack key → StackMeta
- * Use this for O(1) lookups when you have a key.
+ * 빠른 조회 맵: stack key → StackMeta
+ * 키가 있을 때 O(1) 조회를 위해 이것을 사용하세요.
  */
 export const STACK_META_MAP: ReadonlyMap<string, StackMeta> = new Map(
   STACK_META_LIST.map((meta) => [meta.key, meta])
 );
 
 /**
- * Grouped stacks by category: category → StackMeta[]
- * Use this to get all stacks in a specific category.
+ * 카테고리별로 그룹화된 스택: category → StackMeta[]
+ * 특정 카테고리의 모든 스택을 가져오려면 이것을 사용하세요.
  */
 export const STACKS_BY_CATEGORY: ReadonlyMap<StackCategory, StackMeta[]> = (() => {
   const map = new Map<StackCategory, StackMeta[]>();
   
-  // Initialize all categories with empty arrays
+  // 모든 카테고리를 빈 배열로 초기화
   const categories: StackCategory[] = [
     "language",
     "frontend",
@@ -240,7 +240,7 @@ export const STACKS_BY_CATEGORY: ReadonlyMap<StackCategory, StackMeta[]> = (() =
     map.set(cat, []);
   });
   
-  // Group stacks by category
+  // 카테고리별로 스택 그룹화
   STACK_META_LIST.forEach((meta) => {
     const existing = map.get(meta.category) || [];
     existing.push(meta);

@@ -1,8 +1,8 @@
 """
-GitHub statistics fetching utilities.
+GitHub 통계 가져오기 유틸리티.
 
-Fetches GitHub statistics for a user using GitHub API.
-Uses OAuth token when available for higher rate limits (5,000/hour vs 60/hour).
+GitHub API를 사용하여 사용자의 GitHub 통계를 가져옵니다.
+사용 가능한 경우 더 높은 속도 제한(시간당 5,000 vs 60)을 위해 OAuth 토큰을 사용합니다.
 """
 import httpx
 from typing import Dict, Optional
@@ -13,17 +13,17 @@ async def fetch_github_stats(
     access_token: Optional[str] = None
 ) -> Optional[Dict[str, any]]:
     """
-    Fetch GitHub statistics for a user.
+    사용자의 GitHub 통계를 가져옵니다.
     
-    With OAuth token: 5,000 requests/hour
-    Without token: 60 requests/hour
+    OAuth 토큰 사용 시: 시간당 5,000 요청
+    토큰 없이: 시간당 60 요청
     
     Args:
-        github_login: GitHub username
-        access_token: Optional GitHub OAuth access token for higher rate limits
+        github_login: GitHub 사용자명
+        access_token: 더 높은 속도 제한을 위한 선택적 GitHub OAuth 액세스 토큰
         
     Returns:
-        Dictionary with stats: repositories, stars, followers, following, contributions
+        통계가 포함된 딕셔너리: repositories, stars, followers, following, contributions
     """
     headers = {
         "Accept": "application/vnd.github.v3+json",
@@ -34,7 +34,7 @@ async def fetch_github_stats(
     
     async with httpx.AsyncClient() as client:
         try:
-            # Fetch user info (includes public_repos, followers, following)
+            # 사용자 정보 가져오기 (public_repos, followers, following 포함)
             user_response = await client.get(
                 f"https://api.github.com/users/{github_login}",
                 headers=headers,
@@ -46,7 +46,7 @@ async def fetch_github_stats(
             
             user_data = user_response.json()
             
-            # Fetch all repositories with pagination to count total stars
+            # 총 스타 수를 계산하기 위해 페이지네이션으로 모든 저장소 가져오기
             total_stars = 0
             page = 1
             per_page = 100
@@ -67,18 +67,18 @@ async def fetch_github_stats(
                     break
                 
                 repos = repos_response.json()
-                if not repos:  # No more repos
+                if not repos:  # 더 이상 저장소 없음
                     break
                 
                 total_stars += sum(repo.get("stargazers_count", 0) for repo in repos)
                 
-                # Check if there are more pages
+                # 더 많은 페이지가 있는지 확인
                 if len(repos) < per_page:
                     break
                 
                 page += 1
             
-            # Fetch contributions using GraphQL API (if access_token is available)
+            # GraphQL API를 사용하여 기여도 가져오기 (access_token이 사용 가능한 경우)
             contributions = None
             if access_token:
                 contributions = await _fetch_contributions_graphql(access_token, github_login)
@@ -97,14 +97,14 @@ async def fetch_github_stats(
 
 async def _fetch_contributions_graphql(access_token: str, username: str) -> Optional[int]:
     """
-    Fetch contribution count using GitHub GraphQL API.
+    GitHub GraphQL API를 사용하여 기여도 수를 가져옵니다.
     
     Args:
-        access_token: GitHub OAuth access token
-        username: GitHub username
+        access_token: GitHub OAuth 액세스 토큰
+        username: GitHub 사용자명
         
     Returns:
-        Total contributions count or None if failed
+        총 기여도 수 또는 실패 시 None
     """
     query = """
     query($username: String!) {

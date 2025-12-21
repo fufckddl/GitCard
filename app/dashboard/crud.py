@@ -1,5 +1,5 @@
 """
-CRUD operations for visitor statistics.
+방문자 통계에 대한 CRUD 작업.
 """
 from datetime import date, datetime
 from sqlalchemy.orm import Session
@@ -9,24 +9,24 @@ from app.dashboard.db_models import VisitorStats
 
 def increment_visitor_count(db: Session) -> VisitorStats:
     """
-    Increment visitor count for today.
-    If no record exists for today, create one with count 1.
-    If record exists, increment the count.
+    오늘의 방문자 수를 증가시킵니다.
+    오늘의 레코드가 없으면 카운트 1로 새 레코드를 생성합니다.
+    레코드가 있으면 카운트를 증가시킵니다.
     
     Returns:
-        VisitorStats: The updated or created visitor stats record
+        VisitorStats: 업데이트되거나 생성된 방문자 통계 레코드
     """
     today = date.today()
     
-    # Try to get today's record
+    # 오늘의 레코드 가져오기 시도
     stats = db.query(VisitorStats).filter(VisitorStats.date == today).first()
     
     if stats:
-        # Increment existing count
+        # 기존 카운트 증가
         stats.visitors += 1
         stats.updated_at = datetime.now()
     else:
-        # Create new record for today
+        # 오늘을 위한 새 레코드 생성
         stats = VisitorStats(date=today, visitors=1)
         db.add(stats)
     
@@ -37,10 +37,10 @@ def increment_visitor_count(db: Session) -> VisitorStats:
 
 def get_today_visitors(db: Session) -> int:
     """
-    Get today's visitor count.
+    오늘의 방문자 수를 가져옵니다.
     
     Returns:
-        int: Today's visitor count (0 if no record exists)
+        int: 오늘의 방문자 수 (레코드가 없으면 0)
     """
     today = date.today()
     stats = db.query(VisitorStats).filter(VisitorStats.date == today).first()
@@ -49,10 +49,10 @@ def get_today_visitors(db: Session) -> int:
 
 def get_total_visitors(db: Session) -> int:
     """
-    Get total visitor count across all dates.
+    모든 날짜에 걸친 총 방문자 수를 가져옵니다.
     
     Returns:
-        int: Total visitor count
+        int: 총 방문자 수
     """
     result = db.query(func.sum(VisitorStats.visitors)).scalar()
     return int(result) if result else 0
@@ -60,7 +60,7 @@ def get_total_visitors(db: Session) -> int:
 
 def get_visitor_stats(db: Session) -> dict:
     """
-    Get both today's and total visitor counts.
+    오늘의 방문자 수와 총 방문자 수를 모두 가져옵니다.
     
     Returns:
         dict: {
