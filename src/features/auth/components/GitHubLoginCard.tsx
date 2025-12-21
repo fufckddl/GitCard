@@ -30,7 +30,8 @@ export const GitHubLoginCard: React.FC = () => {
       </div>
 
       <p className={styles.caption}>
-        GitHub 계정만 사용하며, 동의 없이 코드를 수정하거나 푸시하지 않습니다.
+        GitHub 계정만 사용하며, 동의 없이 코드를 수정하거나 푸시하지 않습니다. <br />
+        Not affiliated with GitHub
       </p>
     </div>
   );
