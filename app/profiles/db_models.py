@@ -1,7 +1,7 @@
 """
-SQLAlchemy models for ProfileCard.
+ProfileCard용 SQLAlchemy 모델.
 
-Replaces the in-memory ProfileCard model with a proper database model.
+인메모리 ProfileCard 모델을 적절한 데이터베이스 모델로 대체합니다.
 """
 from sqlalchemy import Column, Integer, String, Boolean, JSON, DateTime, ForeignKey
 from sqlalchemy.sql import func
@@ -9,7 +9,7 @@ from app.database import Base
 
 
 class ProfileCard(Base):
-    """Profile card model for database."""
+    """데이터베이스용 프로필 카드 모델."""
     
     __tablename__ = "profile_cards"
     
@@ -19,15 +19,15 @@ class ProfileCard(Base):
     name = Column(String(255), nullable=False)
     title = Column(String(255), nullable=False)  # 프로필 카드에 표시되는 제목
     tagline = Column(String(500), nullable=True)
-    primary_color = Column(String(7), nullable=False, default="#667eea")  # hex color
+    primary_color = Column(String(7), nullable=False, default="#667eea")  # hex 색상
     gradient = Column(String(500), nullable=False)  # 그라데이션 문자열
     show_stacks = Column(Boolean, default=True, nullable=False)
     show_contact = Column(Boolean, default=True, nullable=False)
     show_github_stats = Column(Boolean, default=True, nullable=False)
-    # Baekjoon tier display (Solved.ac badge)
+    # 백준 티어 표시 (Solved.ac 배지)
     show_baekjoon = Column(Boolean, default=False, nullable=False)
     baekjoon_id = Column(String(255), nullable=True)
-    # Tech stack category label language: 'ko' or 'en'
+    # 기술 스택 카테고리 라벨 언어: 'ko' 또는 'en'
     stack_label_lang = Column(String(2), nullable=False, default="en")
     stack_alignment = Column(String(10), nullable=False, default="center")  # "left", "center", "right"
     stacks = Column(JSON, nullable=False, default=list)
@@ -35,6 +35,6 @@ class ProfileCard(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
     
-    # Relationship (optional, for future use)
+    # 관계 (선택사항, 향후 사용)
     # user = relationship("User", back_populates="profile_cards")
 

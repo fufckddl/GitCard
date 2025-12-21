@@ -1,7 +1,7 @@
 """
-CRUD operations for ProfileCard model.
+ProfileCard 모델에 대한 CRUD 작업.
 
-Replaces the in-memory store functions with database operations.
+인메모리 저장소 함수를 데이터베이스 작업으로 대체합니다.
 """
 from sqlalchemy.orm import Session
 from sqlalchemy import select
@@ -29,8 +29,8 @@ def create_profile_card(
     contacts: List[Dict],
     stack_alignment: str = "center",
 ) -> ProfileCard:
-    """Create a new profile card."""
-    print(f"[CREATE_CARD] stack_alignment={stack_alignment}")  # Debug log
+    """새 프로필 카드를 생성합니다."""
+    print(f"[CREATE_CARD] stack_alignment={stack_alignment}")  # 디버그 로그
     card = ProfileCard(
         user_id=user_id,
         card_title=card_title,
@@ -52,19 +52,19 @@ def create_profile_card(
     db.add(card)
     db.commit()
     db.refresh(card)
-    print(f"[CREATE_CARD] Saved card_id={card.id}, stack_alignment={card.stack_alignment}")  # Debug log
+    print(f"[CREATE_CARD] Saved card_id={card.id}, stack_alignment={card.stack_alignment}")  # 디버그 로그
     return card
 
 
 def get_profile_cards_by_user_id(db: Session, user_id: int) -> List[ProfileCard]:
-    """Get all profile cards for a user."""
+    """사용자의 모든 프로필 카드를 가져옵니다."""
     stmt = select(ProfileCard).where(ProfileCard.user_id == user_id).order_by(ProfileCard.created_at.desc())
     result = db.execute(stmt)
     return list(result.scalars().all())
 
 
 def get_profile_card_by_id(db: Session, card_id: int, user_id: int) -> Optional[ProfileCard]:
-    """Get a profile card by ID (only if it belongs to the user)."""
+    """ID로 프로필 카드를 가져옵니다 (사용자에게 속한 경우에만)."""
     stmt = select(ProfileCard).where(
         ProfileCard.id == card_id,
         ProfileCard.user_id == user_id
@@ -93,7 +93,7 @@ def update_profile_card(
     stacks: Optional[List[Dict]] = None,
     contacts: Optional[List[Dict]] = None,
 ) -> Optional[ProfileCard]:
-    """Update a profile card."""
+    """프로필 카드를 업데이트합니다."""
     card = get_profile_card_by_id(db, card_id, user_id)
     if not card:
         return None
@@ -123,7 +123,7 @@ def update_profile_card(
     if stack_label_lang is not None:
         card.stack_label_lang = stack_label_lang
     if stack_alignment is not None:
-        print(f"[UPDATE_CARD] Updating stack_alignment from '{card.stack_alignment}' to '{stack_alignment}'")  # Debug log
+        print(f"[UPDATE_CARD] Updating stack_alignment from '{card.stack_alignment}' to '{stack_alignment}'")  # 디버그 로그
         card.stack_alignment = stack_alignment
     if stacks is not None:
         card.stacks = stacks
@@ -137,7 +137,7 @@ def update_profile_card(
 
 
 def delete_profile_card(db: Session, card_id: int, user_id: int) -> bool:
-    """Delete a profile card."""
+    """프로필 카드를 삭제합니다."""
     card = get_profile_card_by_id(db, card_id, user_id)
     if card:
         db.delete(card)
@@ -152,13 +152,13 @@ def get_public_profile_card_by_github_login_and_card_id(
     card_id: int
 ) -> Optional[ProfileCard]:
     """
-    Get a public profile card by GitHub login and card ID.
-    This is used for public viewing without authentication.
+    GitHub 로그인 및 카드 ID로 공개 프로필 카드를 가져옵니다.
+    인증 없이 공개 보기를 위해 사용됩니다.
     """
     from app.auth.db_models import User
     from sqlalchemy import select
     
-    # First, find the user by github_login
+    # 먼저 github_login으로 사용자 찾기
     user_stmt = select(User).where(User.github_login == github_login)
     user_result = db.execute(user_stmt)
     user = user_result.scalar_one_or_none()
@@ -166,7 +166,7 @@ def get_public_profile_card_by_github_login_and_card_id(
     if not user:
         return None
     
-    # Then, find the card by card_id and user_id
+    # 그런 다음 card_id와 user_id로 카드 찾기
     card_stmt = select(ProfileCard).where(
         ProfileCard.id == card_id,
         ProfileCard.user_id == user.id
