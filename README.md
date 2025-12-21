@@ -42,76 +42,129 @@ GitCard는 GitHub 프로필을 시각적으로 아름답고 전문적인 프로�
 
 ## 📸 예시
 
-<div style="max-width: 900px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
-  <!-- Banner Section -->
-  <div style="background: linear-gradient(135deg, #667eea 0%, rgb(106, 104, 240) 100%); padding: 60px 40px; text-align: center; color: white; border-radius: 12px 12px 0 0;">
-    <div style="max-width: 800px; margin: 0 auto;">
-      <h1 style="font-size: 42px; font-weight: 700; margin: 0 0 16px 0; line-height: 1.2;">Hello World 👋 I'm James!</h1>
-      <p style="font-size: 24px; font-weight: 500; margin: 0 0 12px 0; opacity: 0.95;">AI & Full-stack Developer</p>
-      <p style="font-size: 18px; margin: 0; opacity: 0.85; font-weight: 400;">Passionate about building amazing things</p>
-    </div>
-  </div>
-  <!-- Stacks Section -->
-  <div style="padding: 32px 40px; background: white;">
-    <h2 style="font-size: 28px; font-weight: 700; margin: 0 0 24px 0; color: #333;">Stacks</h2>
-    <div style="display: flex; flex-direction: column; gap: 24px;">
-      <div style="display: flex; flex-direction: column; gap: 12px;">
-        <h3 style="font-size: 18px; font-weight: 600; margin: 0; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">frontend</h3>
-        <div style="display: flex; flex-wrap: wrap; gap: 12px;">
-          <span style="display: inline-block; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; color: white; background-color: #61DAFB; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);">React</span>
-          <span style="display: inline-block; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; color: white; background-color: #3178C6; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);">TypeScript</span>
-        </div>
-      </div>
-      <div style="display: flex; flex-direction: column; gap: 12px;">
-        <h3 style="font-size: 18px; font-weight: 600; margin: 0; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">backend</h3>
-        <div style="display: flex; flex-wrap: wrap; gap: 12px;">
-          <span style="display: inline-block; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; color: white; background-color: #339933; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);">Node.js</span>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- Contact Section -->
-  <div style="padding: 32px 40px; background: #f8f9fa;">
-    <h2 style="font-size: 28px; font-weight: 700; margin: 0 0 24px 0; color: #333;">Contact</h2>
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px;">
-      <a href="mailto:example@gmail.com" target="" rel="" style="display: flex; flex-direction: column; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); text-decoration: none; color: inherit;">
-        <span style="font-size: 14px; font-weight: 600; color: #667eea; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Gmail</span>
-        <span style="font-size: 16px; color: #333; word-break: break-word;">example@gmail.com</span>
-      </a>
-      <a href="mailto:https://velog.io/@username" target=""_blank"" rel="noopener noreferrer" style="display: flex; flex-direction: column; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); text-decoration: none; color: inherit;">
-        <span style="font-size: 14px; font-weight: 600; color: #667eea; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Velog</span>
-        <span style="font-size: 16px; color: #333; word-break: break-word;">https://velog.io/@username</span>
-      </a>
-    </div>
-  </div>
-  <!-- GitHub Stats Section -->
-  <div style="padding: 32px 40px; background: white;">
-    <h2 style="font-size: 28px; font-weight: 700; margin: 0 0 24px 0; color: #333;">Github-stats</h2>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px;">
-      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
-        <div style="font-size: 36px; font-weight: 700; margin-bottom: 8px;">-</div>
-        <div style="font-size: 14px; font-weight: 500; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px;">Contributions</div>
-      </div>
-      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
-        <div style="font-size: 36px; font-weight: 700; margin-bottom: 8px;">-</div>
-        <div style="font-size: 14px; font-weight: 500; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px;">Repositories</div>
-      </div>
-      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
-        <div style="font-size: 36px; font-weight: 700; margin-bottom: 8px;">-</div>
-        <div style="font-size: 14px; font-weight: 500; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px;">Stars</div>
-      </div>
-      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
-        <div style="font-size: 36px; font-weight: 700; margin-bottom: 8px;">-</div>
-        <div style="font-size: 14px; font-weight: 500; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px;">Followers</div>
-      </div>
-      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
-        <div style="font-size: 36px; font-weight: 700; margin-bottom: 8px;">-</div>
-        <div style="font-size: 14px; font-weight: 500; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px;">Following</div>
-      </div>
-    </div>
-    <p style="text-align: center; margin-top: 16px; color: #666; font-size: 14px;">※ GitHub 통계는 <a href="https://gitcard.kr/dashboard/fufckddl/cards/2" target="_blank" rel="noopener noreferrer" style="color: #667eea;">프로필 카드 페이지</a>에서 확인하세요.</p>
-  </div>
+<div align="center">
+  <img src="https://gitcard.kr/api/profiles/public/fufckddl/cards/11/banner" alt="GitCard Banner" />
 </div>
+
+## 🛠️ Tech Stacks
+
+### Language
+
+<div align="left">
+
+  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black&style=for-the-badge" alt="JavaScript" />
+  <img src="https://img.shields.io/badge/Java-ED8B00?logo=openjdk&logoColor=black&style=for-the-badge" alt="Java" />
+  <img src="https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white&style=for-the-badge" alt="Python" />
+
+</div>
+
+### Frontend
+
+<div align="left">
+
+  <img src="https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black&style=for-the-badge" alt="React" />
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white&style=for-the-badge" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/jQuery-0769AD?logo=jquery&logoColor=white&style=for-the-badge" alt="jQuery" />
+  <img src="https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white&style=for-the-badge" alt="Vite" />
+
+</div>
+
+### Mobile
+
+<div align="left">
+
+  <img src="https://img.shields.io/badge/React%20Native-61DAFB?logo=react&logoColor=black&style=for-the-badge" alt="React Native" />
+  <img src="https://img.shields.io/badge/Flutter-02569B?logo=flutter&logoColor=white&style=for-the-badge" alt="Flutter" />
+  <img src="https://img.shields.io/badge/iOS-000000?logo=ios&logoColor=white&style=for-the-badge" alt="iOS" />
+
+</div>
+
+### Backend
+
+<div align="left">
+
+  <img src="https://img.shields.io/badge/Node.js-339933?logo=nodedotjs&logoColor=white&style=for-the-badge" alt="Node.js" />
+  <img src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white&style=for-the-badge" alt="FastAPI" />
+  <img src="https://img.shields.io/badge/Spring%20Boot-6DB33F?logo=springboot&logoColor=black&style=for-the-badge" alt="Spring Boot" />
+  <img src="https://img.shields.io/badge/Spring-6DB33F?logo=spring&logoColor=black&style=for-the-badge" alt="Spring" />
+
+</div>
+
+### Database
+
+<div align="left">
+
+  <img src="https://img.shields.io/badge/MySQL-4479A1?logo=mysql&logoColor=white&style=for-the-badge" alt="MySQL" />
+  <img src="https://img.shields.io/badge/MariaDB-C49A41?logo=mariadb&logoColor=black&style=for-the-badge" alt="MariaDB" />
+
+</div>
+
+### Infra
+
+<div align="left">
+
+  <img src="https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white&style=for-the-badge" alt="Docker" />
+  <img src="https://img.shields.io/badge/Nginx-009639?logo=nginx&logoColor=white&style=for-the-badge" alt="Nginx" />
+  <img src="https://img.shields.io/badge/AWS-232F3E?style=for-the-badge" alt="AWS" />
+
+</div>
+
+### Collaboration
+
+<div align="left">
+
+  <img src="https://img.shields.io/badge/Git-F05032?logo=git&logoColor=white&style=for-the-badge" alt="Git" />
+  <img src="https://img.shields.io/badge/Figma-F24E1E?logo=figma&logoColor=white&style=for-the-badge" alt="Figma" />
+  <img src="https://img.shields.io/badge/GitHub-181717?logo=github&logoColor=white&style=for-the-badge" alt="GitHub" />
+  <img src="https://img.shields.io/badge/Notion-000000?logo=notion&logoColor=white&style=for-the-badge" alt="Notion" />
+
+</div>
+
+### AI / ML
+
+<div align="left">
+
+  <img src="https://img.shields.io/badge/Hugging%20Face-FFD21E?logo=huggingface&logoColor=black&style=for-the-badge" alt="Hugging Face" />
+
+</div>
+
+## 📬 Contact
+
+<div align="center">
+
+  <a href="mailto:dlckdfuf141@gmail.com" title="dlckdfuf141@gmail.com">
+    <img src="https://img.shields.io/badge/GMAIL-0077B5?logo=gmail&logoColor=white&style=flat" alt="GMAIL: dlckdfuf141@gmail.com" />
+  </a>
+  <a href="https://www.instagram.com/ryeolchang/" target="_blank" rel="noopener noreferrer" title="https://www.instagram.com/ryeolchang/">
+    <img src="https://img.shields.io/badge/INSTAGRAM-0077B5?logo=instagram&logoColor=white&style=flat" alt="INSTAGRAM: https://www.instagram.com/ryeolchang/" />
+  </a>
+   <a href="https:/www.instagram.com" target="_blank" rel="noopener noreferrer" title="https:/www.instagram.com">
+    <img src="https://img.shields.io/badge/FACEBOOK-0077B5?logo=facebook&logoColor=white&style=flat" alt="FACEBOOK: https:/www.instagram.com" />
+  </a>
+</div>
+
+## 🧩 Baekjoon Tier
+
+<div align="center">
+
+[![Solved.ac Profile](http://mazassumnida.wtf/api/v2/generate_badge?boj=dlckdfuf141)](https://solved.ac/dlckdfuf141/)
+
+</div>
+
+## 🏅 GitHub Stats
+
+<div align="center">
+
+  <img src="https://github-readme-stats.vercel.app/api?username=fufckddl&show_icons=true&theme=default" alt="fufckddl stats" />
+  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=fufckddl&layout=compact&theme=default" alt="Top Languages" />
+
+</div>
+
+---
+<div align="center">
+  <p>Made with ❤️ using <a href="https://www.gitcard.kr">GitCard</a></p>
+</div>
+
 
 ## 🛠️ 기술 스택
 
