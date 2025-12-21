@@ -3,7 +3,7 @@ import { ProfileConfig, StackBadge, ContactItem } from '../types/profileConfig';
 
 // 두 색상을 기반으로 그라데이션 생성
 const generateGradient = (startColor: string, endColor: string): string => {
-  // GitHub stats와 동일한 135deg 각도 사용
+  // GitHub 통계와 동일한 135deg 각도 사용
   return `linear-gradient(135deg, ${startColor} 0%, ${endColor} 100%)`;
 };
 

@@ -1,9 +1,9 @@
 """
-User router for user-related endpoints.
+사용자 관련 엔드포인트를 위한 사용자 라우터.
 
-Endpoints:
-- GET /api/users/me: Get current user information
-- GET /api/users/me/github-stats: Get GitHub statistics for current user
+엔드포인트:
+- GET /api/users/me: 현재 사용자 정보 가져오기
+- GET /api/users/me/github-stats: 현재 사용자의 GitHub 통계 가져오기
 """
 from fastapi import APIRouter, Depends, HTTPException
 from app.auth.dependencies import get_current_user
@@ -18,12 +18,12 @@ async def get_current_user_info(
     current_user: User = Depends(get_current_user)
 ):
     """
-    Get current authenticated user's information.
+    현재 인증된 사용자의 정보를 가져옵니다.
 
     Returns:
-        User information including GitHub profile data
+        GitHub 프로필 데이터를 포함한 사용자 정보
     """
-    # Convert datetime to ISO format strings for JSON serialization
+    # JSON 직렬화를 위해 datetime을 ISO 형식 문자열로 변환
     return {
         "id": current_user.id,
         "github_id": current_user.github_id,
@@ -42,12 +42,12 @@ async def get_github_stats(
     current_user: User = Depends(get_current_user)
 ):
     """
-    Get GitHub statistics for current authenticated user.
+    현재 인증된 사용자의 GitHub 통계를 가져옵니다.
     
-    Uses OAuth token if available for higher rate limits (5,000/hour vs 60/hour).
+    사용 가능한 경우 더 높은 속도 제한(시간당 5,000 vs 60)을 위해 OAuth 토큰을 사용합니다.
     
     Returns:
-        GitHub statistics including repositories, stars, followers, following, contributions
+        저장소, 스타, 팔로워, 팔로잉, 기여도를 포함한 GitHub 통계
     """
     if not current_user.github_login:
         raise HTTPException(
@@ -55,7 +55,7 @@ async def get_github_stats(
             detail="GitHub username not found"
         )
     
-    # Use stored access token if available (increases rate limit from 60 to 5,000/hour)
+    # 사용 가능한 경우 저장된 액세스 토큰 사용 (속도 제한을 시간당 60에서 5,000으로 증가)
     stats = await github_stats.fetch_github_stats(
         current_user.github_login,
         access_token=current_user.github_access_token

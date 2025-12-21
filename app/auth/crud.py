@@ -1,7 +1,7 @@
 """
-CRUD operations for User model.
+User 모델에 대한 CRUD 작업.
 
-Replaces the in-memory store functions with database operations.
+인메모리 저장소 함수를 데이터베이스 작업으로 대체합니다.
 """
 from sqlalchemy.orm import Session
 from sqlalchemy import select
@@ -11,14 +11,14 @@ from app.auth.db_models import User
 
 
 def get_user_by_github_id(db: Session, github_id: int) -> Optional[User]:
-    """Get user by GitHub ID."""
+    """GitHub ID로 사용자를 가져옵니다."""
     stmt = select(User).where(User.github_id == github_id)
     result = db.execute(stmt)
     return result.scalar_one_or_none()
 
 
 def get_user_by_id(db: Session, user_id: int) -> Optional[User]:
-    """Get user by internal user ID."""
+    """내부 사용자 ID로 사용자를 가져옵니다."""
     stmt = select(User).where(User.id == user_id)
     result = db.execute(stmt)
     return result.scalar_one_or_none()
@@ -35,12 +35,12 @@ def create_or_update_user(
     github_access_token: Optional[str] = None,
 ) -> User:
     """
-    Create a new user or update existing user's last_login_at.
+    새 사용자를 생성하거나 기존 사용자의 last_login_at을 업데이트합니다.
     """
     user = get_user_by_github_id(db, github_id)
     
     if user:
-        # Update existing user
+        # 기존 사용자 업데이트
         user.last_login_at = datetime.utcnow()
         if name:
             user.name = name
@@ -53,7 +53,7 @@ def create_or_update_user(
         if github_access_token:
             user.github_access_token = github_access_token
     else:
-        # Create new user
+        # 새 사용자 생성
         user = User(
             github_id=github_id,
             github_login=github_login,

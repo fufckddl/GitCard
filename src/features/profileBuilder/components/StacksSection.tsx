@@ -3,26 +3,26 @@ import { ProfileConfig } from '../types/profileConfig';
 import { getStackMeta, type StackCategory } from '../../../shared/stackMeta';
 import styles from './StacksSection.module.css';
 
-// Determine if a hex color is light or dark
+// hex 색상이 밝은지 어두운지 판단
 const isLightColor = (hexColor: string): boolean => {
-  // Remove # if present
+  // # 제거 (있는 경우)
   const hex = hexColor.replace('#', '');
   
-  // Convert 3-digit hex to 6-digit
+  // 3자리 hex를 6자리로 변환
   const fullHex = hex.length === 3 
     ? hex.split('').map(c => c + c).join('')
     : hex;
   
-  // Convert to RGB
+  // RGB로 변환
   const r = parseInt(fullHex.substring(0, 2), 16);
   const g = parseInt(fullHex.substring(2, 4), 16);
   const b = parseInt(fullHex.substring(4, 6), 16);
   
-  // Calculate relative luminance
-  // Using the formula: 0.299*R + 0.587*G + 0.114*B
+  // 상대 휘도 계산
+  // 공식 사용: 0.299*R + 0.587*G + 0.114*B
   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
   
-  // If luminance is greater than 0.5, it's a light color
+  // 휘도가 0.5보다 크면 밝은 색상
   return luminance > 0.5;
 };
 
@@ -30,13 +30,13 @@ interface StacksSectionProps {
   config: ProfileConfig;
 }
 
-// Category order matching stackMeta.ts
+// stackMeta.ts와 일치하는 카테고리 순서
 const categoryOrder: StackCategory[] = [
   "language", "frontend", "mobile", "backend", "database",
   "infra", "collaboration", "ai-ml", "testing", "tool"
 ];
 
-// Category labels in Korean
+// 한국어 카테고리 라벨
 const categoryLabelsKo: Record<StackCategory, string> = {
   "language": "언어",
   "frontend": "프론트엔드",
@@ -50,7 +50,7 @@ const categoryLabelsKo: Record<StackCategory, string> = {
   "tool": "도구",
 };
 
-// Category labels in English (for Tech Stacks section)
+// 영어 카테고리 라벨 (Tech Stacks 섹션용)
 const categoryLabelsEn: Record<StackCategory, string> = {
   "language": "Language",
   "frontend": "Frontend",
@@ -69,7 +69,7 @@ export const StacksSection: React.FC<StacksSectionProps> = ({ config }) => {
     return null;
   }
 
-  // Organize stacks by category
+  // 카테고리별로 스택 정리
   const stacksByCategory = config.stacks.reduce((acc, stack) => {
     const category = stack.category as StackCategory;
     if (!acc[category]) {
@@ -79,14 +79,14 @@ export const StacksSection: React.FC<StacksSectionProps> = ({ config }) => {
     return acc;
   }, {} as Record<StackCategory, typeof config.stacks>);
 
-  // Choose labels by language setting
+  // 언어 설정에 따라 라벨 선택
   const labels = config.stackLabelLang === 'ko' ? categoryLabelsKo : categoryLabelsEn;
 
   return (
     <div className={styles.section}>
       <h2 className={styles.sectionTitle}>Stacks</h2>
       <div className={styles.content}>
-        {/* Render categories in order matching stackMeta.ts */}
+        {/* stackMeta.ts와 일치하는 순서로 카테고리 렌더링 */}
         {categoryOrder.map((category) => {
           const stacks = stacksByCategory[category];
           if (!stacks || stacks.length === 0) {
@@ -107,13 +107,13 @@ export const StacksSection: React.FC<StacksSectionProps> = ({ config }) => {
               <h3 className={styles.categoryTitle}>{categoryLabel}</h3>
               <div className={styles.badges} style={alignmentStyle}>
                 {stacks.map((stack) => {
-                  // Use stackMeta if key exists, otherwise use stack's own values
+                  // 키가 있으면 stackMeta 사용, 그렇지 않으면 스택의 자체 값 사용
                   const meta = stack.key ? getStackMeta(stack.key) : null;
                   const displayLabel = stack.label || meta?.label || stack.key || 'Unknown';
                   const displayColor = stack.color || meta?.color || '#667eea';
                   const iconSlug = meta?.icon;
                   
-                  // Determine icon color based on background color brightness
+                  // 배경색 밝기에 따라 아이콘 색상 결정
                   const isLight = isLightColor(displayColor);
                   const iconColor = isLight ? 'black' : 'white';
                   const textColor = isLight ? 'black' : 'white';
