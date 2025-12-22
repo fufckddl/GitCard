@@ -110,8 +110,11 @@ export const ProfileCardListPage: React.FC = () => {
     }
   };
 
-  const handleEdit = (cardId: number, e: React.MouseEvent) => {
-    e.stopPropagation(); // 카드 클릭 이벤트 방지
+  const handleEdit = (cardId: number, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation(); // 카드 클릭 이벤트 방지
+      e.preventDefault(); // 기본 동작 방지
+    }
     navigate(`/dashboard/cards/${cardId}`);
   };
 
@@ -187,7 +190,8 @@ export const ProfileCardListPage: React.FC = () => {
                     <Button
                       onClick={(e) => {
                         e?.stopPropagation();
-                        handleEdit(card.id, e!);
+                        e?.preventDefault();
+                        handleEdit(card.id, e);
                       }}
                       variant="secondary"
                       type="button"
