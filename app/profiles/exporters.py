@@ -1763,6 +1763,39 @@ def generate_readme_template(
         readme += f'[![Solved.ac Profile](http://mazassumnida.wtf/api/v2/generate_badge?boj={handle})](https://solved.ac/{handle}/)\n\n'
         readme += "</div>\n\n"
 
+    # 레포지토리 섹션
+    repositories = getattr(card, "repositories", [])
+    if repositories and len(repositories) > 0:
+        readme += "## 📂 Repositories\n\n"
+        readme += '<div align="left">\n\n'
+        
+        for repo in repositories:
+            repo_name = repo.get("name", "")
+            repo_description = repo.get("description", "") if repo.get("description") else ""
+            repo_url = repo.get("html_url", "")
+            repo_language = repo.get("language", "") if repo.get("language") else ""
+            stargazers_count = repo.get("stargazers_count", 0)
+            forks_count = repo.get("forks_count", 0)
+            
+            # 레포지토리 링크와 설명
+            readme += f'### [{repo_name}]({repo_url})\n\n'
+            if repo_description:
+                readme += f'{repo_description}\n\n'
+            
+            # 레포지토리 메타 정보 (언어, 스타, 포크)
+            meta_parts = []
+            if repo_language:
+                meta_parts.append(f'`{repo_language}`')
+            if stargazers_count > 0:
+                meta_parts.append(f'⭐ {stargazers_count}')
+            if forks_count > 0:
+                meta_parts.append(f'🍴 {forks_count}')
+            
+            if meta_parts:
+                readme += ' '.join(meta_parts) + '\n\n'
+        
+        readme += "</div>\n\n"
+
     # GitHub 통계 섹션
     if card.show_github_stats:
         readme += "## 🏅 GitHub Stats\n\n"
