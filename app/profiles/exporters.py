@@ -829,10 +829,6 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px;">
       <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: {gradient}; border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
         <div style="font-size: 36px; font-weight: 700; margin-bottom: 8px;">-</div>
-        <div style="font-size: 14px; font-weight: 500; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px;">Contributions</div>
-      </div>
-      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: {gradient}; border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
-        <div style="font-size: 36px; font-weight: 700; margin-bottom: 8px;">-</div>
         <div style="font-size: 14px; font-weight: 500; opacity: 0.9; text-transform: uppercase; letter-spacing: 0.5px;">Repositories</div>
       </div>
       <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; background: {gradient}; border-radius: 12px; color: white; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);">
@@ -1081,7 +1077,7 @@ def generate_svg(
     stats_height = 0
     if card.show_github_stats:
         stats_height += 28 + 24  # "Github-stats" 헤더
-        # 5개 박스: 3개 상단, 2개 하단
+        # 4개 박스: 2x2 그리드
         stats_height += 2 * 100 + 20  # 박스 높이 100px, 간격 20px
         stats_height += section_padding * 2
     
@@ -1243,15 +1239,13 @@ def generate_svg(
             stars = stats.get("stars") or 0
             followers = stats.get("followers") or 0
             following = stats.get("following") or 0
-            contributions = stats.get("contributions") or 0
             
-            # 5개 박스: 3개 상단, 2개 하단
-            box_w = (width - 80 - 40) // 3  # 3열
+            # 4개 박스: 2x2 그리드
+            box_w = (width - 80 - 20) // 2  # 2열
             box_h = 100
             box_gap = 20
             
             stats_data = [
-                ("CONTRIBUTIONS", contributions),
                 ("REPOSITORIES", repos),
                 ("STARS", stars),
                 ("FOLLOWERS", followers),
@@ -1259,14 +1253,10 @@ def generate_svg(
             ]
             
             for i, (label, value) in enumerate(stats_data):
-                if i < 3:
-                    # 상단 행
-                    x = 40 + i * (box_w + box_gap)
-                    y = stats_start_y
-                else:
-                    # 하단 행 (중앙 정렬)
-                    x = 40 + (i - 3) * (box_w + box_gap) + (box_w + box_gap) // 2
-                    y = stats_start_y + box_h + box_gap
+                row = i // 2
+                col = i % 2
+                x = 40 + col * (box_w + box_gap)
+                y = stats_start_y + row * (box_h + box_gap)
                 
                 svg += f"""  <!-- Stat Box: {label} -->
   <g>
