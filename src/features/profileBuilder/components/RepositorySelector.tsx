@@ -28,8 +28,10 @@ export const RepositorySelector: React.FC<RepositorySelectorProps> = ({
   onClose,
 }) => {
   const [repositories, setRepositories] = useState<GitHubRepository[]>([]);
+  const [filteredRepositories, setFilteredRepositories] = useState<GitHubRepository[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [selected, setSelected] = useState<Set<string>>(
     new Set(selectedRepositories.map((repo) => repo.name))
   );
@@ -39,8 +41,9 @@ export const RepositorySelector: React.FC<RepositorySelectorProps> = ({
       try {
         setIsLoading(true);
         setError(null);
-        const data = await fetchRepositories(8);
+        const data = await fetchRepositories();
         setRepositories(data.repositories);
+        setFilteredRepositories(data.repositories);
       } catch (err) {
         setError(err instanceof Error ? err.message : '레포지토리를 불러오는데 실패했습니다.');
       } finally {
@@ -50,6 +53,22 @@ export const RepositorySelector: React.FC<RepositorySelectorProps> = ({
 
     loadRepositories();
   }, []);
+
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredRepositories(repositories);
+      return;
+    }
+
+    const query = searchQuery.toLowerCase();
+    const filtered = repositories.filter(
+      (repo) =>
+        repo.name.toLowerCase().includes(query) ||
+        (repo.description && repo.description.toLowerCase().includes(query)) ||
+        (repo.language && repo.language.toLowerCase().includes(query))
+    );
+    setFilteredRepositories(filtered);
+  }, [searchQuery, repositories]);
 
   const handleToggle = (repo: GitHubRepository) => {
     const newSelected = new Set(selected);
@@ -112,8 +131,22 @@ export const RepositorySelector: React.FC<RepositorySelectorProps> = ({
             ×
           </button>
         </div>
+        <div className={styles.searchContainer}>
+          <input
+            type="text"
+            className={styles.searchInput}
+            placeholder="레포지토리 이름, 설명, 언어로 검색..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
         <div className={styles.content}>
-          {repositories.map((repo) => (
+          {filteredRepositories.length === 0 ? (
+            <div className={styles.emptyState}>
+              {searchQuery ? '검색 결과가 없습니다.' : '레포지토리가 없습니다.'}
+            </div>
+          ) : (
+            filteredRepositories.map((repo) => (
             <div
               key={repo.name}
               className={`${styles.repoItem} ${selected.has(repo.name) ? styles.selected : ''}`}
@@ -139,7 +172,8 @@ export const RepositorySelector: React.FC<RepositorySelectorProps> = ({
                 </div>
               </div>
             </div>
-          ))}
+            ))
+          )}
         </div>
         <div className={styles.footer}>
           <div className={styles.selectedCount}>
