@@ -97,16 +97,15 @@ async def fetch_github_stats(
 
 async def fetch_github_repositories(
     github_login: str,
-    access_token: Optional[str] = None,
-    limit: int = 8
+    access_token: Optional[str] = None
 ) -> list[Dict[str, any]]:
     """
-    사용자의 GitHub 레포지토리 목록을 가져옵니다.
+    사용자의 모든 GitHub 레포지토리 목록을 가져옵니다.
+    페이지네이션을 통해 모든 레포지토리를 가져옵니다.
     
     Args:
         github_login: GitHub 사용자명
         access_token: 더 높은 속도 제한을 위한 선택적 GitHub OAuth 액세스 토큰
-        limit: 가져올 최대 레포지토리 수 (기본값: 8)
         
     Returns:
         레포지토리 정보 리스트: 각 레포지토리는 name, description, html_url 등을 포함
@@ -122,35 +121,47 @@ async def fetch_github_repositories(
     
     try:
         async with httpx.AsyncClient() as client:
-            # 최신순으로 정렬하여 레포지토리 가져오기
-            repos_response = await client.get(
-                f"https://api.github.com/users/{github_login}/repos",
-                headers=headers,
-                params={
-                    "per_page": limit,
-                    "page": 1,
-                    "sort": "updated",
-                    "direction": "desc",
-                },
-                timeout=10.0,
-            )
+            # 페이지네이션을 통해 모든 레포지토리 가져오기
+            page = 1
+            per_page = 100  # GitHub API 최대값
             
-            if repos_response.status_code != 200:
-                return []
-            
-            repos = repos_response.json()
-            
-            # 필요한 정보만 추출
-            for repo in repos[:limit]:
-                repositories.append({
-                    "name": repo.get("name", ""),
-                    "description": repo.get("description") or "",
-                    "html_url": repo.get("html_url", ""),
-                    "language": repo.get("language"),
-                    "stargazers_count": repo.get("stargazers_count", 0),
-                    "forks_count": repo.get("forks_count", 0),
-                    "updated_at": repo.get("updated_at"),
-                })
+            while True:
+                repos_response = await client.get(
+                    f"https://api.github.com/users/{github_login}/repos",
+                    headers=headers,
+                    params={
+                        "per_page": per_page,
+                        "page": page,
+                        "sort": "updated",
+                        "direction": "desc",
+                    },
+                    timeout=10.0,
+                )
+                
+                if repos_response.status_code != 200:
+                    break
+                
+                repos = repos_response.json()
+                if not repos:  # 더 이상 레포지토리 없음
+                    break
+                
+                # 필요한 정보만 추출
+                for repo in repos:
+                    repositories.append({
+                        "name": repo.get("name", ""),
+                        "description": repo.get("description") or "",
+                        "html_url": repo.get("html_url", ""),
+                        "language": repo.get("language"),
+                        "stargazers_count": repo.get("stargazers_count", 0),
+                        "forks_count": repo.get("forks_count", 0),
+                        "updated_at": repo.get("updated_at"),
+                    })
+                
+                # 더 많은 페이지가 있는지 확인
+                if len(repos) < per_page:
+                    break
+                
+                page += 1
             
             return repositories
     except Exception as e:

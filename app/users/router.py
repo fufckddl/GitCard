@@ -72,14 +72,11 @@ async def get_github_stats(
 
 @router.get("/me/repositories")
 async def get_github_repositories(
-    current_user: User = Depends(get_current_user),
-    limit: int = 8
+    current_user: User = Depends(get_current_user)
 ):
     """
-    현재 인증된 사용자의 GitHub 레포지토리 목록을 가져옵니다.
-    
-    Args:
-        limit: 가져올 최대 레포지토리 수 (기본값: 8, 최대: 100)
+    현재 인증된 사용자의 모든 GitHub 레포지토리 목록을 가져옵니다.
+    페이지네이션을 통해 모든 레포지토리를 반환합니다.
     
     Returns:
         레포지토리 정보 리스트: 각 레포지토리는 name, description, html_url 등을 포함
@@ -90,17 +87,10 @@ async def get_github_repositories(
             detail="GitHub username not found"
         )
     
-    # limit 최대값 제한
-    if limit > 100:
-        limit = 100
-    if limit < 1:
-        limit = 8
-    
     # 사용 가능한 경우 저장된 액세스 토큰 사용
     repositories = await github_stats.fetch_github_repositories(
         current_user.github_login,
-        access_token=current_user.github_access_token,
-        limit=limit
+        access_token=current_user.github_access_token
     )
     
     return {

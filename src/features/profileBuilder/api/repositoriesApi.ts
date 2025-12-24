@@ -17,13 +17,13 @@ export interface RepositoriesResponse {
   count: number;
 }
 
-export const fetchRepositories = async (limit: number = 8): Promise<RepositoriesResponse> => {
+export const fetchRepositories = async (): Promise<RepositoriesResponse> => {
   const token = getToken();
   if (!token) {
     throw new Error('인증이 필요합니다.');
   }
 
-  const response = await fetch(`${API_BASE_URL}/users/me/repositories?limit=${limit}`, {
+  const response = await fetch(`${API_BASE_URL}/users/me/repositories`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${token}`,
