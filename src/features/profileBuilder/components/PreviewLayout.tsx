@@ -5,6 +5,7 @@ import { StacksSection } from './StacksSection';
 import { ContactSection } from './ContactSection';
 import { GithubStatsSection } from './GithubStatsSection';
 import { BaekjoonSection } from './BaekjoonSection';
+import { RepositoriesSection } from './RepositoriesSection';
 import styles from './PreviewLayout.module.css';
 
 interface PreviewLayoutProps {
@@ -21,6 +22,9 @@ export const PreviewLayout: React.FC<PreviewLayoutProps> = ({ config }) => {
         <BaekjoonSection config={config} />
       )}
       {config.showGithubStats && <GithubStatsSection config={config} />}
+      {config.repositories && config.repositories.length > 0 && (
+        <RepositoriesSection config={config} />
+      )}
     </div>
   );
 };

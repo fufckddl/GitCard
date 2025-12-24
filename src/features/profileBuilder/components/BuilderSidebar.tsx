@@ -4,6 +4,7 @@ import { StackBadgeEditor } from './StackBadgeEditor';
 import { ContactEditor } from './ContactEditor';
 import { StackSelector } from './StackSelector';
 import { ContactSelector } from './ContactSelector';
+import { RepositorySelector } from './RepositorySelector';
 import { ContactMeta } from '../../../shared/contactMeta';
 import styles from './BuilderSidebar.module.css';
 
@@ -26,6 +27,7 @@ export const BuilderSidebar: React.FC<BuilderSidebarProps> = ({ profileConfig })
   const [activeTab, setActiveTab] = useState<'general' | 'stacks' | 'contacts'>('general');
   const [showStackSelector, setShowStackSelector] = useState(false);
   const [showContactSelector, setShowContactSelector] = useState(false);
+  const [showRepositorySelector, setShowRepositorySelector] = useState(false);
 
   const handleAddStack = () => {
     setShowStackSelector(true);
@@ -226,6 +228,25 @@ export const BuilderSidebar: React.FC<BuilderSidebarProps> = ({ profileConfig })
                 />
               </div>
             )}
+            <div className={styles.formGroup}>
+              <label>레포지토리</label>
+              <button
+                type="button"
+                className={styles.selectButton}
+                onClick={() => setShowRepositorySelector(true)}
+              >
+                레포지토리 선택 ({config.repositories.length}개 선택됨)
+              </button>
+              {config.repositories.length > 0 && (
+                <div className={styles.repoList}>
+                  {config.repositories.map((repo, index) => (
+                    <div key={index} className={styles.repoTag}>
+                      {repo.name}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -293,6 +314,13 @@ export const BuilderSidebar: React.FC<BuilderSidebarProps> = ({ profileConfig })
           </div>
         )}
       </div>
+      {showRepositorySelector && (
+        <RepositorySelector
+          selectedRepositories={config.repositories}
+          onSelect={(repositories) => updateConfig({ repositories })}
+          onClose={() => setShowRepositorySelector(false)}
+        />
+      )}
     </div>
   );
 };

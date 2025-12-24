@@ -28,6 +28,7 @@ def create_profile_card(
     stacks: List[Dict],
     contacts: List[Dict],
     stack_alignment: str = "center",
+    repositories: Optional[List[Dict]] = None,
 ) -> ProfileCard:
     """새 프로필 카드를 생성합니다."""
     print(f"[CREATE_CARD] stack_alignment={stack_alignment}")  # 디버그 로그
@@ -48,6 +49,7 @@ def create_profile_card(
         stack_alignment=stack_alignment,
         stacks=stacks,
         contacts=contacts,
+        repositories=repositories or [],
     )
     db.add(card)
     db.commit()
@@ -92,6 +94,7 @@ def update_profile_card(
     stack_alignment: Optional[str] = None,
     stacks: Optional[List[Dict]] = None,
     contacts: Optional[List[Dict]] = None,
+    repositories: Optional[List[Dict]] = None,
 ) -> Optional[ProfileCard]:
     """프로필 카드를 업데이트합니다."""
     card = get_profile_card_by_id(db, card_id, user_id)
@@ -129,6 +132,8 @@ def update_profile_card(
         card.stacks = stacks
     if contacts is not None:
         card.contacts = contacts
+    if repositories is not None:
+        card.repositories = repositories
     
     card.updated_at = datetime.utcnow()
     db.commit()
