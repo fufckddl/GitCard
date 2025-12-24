@@ -116,6 +116,7 @@ export const PublicProfileCardPage: React.FC = () => {
       stackAlignment: card.stack_alignment || 'center',
       stacks: convertStacks(card.stacks),
       contacts: card.contacts,
+      repositories: (card as any).repositories || [],
     };
   };
 
