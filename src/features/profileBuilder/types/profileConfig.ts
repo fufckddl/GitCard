@@ -32,4 +32,12 @@ export type ProfileConfig = {
   stackAlignment: 'left' | 'center' | 'right';  // 스택 배지 정렬
   stacks: StackBadge[];
   contacts: ContactItem[];
+  repositories: Array<{
+    name: string;
+    description: string;
+    html_url: string;
+    language?: string;
+    stargazers_count: number;
+    forks_count: number;
+  }>;  // 선택된 레포지토리 목록
 };

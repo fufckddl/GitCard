@@ -34,6 +34,7 @@ const DEFAULT_CONFIG: ProfileConfig = {
     { id: '1', label: 'Gmail', value: 'example@gmail.com' },
     { id: '2', label: 'Velog', value: 'https://velog.io/@username' },
   ],
+  repositories: [],
 };
 
 export const useProfileConfig = () => {

@@ -95,6 +95,69 @@ async def fetch_github_stats(
             return None
 
 
+async def fetch_github_repositories(
+    github_login: str,
+    access_token: Optional[str] = None,
+    limit: int = 8
+) -> list[Dict[str, any]]:
+    """
+    사용자의 GitHub 레포지토리 목록을 가져옵니다.
+    
+    Args:
+        github_login: GitHub 사용자명
+        access_token: 더 높은 속도 제한을 위한 선택적 GitHub OAuth 액세스 토큰
+        limit: 가져올 최대 레포지토리 수 (기본값: 8)
+        
+    Returns:
+        레포지토리 정보 리스트: 각 레포지토리는 name, description, html_url 등을 포함
+    """
+    headers = {
+        "Accept": "application/vnd.github.v3+json",
+    }
+    
+    if access_token:
+        headers["Authorization"] = f"Bearer {access_token}"
+    
+    repositories = []
+    
+    try:
+        async with httpx.AsyncClient() as client:
+            # 최신순으로 정렬하여 레포지토리 가져오기
+            repos_response = await client.get(
+                f"https://api.github.com/users/{github_login}/repos",
+                headers=headers,
+                params={
+                    "per_page": limit,
+                    "page": 1,
+                    "sort": "updated",
+                    "direction": "desc",
+                },
+                timeout=10.0,
+            )
+            
+            if repos_response.status_code != 200:
+                return []
+            
+            repos = repos_response.json()
+            
+            # 필요한 정보만 추출
+            for repo in repos[:limit]:
+                repositories.append({
+                    "name": repo.get("name", ""),
+                    "description": repo.get("description") or "",
+                    "html_url": repo.get("html_url", ""),
+                    "language": repo.get("language"),
+                    "stargazers_count": repo.get("stargazers_count", 0),
+                    "forks_count": repo.get("forks_count", 0),
+                    "updated_at": repo.get("updated_at"),
+                })
+            
+            return repositories
+    except Exception as e:
+        print(f"Error fetching GitHub repositories: {e}")
+        return []
+
+
 async def _fetch_contributions_graphql(access_token: str, username: str) -> Optional[int]:
     """
     GitHub GraphQL API를 사용하여 기여도 수를 가져옵니다.

@@ -1,0 +1,80 @@
+.section {
+  padding: 32px 40px;
+  background: white;
+}
+
+.sectionTitle {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 24px 0;
+  color: #333;
+}
+
+.repositoriesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.repoCard {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s;
+}
+
+.repoCard:hover {
+  border-color: #667eea;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+  transform: translateY(-2px);
+}
+
+.repoHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.repoName {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  color: #667eea;
+}
+
+.language {
+  font-size: 12px;
+  padding: 4px 8px;
+  background: #e5e7eb;
+  border-radius: 12px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.repoDescription {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+  flex: 1;
+}
+
+.repoStats {
+  display: flex;
+  gap: 16px;
+  font-size: 14px;
+  color: #9ca3af;
+  margin-top: auto;
+}
+
+.stat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}

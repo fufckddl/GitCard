@@ -32,6 +32,7 @@ class ProfileCard(Base):
     stack_alignment = Column(String(10), nullable=False, default="center")  # "left", "center", "right"
     stacks = Column(JSON, nullable=False, default=list)
     contacts = Column(JSON, nullable=False, default=list)
+    repositories = Column(JSON, nullable=False, default=list)  # 선택된 레포지토리 목록
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
     

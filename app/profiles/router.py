@@ -41,6 +41,7 @@ class ProfileCardCreate(BaseModel):
     stack_alignment: str = "center"  # "left", "center", "right"
     stacks: List[Dict]
     contacts: List[Dict]
+    repositories: Optional[List[Dict]] = None  # 선택된 레포지토리 목록
 
 
 class ProfileCardUpdate(BaseModel):
@@ -59,6 +60,7 @@ class ProfileCardUpdate(BaseModel):
     stack_label_lang: Optional[str] = None  # 'ko' or 'en'
     stacks: Optional[List[Dict]] = None
     contacts: Optional[List[Dict]] = None
+    repositories: Optional[List[Dict]] = None  # 선택된 레포지토리 목록
 
 
 @router.post("")
@@ -86,6 +88,7 @@ async def create_profile_card(
         stacks=card_data.stacks,
         contacts=card_data.contacts,
         stack_alignment=card_data.stack_alignment,
+        repositories=card_data.repositories or [],
     )
     
     return {
@@ -106,6 +109,7 @@ async def create_profile_card(
         "stack_alignment": card.stack_alignment,
         "stacks": card.stacks,
         "contacts": card.contacts,
+        "repositories": getattr(card, "repositories", []),
         "created_at": card.created_at.isoformat() if card.created_at else None,
         "updated_at": card.updated_at.isoformat() if card.updated_at else None,
     }
@@ -138,6 +142,7 @@ async def get_profile_cards(
             "stack_alignment": card.stack_alignment,
             "stacks": card.stacks,
             "contacts": card.contacts,
+            "repositories": getattr(card, "repositories", []),
             "created_at": card.created_at.isoformat() if card.created_at else None,
             "updated_at": card.updated_at.isoformat() if card.updated_at else None,
         }
@@ -172,8 +177,10 @@ async def get_profile_card(
         "show_baekjoon": getattr(card, "show_baekjoon", False),
         "baekjoon_id": getattr(card, "baekjoon_id", None),
         "stack_label_lang": getattr(card, "stack_label_lang", "en"),
+        "stack_alignment": getattr(card, "stack_alignment", "center"),
         "stacks": card.stacks,
         "contacts": card.contacts,
+        "repositories": getattr(card, "repositories", []),
         "created_at": card.created_at.isoformat() if card.created_at else None,
         "updated_at": card.updated_at.isoformat() if card.updated_at else None,
     }
@@ -206,6 +213,7 @@ async def update_profile_card(
         stack_alignment=card_data.stack_alignment,
         stacks=card_data.stacks,
         contacts=card_data.contacts,
+        repositories=card_data.repositories,
     )
     
     if not card:
@@ -285,6 +293,7 @@ async def get_public_profile_card(
         "stack_alignment": card.stack_alignment,
         "stacks": card.stacks,
         "contacts": card.contacts,
+        "repositories": getattr(card, "repositories", []),
         "created_at": card.created_at.isoformat() if card.created_at else None,
         "updated_at": card.updated_at.isoformat() if card.updated_at else None,
     }
