@@ -1511,6 +1511,90 @@ def generate_svg_contact(card: ProfileCard) -> str:
     return svg
 
 
+def generate_svg_repository_banner(repo: Dict) -> str:
+    """
+    레포지토리 정보를 카드 형태의 SVG 배너로 생성합니다.
+    이미지 설명에 맞는 레이아웃: 레포지토리 이름, 언어 배지, 설명, Stars/Forks 통계
+    
+    Args:
+        repo: 레포지토리 정보 딕셔너리
+            - name: 레포지토리 이름
+            - description: 설명 (선택)
+            - html_url: GitHub URL
+            - language: 주요 언어 (선택)
+            - stargazers_count: 스타 수
+            - forks_count: 포크 수
+    
+    Returns:
+        레포지토리 카드 SVG 문자열
+    """
+    repo_name = html_escape.escape(repo.get("name", ""))
+    repo_description = html_escape.escape(repo.get("description", "")) if repo.get("description") else ""
+    repo_language = html_escape.escape(repo.get("language", "")) if repo.get("language") else ""
+    stargazers_count = repo.get("stargazers_count", 0)
+    forks_count = repo.get("forks_count", 0)
+    
+    # 카드 크기
+    card_width = 800
+    card_height = 140
+    card_padding = 24
+    
+    # SVG 빌드
+    svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="{card_width}" height="{card_height}" viewBox="0 0 {card_width} {card_height}">
+  <defs>
+    <filter id="repoShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+      <feOffset dx="0" dy="2" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.05"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- 카드 배경 -->
+  <rect x="0" y="0" width="{card_width}" height="{card_height}" rx="12" ry="12" fill="#ffffff" stroke="#e0e7ff" stroke-width="1" filter="url(#repoShadow)"/>
+  
+  <!-- 레포지토리 이름 (좌측 상단) -->
+  <text x="{card_padding}" y="40" fill="#667eea" font-size="18" font-weight="600" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
+    {repo_name}
+  </text>'''
+    
+    # 언어 배지 (우측 상단)
+    if repo_language:
+        # 언어 배지 크기 계산
+        language_x = card_width - card_padding - 80  # 대략적인 배지 너비
+        svg += f'''  <!-- 언어 배지 -->
+  <rect x="{language_x}" y="20" width="80" height="24" rx="12" ry="12" fill="#f3f4f6"/>
+  <text x="{language_x + 40}" y="37" text-anchor="middle" fill="#374151" font-size="12" font-weight="500" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
+    {repo_language}
+  </text>'''
+    
+    # 설명 텍스트 (중앙)
+    if repo_description:
+        # 긴 설명은 자르기 (최대 2줄)
+        max_desc_length = 80
+        if len(repo_description) > max_desc_length:
+            repo_description = repo_description[:max_desc_length] + "..."
+        svg += f'''  <!-- 설명 텍스트 -->
+  <text x="{card_padding}" y="75" fill="#4b5563" font-size="14" font-weight="400" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
+    {repo_description}
+  </text>'''
+    
+    # 통계 정보 (하단)
+    stats_y = card_height - 20
+    svg += f'''  <!-- 통계 정보 -->
+  <text x="{card_padding}" y="{stats_y}" fill="#4b5563" font-size="14" font-weight="400" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif">
+    ⭐ {stargazers_count}  🍴 {forks_count}
+  </text>
+</svg>'''
+    
+    return svg
+
+
 def generate_readme_template(
     card: ProfileCard,
     github_login: str,
@@ -1763,36 +1847,24 @@ def generate_readme_template(
         readme += f'[![Solved.ac Profile](http://mazassumnida.wtf/api/v2/generate_badge?boj={handle})](https://solved.ac/{handle}/)\n\n'
         readme += "</div>\n\n"
 
-    # 레포지토리 섹션
+    # 레포지토리 섹션 - 배너 이미지로 표시
     repositories = getattr(card, "repositories", [])
     if repositories and len(repositories) > 0:
         readme += "## 📂 Repositories\n\n"
         readme += '<div align="left">\n\n'
         
-        for repo in repositories:
-            repo_name = repo.get("name", "")
-            repo_description = repo.get("description", "") if repo.get("description") else ""
-            repo_url = repo.get("html_url", "")
-            repo_language = repo.get("language", "") if repo.get("language") else ""
-            stargazers_count = repo.get("stargazers_count", 0)
-            forks_count = repo.get("forks_count", 0)
+        for index, repo in enumerate(repositories):
+            repo_url = html_escape.escape(repo.get("html_url", ""))
+            repo_name = html_escape.escape(repo.get("name", ""))
             
-            # 레포지토리 링크와 설명
-            readme += f'### [{repo_name}]({repo_url})\n\n'
-            if repo_description:
-                readme += f'{repo_description}\n\n'
+            # 레포지토리 배너 이미지 URL 생성
+            banner_url = f"{settings.api_base_url}/api/profiles/public/{github_login}/cards/{card.id}/repositories/{index}/banner"
+            banner_url = _remove_port_from_url(banner_url)
             
-            # 레포지토리 메타 정보 (언어, 스타, 포크)
-            meta_parts = []
-            if repo_language:
-                meta_parts.append(f'`{repo_language}`')
-            if stargazers_count > 0:
-                meta_parts.append(f'⭐ {stargazers_count}')
-            if forks_count > 0:
-                meta_parts.append(f'🍴 {forks_count}')
-            
-            if meta_parts:
-                readme += ' '.join(meta_parts) + '\n\n'
+            # 이미지 링크로 표시
+            readme += f'<a href="{repo_url}" target="_blank" rel="noopener noreferrer">\n'
+            readme += f'  <img src="{banner_url}" alt="{repo_name}" />\n'
+            readme += f'</a>\n\n'
         
         readme += "</div>\n\n"
 

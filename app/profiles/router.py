@@ -237,6 +237,7 @@ async def update_profile_card(
         "stack_alignment": card.stack_alignment,
         "stacks": card.stacks,
         "contacts": card.contacts,
+        "repositories": getattr(card, "repositories", []),
         "created_at": card.created_at.isoformat() if card.created_at else None,
         "updated_at": card.updated_at.isoformat() if card.updated_at else None,
     }
@@ -616,6 +617,55 @@ async def get_profile_card_banner_debug(
         "extracted_primary": primary,
         "extracted_secondary": secondary,
     }
+
+
+@router.get("/public/{github_login}/cards/{card_id}/repositories/{repo_index}/banner")
+async def get_repository_banner(
+    github_login: str,
+    card_id: int,
+    repo_index: int,
+    db: Session = Depends(get_db),
+):
+    """
+    레포지토리 정보를 SVG 배너 이미지로 반환합니다.
+    - GitHub README에서 이미지로 참조 가능
+    - 카드 형태의 레이아웃: 레포지토리 이름, 언어 배지, 설명, Stars/Forks 통계
+    - 인증 불필요 (공개 엔드포인트)
+    
+    Args:
+        github_login: GitHub 사용자명
+        card_id: 프로필 카드 ID
+        repo_index: 레포지토리 인덱스 (0부터 시작)
+    
+    Returns:
+        SVG 형식의 레포지토리 배너
+    """
+    card = profile_crud.get_public_profile_card_by_github_login_and_card_id(
+        db, github_login, card_id
+    )
+    
+    if not card:
+        raise HTTPException(status_code=404, detail="Profile card not found")
+    
+    repositories = getattr(card, "repositories", [])
+    
+    if not repositories or len(repositories) == 0:
+        raise HTTPException(status_code=404, detail="No repositories found for this card")
+    
+    if repo_index < 0 or repo_index >= len(repositories):
+        raise HTTPException(status_code=404, detail="Repository index out of range")
+    
+    repo = repositories[repo_index]
+    svg_banner = exporters.generate_svg_repository_banner(repo)
+    
+    return Response(
+        content=svg_banner,
+        media_type="image/svg+xml",
+        headers={
+            "Content-Disposition": f'inline; filename="repo-banner-{github_login}-{card_id}-{repo_index}.svg"',
+            "Cache-Control": "public, max-age=86400",  # 24시간
+        },
+    )
 
 
 @router.get("/public/{github_login}/cards/{card_id}/html")
