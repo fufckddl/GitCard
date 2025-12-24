@@ -1858,7 +1858,7 @@ def generate_readme_template(
             repo_name = html_escape.escape(repo.get("name", ""))
             
             # 레포지토리 배너 이미지 URL 생성
-            banner_url = f"{settings.api_base_url}/api/profiles/public/{github_login}/cards/{card.id}/repositories/{index}/banner"
+            banner_url = f"{settings.api_base_url}/profiles/public/{github_login}/cards/{card.id}/repositories/{index}/banner"
             banner_url = _remove_port_from_url(banner_url)
             
             # 이미지 링크로 표시

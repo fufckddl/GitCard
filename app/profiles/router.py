@@ -649,14 +649,28 @@ async def get_repository_banner(
     
     repositories = getattr(card, "repositories", [])
     
+    # 디버깅: repositories 데이터 확인
+    print(f"[REPO BANNER DEBUG] card_id={card_id}, github_login={github_login}, repo_index={repo_index}")
+    print(f"[REPO BANNER DEBUG] repositories type={type(repositories)}, repositories={repositories}")
+    print(f"[REPO BANNER DEBUG] repositories length={len(repositories) if repositories else 0}")
+    
     if not repositories or len(repositories) == 0:
         raise HTTPException(status_code=404, detail="No repositories found for this card")
     
     if repo_index < 0 or repo_index >= len(repositories):
-        raise HTTPException(status_code=404, detail="Repository index out of range")
+        raise HTTPException(status_code=404, detail=f"Repository index out of range. Available: 0-{len(repositories)-1}, requested: {repo_index}")
     
     repo = repositories[repo_index]
-    svg_banner = exporters.generate_svg_repository_banner(repo)
+    print(f"[REPO BANNER DEBUG] Selected repo: {repo}, type: {type(repo)}")
+    
+    try:
+        svg_banner = exporters.generate_svg_repository_banner(repo)
+        print(f"[REPO BANNER DEBUG] SVG generated successfully, length: {len(svg_banner)}")
+    except Exception as e:
+        print(f"[REPO BANNER DEBUG] Error generating SVG: {str(e)}")
+        import traceback
+        print(f"[REPO BANNER DEBUG] Traceback: {traceback.format_exc()}")
+        raise HTTPException(status_code=500, detail=f"Error generating repository banner: {str(e)}")
     
     return Response(
         content=svg_banner,
