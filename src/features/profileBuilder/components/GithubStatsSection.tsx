@@ -50,12 +50,6 @@ export const GithubStatsSection: React.FC<GithubStatsSectionProps> = ({ config }
     <div className={styles.section}>
       <h2 className={styles.sectionTitle}>Github-stats</h2>
       <div className={styles.content}>
-        {stats.contributions !== null && (
-          <div className={styles.statCard} style={gradientStyle}>
-            <div className={styles.statValue}>{stats.contributions.toLocaleString()}</div>
-            <div className={styles.statLabel}>Contributions</div>
-          </div>
-        )}
         <div className={styles.statCard} style={gradientStyle}>
           <div className={styles.statValue}>{stats.repositories}</div>
           <div className={styles.statLabel}>Repositories</div>
