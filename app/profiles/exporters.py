@@ -852,6 +852,44 @@ def generate_html(card: ProfileCard, github_login: str) -> str:
   </div>
 """
     
+    # 레포지토리 섹션
+    repositories = getattr(card, "repositories", [])
+    if repositories and len(repositories) > 0:
+        html += """  <!-- Repositories Section -->
+  <div style="padding: 32px 40px; background: white;">
+    <h2 style="font-size: 28px; font-weight: 700; margin: 0 0 24px 0; color: #333;">Repositories</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+"""
+        for repo in repositories:
+            repo_name = html_escape.escape(repo.get("name", ""))
+            repo_description = html_escape.escape(repo.get("description", "")) if repo.get("description") else ""
+            repo_url = html_escape.escape(repo.get("html_url", ""))
+            repo_language = html_escape.escape(repo.get("language", "")) if repo.get("language") else ""
+            stargazers_count = repo.get("stargazers_count", 0)
+            forks_count = repo.get("forks_count", 0)
+            
+            html += f"""      <a href="{repo_url}" target="_blank" rel="noopener noreferrer" style="display: flex; flex-direction: column; padding: 20px; background: #f8f9fa; border-radius: 12px; border: 1px solid #e5e7eb; text-decoration: none; color: inherit; transition: all 0.2s;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <h3 style="font-size: 18px; font-weight: 600; margin: 0; color: #667eea;">{repo_name}</h3>
+"""
+            if repo_language:
+                html += f"""          <span style="font-size: 12px; padding: 4px 8px; background: #e5e7eb; border-radius: 12px; color: #6b7280; font-weight: 500;">{repo_language}</span>
+"""
+            html += """        </div>
+"""
+            if repo_description:
+                html += f"""        <p style="font-size: 14px; color: #6b7280; margin: 0 0 12px 0; line-height: 1.5; flex: 1;">{repo_description}</p>
+"""
+            html += f"""        <div style="display: flex; gap: 16px; font-size: 14px; color: #9ca3af; margin-top: auto;">
+          <span style="display: flex; align-items: center; gap: 4px;">⭐ {stargazers_count}</span>
+          <span style="display: flex; align-items: center; gap: 4px;">🍴 {forks_count}</span>
+        </div>
+      </a>
+"""
+        html += """    </div>
+  </div>
+"""
+    
     html += "</div>"
     
     return html

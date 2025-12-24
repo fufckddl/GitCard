@@ -196,6 +196,7 @@ export const ProfileCardDetailPage: React.FC = () => {
         stackAlignment: card.stack_alignment || 'center',
         stacks: convertStacks(card.stacks),
         contacts: card.contacts,
+        repositories: (card as any).repositories || [],
       });
     }
     setIsEditing(false);
