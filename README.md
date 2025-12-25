@@ -31,9 +31,8 @@ GitCard는 GitHub 프로필을 시각적으로 아름답고 전문적인 프로�
 생성된 프로필 카드를 GitHub README에 삽입하려면 생성된 HTML코드를 README.md에 넣어주세요.
 
 ## 📸 예시
-
 <div align="center">
-  <img src="https://gitcard.kr/api/profiles/public/fufckddl/cards/11/banner" alt="GitCard Banner" />
+  <img src="https://gitcard.kr/api/profiles/public/fufckddl/cards/12/banner" alt="GitCard Banner" />
 </div>
 
 ## 🛠️ Tech Stacks
@@ -42,8 +41,6 @@ GitCard는 GitHub 프로필을 시각적으로 아름답고 전문적인 프로�
 
 <div align="left">
 
-  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black&style=for-the-badge" alt="JavaScript" />
-  <img src="https://img.shields.io/badge/Java-ED8B00?logo=openjdk&logoColor=black&style=for-the-badge" alt="Java" />
   <img src="https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white&style=for-the-badge" alt="Python" />
 
 </div>
@@ -54,18 +51,9 @@ GitCard는 GitHub 프로필을 시각적으로 아름답고 전문적인 프로�
 
   <img src="https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black&style=for-the-badge" alt="React" />
   <img src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white&style=for-the-badge" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/jQuery-0769AD?logo=jquery&logoColor=white&style=for-the-badge" alt="jQuery" />
   <img src="https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white&style=for-the-badge" alt="Vite" />
-
-</div>
-
-### Mobile
-
-<div align="left">
-
-  <img src="https://img.shields.io/badge/React%20Native-61DAFB?logo=react&logoColor=black&style=for-the-badge" alt="React Native" />
-  <img src="https://img.shields.io/badge/Flutter-02569B?logo=flutter&logoColor=white&style=for-the-badge" alt="Flutter" />
-  <img src="https://img.shields.io/badge/iOS-000000?logo=ios&logoColor=white&style=for-the-badge" alt="iOS" />
+  <img src="https://img.shields.io/badge/CSS-1572B6?logo=css3&logoColor=white&style=for-the-badge" alt="CSS" />
+  <img src="https://img.shields.io/badge/HTML-E34F26?logo=html5&logoColor=white&style=for-the-badge" alt="HTML" />
 
 </div>
 
@@ -73,10 +61,8 @@ GitCard는 GitHub 프로필을 시각적으로 아름답고 전문적인 프로�
 
 <div align="left">
 
-  <img src="https://img.shields.io/badge/Node.js-339933?logo=nodedotjs&logoColor=white&style=for-the-badge" alt="Node.js" />
   <img src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white&style=for-the-badge" alt="FastAPI" />
-  <img src="https://img.shields.io/badge/Spring%20Boot-6DB33F?logo=springboot&logoColor=black&style=for-the-badge" alt="Spring Boot" />
-  <img src="https://img.shields.io/badge/Spring-6DB33F?logo=spring&logoColor=black&style=for-the-badge" alt="Spring" />
+  <img src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white&style=for-the-badge" alt="FastAPI" />
 
 </div>
 
@@ -84,8 +70,8 @@ GitCard는 GitHub 프로필을 시각적으로 아름답고 전문적인 프로�
 
 <div align="left">
 
-  <img src="https://img.shields.io/badge/MySQL-4479A1?logo=mysql&logoColor=white&style=for-the-badge" alt="MySQL" />
   <img src="https://img.shields.io/badge/MariaDB-C49A41?logo=mariadb&logoColor=black&style=for-the-badge" alt="MariaDB" />
+  <img src="https://img.shields.io/badge/MySQL-4479A1?logo=mysql&logoColor=white&style=for-the-badge" alt="MySQL" />
 
 </div>
 
@@ -93,9 +79,8 @@ GitCard는 GitHub 프로필을 시각적으로 아름답고 전문적인 프로�
 
 <div align="left">
 
-  <img src="https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white&style=for-the-badge" alt="Docker" />
-  <img src="https://img.shields.io/badge/Nginx-009639?logo=nginx&logoColor=white&style=for-the-badge" alt="Nginx" />
   <img src="https://img.shields.io/badge/AWS-232F3E?style=for-the-badge" alt="AWS" />
+  <img src="https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white&style=for-the-badge" alt="Docker" />
 
 </div>
 
@@ -104,17 +89,15 @@ GitCard는 GitHub 프로필을 시각적으로 아름답고 전문적인 프로�
 <div align="left">
 
   <img src="https://img.shields.io/badge/Git-F05032?logo=git&logoColor=white&style=for-the-badge" alt="Git" />
-  <img src="https://img.shields.io/badge/Figma-F24E1E?logo=figma&logoColor=white&style=for-the-badge" alt="Figma" />
   <img src="https://img.shields.io/badge/GitHub-181717?logo=github&logoColor=white&style=for-the-badge" alt="GitHub" />
-  <img src="https://img.shields.io/badge/Notion-000000?logo=notion&logoColor=white&style=for-the-badge" alt="Notion" />
 
 </div>
 
-### AI / ML
+### Tools
 
 <div align="left">
 
-  <img src="https://img.shields.io/badge/Hugging%20Face-FFD21E?logo=huggingface&logoColor=black&style=for-the-badge" alt="Hugging Face" />
+  <img src="https://img.shields.io/badge/npm-CB3837?logo=npm&logoColor=white&style=for-the-badge" alt="npm" />
 
 </div>
 
@@ -122,22 +105,19 @@ GitCard는 GitHub 프로필을 시각적으로 아름답고 전문적인 프로�
 
 <div align="center">
 
-  <a href="mailto:dlckdfuf141@gmail.com" title="dlckdfuf141@gmail.com">
-    <img src="https://img.shields.io/badge/GMAIL-0077B5?logo=gmail&logoColor=white&style=flat" alt="GMAIL: dlckdfuf141@gmail.com" />
+  <a href="https://velog.io/@you_want/" target="_blank" rel="noopener noreferrer" title="https://velog.io/@you_want/">
+    <img src="https://img.shields.io/badge/VELOG-0077B5?style=flat" alt="VELOG: https://velog.io/@you_want/" />
   </a>
-  <a href="https://www.instagram.com/ryeolchang/" target="_blank" rel="noopener noreferrer" title="https://www.instagram.com/ryeolchang/">
-    <img src="https://img.shields.io/badge/INSTAGRAM-0077B5?logo=instagram&logoColor=white&style=flat" alt="INSTAGRAM: https://www.instagram.com/ryeolchang/" />
-  </a>
-   <a href="https:/www.instagram.com" target="_blank" rel="noopener noreferrer" title="https:/www.instagram.com">
-    <img src="https://img.shields.io/badge/FACEBOOK-0077B5?logo=facebook&logoColor=white&style=flat" alt="FACEBOOK: https:/www.instagram.com" />
-  </a>
+
 </div>
 
-## 🧩 Baekjoon Tier
+## 📂 Repositories
 
-<div align="center">
+<div align="left">
 
-[![Solved.ac Profile](http://mazassumnida.wtf/api/v2/generate_badge?boj=dlckdfuf141)](https://solved.ac/dlckdfuf141/)
+<a href="https://github.com/fufckddl/GitCard" target="_blank" rel="noopener noreferrer">
+  <img src="https://gitcard.kr/api/profiles/public/fufckddl/cards/12/repositories/0/banner" alt="GitCard" />
+</a>
 
 </div>
 
@@ -154,7 +134,6 @@ GitCard는 GitHub 프로필을 시각적으로 아름답고 전문적인 프로�
 <div align="center">
   <p>Made with ❤️ using <a href="https://www.gitcard.kr">GitCard</a></p>
 </div>
-
 
 ## 🛠️ 기술 스택
 
