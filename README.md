@@ -120,16 +120,6 @@ GitCard는 GitHub 프로필을 시각적으로 아름답고 전문적인 프로�
 </a>
 
 </div>
-
-## 🏅 GitHub Stats
-
-<div align="center">
-
-  <img src="https://github-readme-stats.vercel.app/api?username=fufckddl&show_icons=true&theme=default" alt="fufckddl stats" />
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=fufckddl&layout=compact&theme=default" alt="Top Languages" />
-
-</div>
-
 ---
 <div align="center">
   <p>Made with ❤️ using <a href="https://www.gitcard.kr">GitCard</a></p>
